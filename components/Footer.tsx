@@ -20,10 +20,6 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.25, 0.1, 0.25, 1],
-    },
   },
 };
 
@@ -45,7 +41,11 @@ export function Footer() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 lg:gap-16">
             {/* Navigation Section */}
-            <motion.section variants={itemVariants} className="flex flex-col">
+            <motion.section 
+              variants={itemVariants} 
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="flex flex-col"
+            >
               <h3 className="text-xs font-medium text-foreground/50 mb-4 uppercase tracking-widest">
                 Navigation
               </h3>
@@ -73,7 +73,11 @@ export function Footer() {
             </motion.section>
 
             {/* Contact Section */}
-            <motion.section variants={itemVariants} className="flex flex-col">
+            <motion.section 
+              variants={itemVariants} 
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="flex flex-col"
+            >
               <h3 className="text-xs font-medium text-foreground/50 mb-4 uppercase tracking-widest">
                 Contact
               </h3>
@@ -150,7 +154,11 @@ export function Footer() {
             </motion.section>
 
             {/* Social Links Section */}
-            <motion.section variants={itemVariants} className="flex flex-col">
+            <motion.section 
+              variants={itemVariants} 
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="flex flex-col"
+            >
               <h3 className="text-xs font-medium text-foreground/50 mb-4 uppercase tracking-widest">
                 Connect
               </h3>

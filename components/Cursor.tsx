@@ -12,7 +12,7 @@ export function Cursor() {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
   
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
   const lastMoveTime = useRef<number>(0);
   
   // Lighter spring config for better performance
