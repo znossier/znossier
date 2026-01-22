@@ -1,0 +1,203 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"] *));
+
+:root {
+  --background: #FAFAFA;
+  --foreground: #1A1A1A;
+  --accent: #6B7987;
+  --link: #3E99F3;
+  --border: #E5E5E5;
+}
+
+[data-theme="dark"] {
+  --background: #1A1A1A;
+  --foreground: #FAFAFA;
+  --accent: #6B7987;
+  --link: #3E99F3;
+  --border: #333333;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-link: var(--link);
+  --color-border: var(--border);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  /* Remove native smooth scroll since Lenis handles it */
+  scroll-behavior: auto;
+  scroll-padding-top: 100px;
+}
+
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom cursor follows mouse - default cursor remains visible */
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove all focus outlines */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: none;
+}
+
+/* Performance optimizations */
+section {
+  contain: layout style paint;
+}
+
+img {
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Optimize animations */
+[data-framer-motion] {
+  will-change: transform, opacity;
+}
+
+/* Fix emoji alignment */
+.emoji {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* Default: no underlines on links */
+a {
+  text-decoration: none !important;
+}
+
+/* Animated underline - left to right (only this class provides underline) */
+.underline-animate {
+  position: relative;
+  display: inline-block;
+  text-decoration: none !important;
+}
+
+.underline-animate::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width 0.3s ease;
+  pointer-events: none;
+}
+
+.underline-animate:hover {
+  color: var(--link);
+  text-decoration: none !important;
+}
+
+.underline-animate:hover::after {
+  width: 100%;
+}
+
+/* Links that should have regular underline on hover (without animation) */
+.hover-underline {
+  text-decoration: none !important;
+}
+
+.hover-underline:hover {
+  text-decoration: underline !important;
+  text-underline-offset: 4px;
+  color: var(--link);
+}
+
+/* Ensure buttons never get underlined */
+button {
+  text-decoration: none !important;
+}
+
+button:hover {
+  text-decoration: none !important;
+}
+
+/* Skip link styles */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus {
+  position: fixed;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--foreground);
+  color: var(--background);
+  z-index: 9999;
+  border-radius: 4px;
+}
