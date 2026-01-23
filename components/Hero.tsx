@@ -5,6 +5,7 @@ import { smoothScrollTo } from '@/lib/utils';
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import { useRef, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
+import { Button } from '@/components/Button';
 
 const TILT_MAX = 12;
 const springConfig = { damping: 30, stiffness: 400 };
@@ -162,13 +163,13 @@ export function Hero() {
               {mockAbout.tagline}
             </p>
 
-            <button
+            <Button
               onClick={() => smoothScrollTo('about', 100)}
-              className="px-6 py-2.5 border border-foreground/20 rounded-full text-foreground hover:border-foreground/40 hover:bg-foreground/5 transition-all duration-200 text-sm font-medium focus:outline-none"
+              className="text-sm px-6 py-2.5"
               aria-label="Scroll to about section"
             >
               About me ↓
-            </button>
+            </Button>
 
             {/* Social Icons */}
             <div className="flex items-center justify-center lg:justify-start gap-4 pt-6">
@@ -178,7 +179,7 @@ export function Hero() {
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:border-link hover:text-link transition-all duration-200"
+                  className="w-10 h-10 rounded-full border border-foreground/20 flex items-center justify-center hover:border-link hover:text-link transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   aria-label={social.platform}
                 >
                   {social.platform === 'LinkedIn' && (
@@ -226,7 +227,7 @@ export function Hero() {
           smoothScrollTo('works', 100);
         }}
         style={{ position: 'fixed' }}
-        className="bottom-4 sm:bottom-6 lg:bottom-8 right-4 sm:right-6 lg:right-8 text-xs text-foreground/50 hover:text-foreground/70 transition-all duration-200 hidden lg:block focus:outline-none underline-animate z-30"
+        className="bottom-4 sm:bottom-6 lg:bottom-8 right-4 sm:right-6 lg:right-8 text-xs text-foreground/50 hover:text-foreground/70 transition-all duration-200 hidden lg:block focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded underline-animate z-30"
         aria-label="Scroll to works section"
       >
         Scroll to see more ↓

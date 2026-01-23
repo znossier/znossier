@@ -20,46 +20,6 @@ export function Navigation() {
   }, []);
 
   useEffect(() => {
-    // #region agent log
-    const measureNavAlignment = () => {
-      const navContainer = navContainerRef.current;
-      const heroSection = document.getElementById('home');
-      const worksSection = document.getElementById('works');
-      const heroContainer = heroSection?.querySelector('.mx-auto');
-      const worksContainer = worksSection?.querySelector('.mx-auto');
-
-      if (!navContainer) return;
-
-      const navRect = navContainer.getBoundingClientRect();
-      const heroRect = heroContainer?.getBoundingClientRect();
-      const worksRect = worksContainer?.getBoundingClientRect();
-      const navStyles = window.getComputedStyle(navContainer);
-      const heroStyles = heroSection ? window.getComputedStyle(heroSection) : null;
-      const worksStyles = worksSection ? window.getComputedStyle(worksSection) : null;
-      const heroContainerStyles = heroContainer ? window.getComputedStyle(heroContainer) : null;
-      const worksContainerStyles = worksContainer ? window.getComputedStyle(worksContainer) : null;
-
-      const navPaddingLeft = parseFloat(navStyles.paddingLeft) || 0;
-      const navContentLeft = navRect.left + navPaddingLeft;
-      const heroContentLeft = heroRect?.left || 0;
-      const worksContentLeft = worksRect?.left || 0;
-
-      fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Navigation.tsx:measureNavAlignment',message:'Navigation alignment measurements',data:{navContainer:{left:navRect.left,right:navRect.right,width:navRect.width,paddingLeft:navStyles.paddingLeft,paddingRight:navStyles.paddingRight,contentLeft:navContentLeft,scrolled},heroContainer:heroRect?{left:heroRect.left,right:heroRect.right,width:heroRect.width,paddingLeft:heroContainerStyles?.paddingLeft,paddingRight:heroContainerStyles?.paddingRight}:null,heroSectionPadding:heroStyles?{paddingLeft:heroStyles.paddingLeft,paddingRight:heroStyles.paddingRight}:null,worksContainer:worksRect?{left:worksRect.left,right:worksRect.right,width:worksRect.width,paddingLeft:worksContainerStyles?.paddingLeft,paddingRight:worksContainerStyles?.paddingRight}:null,worksSectionPadding:worksStyles?{paddingLeft:worksStyles.paddingLeft,paddingRight:worksStyles.paddingRight}:null,alignment:{navContentVsHeroContent:heroRect?navContentLeft-heroContentLeft:null,navContentVsWorksContent:worksRect?navContentLeft-worksContentLeft:null}},hypothesisId:'H1',timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
-      // #endregion
-    };
-
-    const timeoutId = setTimeout(measureNavAlignment, 100);
-    window.addEventListener('resize', measureNavAlignment);
-    window.addEventListener('scroll', measureNavAlignment);
-
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener('resize', measureNavAlignment);
-      window.removeEventListener('scroll', measureNavAlignment);
-    };
-  }, [scrolled]);
-
-  useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
 
@@ -148,7 +108,7 @@ export function Navigation() {
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="flex items-center gap-3 text-lg md:text-xl font-bold text-foreground hover:text-foreground/80 transition-colors duration-200 focus:outline-none"
+              className="flex items-center gap-3 text-lg md:text-xl font-bold text-foreground hover:text-foreground/80 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
               aria-label="Zeina Nossier - Go to home"
             >
               {mounted && (
@@ -183,7 +143,7 @@ export function Navigation() {
                       }}
                       role="listitem"
                       aria-current={isActive ? 'page' : undefined}
-                      className={`text-sm font-medium transition-all duration-200 relative focus:outline-none px-2 py-1 ${
+                      className={`text-sm font-medium transition-all duration-200 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded px-2 py-1 ${
                         isActive
                           ? 'text-foreground cursor-default'
                           : 'text-foreground/60 hover:text-foreground underline-animate'
@@ -201,7 +161,7 @@ export function Navigation() {
               {/* Mobile Menu Button */}
               <button
                 type="button"
-                className="md:hidden p-2 text-foreground hover:opacity-70 transition-opacity focus:outline-none"
+                className="md:hidden p-2 rounded text-foreground hover:opacity-70 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-menu"
@@ -243,7 +203,7 @@ export function Navigation() {
                       }}
                       role="menuitem"
                       aria-current={isActive ? 'page' : undefined}
-                      className={`px-6 py-3 text-base font-medium transition-colors focus:outline-none ${
+                      className={`px-6 py-3 text-base font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded ${
                         isActive
                           ? 'text-foreground bg-foreground/5'
                           : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'

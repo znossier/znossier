@@ -8,12 +8,12 @@ import { useRef, useState, useEffect } from 'react';
 
 function ProjectCard({ project, index }: { project: typeof mockProjects[0]; index: number }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const isInView = useInView(ref, { once: true, margin: '-50px', amount: 0.2 });
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   const hasValidLink = project.link && project.link !== '#';
-  const cardClassName = "group bg-foreground/5 rounded-lg overflow-hidden hover:bg-foreground/10 transition-all duration-300 cursor-pointer focus:outline-none block";
+  const cardClassName = "group bg-foreground/5 rounded-lg overflow-hidden hover:bg-foreground/10 transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background block";
 
   const cardContent = (
     <>
@@ -84,7 +84,7 @@ function ProjectCard({ project, index }: { project: typeof mockProjects[0]; inde
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
       className="w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -157,7 +157,7 @@ export function Works() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           className="mb-10 md:mb-12"
         >
           <div className="flex items-center gap-4 md:gap-6">

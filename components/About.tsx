@@ -22,8 +22,8 @@ function ExperienceItem({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
       className="relative pb-4 mb-4 last:mb-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -34,7 +34,7 @@ function ExperienceItem({
           className="h-full bg-foreground/40"
           initial={{ width: 0 }}
           animate={{ width: isHovered ? '100%' : 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
         />
       </div>
 
@@ -54,7 +54,7 @@ function ExperienceItem({
           </div>
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25 }}
             className="text-foreground/40 group-hover:text-foreground transition-colors flex-shrink-0 mt-1"
             aria-hidden="true"
           >
@@ -71,7 +71,7 @@ function ExperienceItem({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.25 }}
               className="overflow-hidden"
               role="region"
               aria-live="polite"
@@ -112,8 +112,8 @@ export function About() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.6 }}
-            className="mb-8 md:mb-10 lg:bg-background lg:pb-4"
+            transition={{ duration: 0.5 }}
+            className="mb-10 md:mb-12 lg:bg-background lg:pb-4"
           >
             <div className="flex items-center gap-4 md:gap-6">
               {/* Horizontal line on left */}
@@ -127,10 +127,10 @@ export function About() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
             {/* Left Column - Sticky with header */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
               className="space-y-4"
             >
               <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
@@ -145,7 +145,7 @@ export function About() {
                   e.preventDefault();
                   smoothScrollTo('footer', 100);
                 }}
-                className="inline-block text-sm font-medium text-foreground/70 hover:text-foreground hover-underline transition-all duration-200 focus:outline-none px-2 py-1"
+                className="inline-block text-sm font-medium text-foreground/70 hover:text-foreground hover-underline transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded px-2 py-1"
                 aria-label="Scroll to contact section"
               >
                 Contact me →
@@ -154,10 +154,10 @@ export function About() {
 
             {/* Right Column - Scrolls independently */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
               className="space-y-1"
             >
               {/* Removed "Experience" subtitle */}

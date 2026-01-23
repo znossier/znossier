@@ -15,7 +15,7 @@ function ServiceCard({
   total: number;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(cardRef, { once: true, margin: '-50px', amount: 0.3 });
+  const isInView = useInView(cardRef, { once: true, margin: '-50px', amount: 0.2 });
 
   // Higher z-index for later cards so they cover earlier ones
   // Card 0 (first) has z-index 1, Card 1 has z-index 2, etc.
@@ -26,7 +26,7 @@ function ServiceCard({
       ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
       style={{ 
         zIndex,
         position: 'sticky',
@@ -35,7 +35,7 @@ function ServiceCard({
       }}
       className="mb-4"
     >
-      <div className="border-t border-border pt-4 pb-4 hover:border-foreground/40 transition-all duration-300 bg-background">
+      <div className="border-t border-border pt-4 pb-4 hover:border-foreground/40 transition-all duration-200 bg-background">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 items-center">
           {/* Number on top - small font */}
           <div className="text-xs md:text-sm font-medium text-foreground/60">
@@ -74,7 +74,7 @@ export function Services() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           className="mb-10 md:mb-12"
         >
           <div className="flex items-center gap-4 md:gap-6">
