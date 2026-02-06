@@ -29,6 +29,14 @@ export interface SocialLink {
   icon: string;
 }
 
+export interface TechStackItem {
+  id: string;
+  name: string;
+  logo: string; // SVG path or image URL
+  category?: string;
+  url?: string;
+}
+
 export const mockProjects: Project[] = [
   {
     id: '1',
@@ -78,27 +86,31 @@ export const mockProjects: Project[] = [
 
 export const mockServices: Service[] = [
   {
-    id: 'graphic-design',
-    title: 'Graphic Design',
-    description: 'Creating visually compelling designs that elevate your brand and captivate your audience.',
+    id: 'product-ux-design',
+    title: 'Product & UX Design',
+    description:
+      'End-to-end product design for web and mobile, from problem framing to polished execution. I design experiences that balance user needs, business goals, and technical constraints.',
     number: '01',
   },
   {
-    id: 'lifestyle-photography',
-    title: 'Lifestyle Photography',
-    description: 'Capturing authentic moments that bring your brand to life.',
+    id: 'ui-design-systems',
+    title: 'UI Design & Design Systems',
+    description:
+      'Creating intuitive interfaces, component libraries, and scalable design systems that keep products consistent and easy to build.',
     number: '02',
   },
   {
-    id: 'digital-design',
-    title: 'Digital Design',
-    description: 'Intuitive and aesthetically pleasing digital experiences.',
+    id: 'ecommerce-web',
+    title: 'E-commerce & Web Experiences',
+    description:
+      'Designing high-converting websites and e-commerce experiences (Shopify and custom builds) with a strong focus on usability, performance, and conversion.',
     number: '03',
   },
   {
-    id: 'social-media',
-    title: 'Social Media Design',
-    description: 'Engaging visuals that strengthen your online presence.',
+    id: 'visual-brand-design',
+    title: 'Visual & Brand Design for Digital Products',
+    description:
+      'Supporting products with strong visual identity, layout, and brand consistency across digital touchpoints.',
     number: '04',
   },
 ];
@@ -108,11 +120,21 @@ export const mockAbout = {
   title: 'UI/UX & Product Designer',
   bio: 'Designer focused on creating intuitive interfaces and thoughtful user experiences. I work across the entire design process, from initial research to final implementation.',
   tagline: 'UI/UX & Product Designer based in Cairo, EG.',
+  heroHeadline: 'Product design that turns complexity into clarity.',
+  heroSubhead: 'Zeina Nossier — Product & UX Designer',
+  heroSupport: 'End-to-end from research to high-fidelity.',
   experience: [
+    {
+      role: 'Product Designer II',
+      company: 'noon',
+      period: 'Jan 2026 - Present',
+      description:
+        "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
+    },
     {
       role: 'Product Designer',
       company: 'noon',
-      period: 'Jul 2024 - Present',
+      period: 'Jul 2024 - Jan 2026',
       description:
         "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
     },
@@ -166,6 +188,114 @@ export const mockContact = {
 
 export const navigationItems = [
   { label: 'Works', href: '#works' },
-  { label: 'Services', href: '#services' },
+  { label: 'Expertise', href: '#expertise' },
   { label: 'About', href: '#about' },
+];
+
+export const mockTechStack: TechStackItem[] = [
+  {
+    id: 'figma',
+    name: 'Figma',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg',
+    category: 'Design',
+    url: 'https://www.figma.com',
+  },
+  {
+    id: 'html5',
+    name: 'HTML',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
+    category: 'Development',
+    url: 'https://developer.mozilla.org/en-US/docs/Web/HTML',
+  },
+  {
+    id: 'css3',
+    name: 'CSS',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',
+    category: 'Development',
+    url: 'https://developer.mozilla.org/en-US/docs/Web/CSS',
+  },
+  {
+    id: 'typescript',
+    name: 'TypeScript',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+    category: 'Development',
+    url: 'https://www.typescriptlang.org',
+  },
+  {
+    id: 'react',
+    name: 'React',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+    category: 'Development',
+    url: 'https://react.dev',
+  },
+  {
+    id: 'cursor',
+    name: 'Cursor',
+    logo: 'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/cursor.svg',
+    category: 'Development',
+    url: 'https://cursor.sh',
+  },
+  {
+    id: 'notion',
+    name: 'Notion',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/notion/notion-original.svg',
+    category: 'Productivity',
+    url: 'https://www.notion.so',
+  },
+  {
+    id: 'framer',
+    name: 'Framer',
+    logo: 'https://www.svgrepo.com/show/361507/framer-logo.svg',
+    category: 'Prototyping',
+    url: 'https://www.framer.com',
+  },
+  {
+    id: 'sql',
+    name: 'SQL',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',
+    category: 'Database',
+    url: 'https://www.mysql.com',
+  },
+  {
+    id: 'adobe-xd',
+    name: 'Adobe XD',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xd/xd-plain.svg',
+    category: 'Design',
+    url: 'https://www.adobe.com/products/xd.html',
+  },
+  {
+    id: 'adobe-photoshop',
+    name: 'Photoshop',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-plain.svg',
+    category: 'Design',
+    url: 'https://www.adobe.com/products/photoshop.html',
+  },
+  {
+    id: 'adobe-illustrator',
+    name: 'Illustrator',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg',
+    category: 'Design',
+    url: 'https://www.adobe.com/products/illustrator.html',
+  },
+  {
+    id: 'adobe-indesign',
+    name: 'InDesign',
+    logo: 'https://www.svgrepo.com/show/167696/adobe-indesign-logo.svg',
+    category: 'Design',
+    url: 'https://www.adobe.com/products/indesign.html',
+  },
+  {
+    id: 'adobe-after-effects',
+    name: 'After Effects',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/aftereffects/aftereffects-original.svg',
+    category: 'Design',
+    url: 'https://www.adobe.com/products/aftereffects.html',
+  },
+  {
+    id: 'github',
+    name: 'GitHub',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg',
+    category: 'Version Control',
+    url: 'https://github.com',
+  },
 ];

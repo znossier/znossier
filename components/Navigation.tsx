@@ -143,16 +143,13 @@ export function Navigation() {
                       }}
                       role="listitem"
                       aria-current={isActive ? 'page' : undefined}
-                      className={`text-sm font-medium transition-all duration-200 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded px-2 py-1 ${
+                      className={`text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full px-3 py-1.5 ${
                         isActive
-                          ? 'text-foreground cursor-default'
-                          : 'text-foreground/60 hover:text-foreground underline-animate'
+                          ? 'text-foreground cursor-default bg-foreground/10'
+                          : 'text-foreground/60 hover:text-foreground hover:bg-foreground/10'
                       }`}
                     >
                       {item.label}
-                      {isActive && (
-                        <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-foreground transition-all" aria-hidden="true" />
-                      )}
                     </a>
                   );
                 })}
@@ -178,45 +175,47 @@ export function Navigation() {
                 )}
               </button>
 
-              <ThemeToggle />
-            </div>
-          </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div
-              id="mobile-menu"
-              className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-md"
-              role="menu"
-            >
-              <div className="flex flex-col py-4">
-                {navigationItems.map((item) => {
-                  const sectionId = item.href.substring(1);
-                  const isActive = activeSection === sectionId;
-                  return (
-                    <a
-                      key={item.href}
-                      href={item.href}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleNavClick(sectionId);
-                      }}
-                      role="menuitem"
-                      aria-current={isActive ? 'page' : undefined}
-                      className={`px-6 py-3 text-base font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded ${
-                        isActive
-                          ? 'text-foreground bg-foreground/5'
-                          : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
-                      }`}
-                    >
-                      {item.label}
-                    </a>
-                  );
-                })}
+              <div className="hidden md:block">
+                <ThemeToggle />
               </div>
             </div>
-          )}
+          </div>
         </div>
+
+        {/* Mobile Menu - full width, outside padded container */}
+        {mobileMenuOpen && (
+          <div
+            id="mobile-menu"
+            className="absolute left-0 right-0 top-20 w-full md:hidden border-t border-border/50 bg-background/95 backdrop-blur-md"
+            role="menu"
+          >
+            <div className="flex flex-col py-4">
+              {navigationItems.map((item) => {
+                const sectionId = item.href.substring(1);
+                const isActive = activeSection === sectionId;
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleNavClick(sectionId);
+                    }}
+                    role="menuitem"
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`mx-4 px-6 py-3 text-base font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full ${
+                      isActive
+                        ? 'text-foreground bg-foreground/10'
+                        : 'text-foreground/60 hover:text-foreground hover:bg-foreground/10'
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </nav>
     </>
   );
