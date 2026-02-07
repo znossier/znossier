@@ -18,6 +18,11 @@
   --border: #333333;
 }
 
+/* Framer brand blue (#0055FF) for logo in both themes */
+.logo-framer-blue {
+  filter: invert(14%) sepia(100%) saturate(7458%) hue-rotate(230deg) brightness(102%) contrast(101%);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -200,4 +205,50 @@ button:hover {
   color: var(--background);
   z-index: 9999;
   border-radius: 4px;
+}
+
+/* Tech Stack: infinite marquee (two copies, translate -50%) */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-left {
+  animation: marquee 40s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee 40s linear infinite;
+  animation-direction: reverse;
+}
+
+/* Fade left and right edges so logos don't cut off sharply */
+.tech-stack-marquee-row {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 4rem,
+    black calc(100% - 4rem),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 4rem,
+    black calc(100% - 4rem),
+    transparent 100%
+  );
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left,
+  .animate-marquee-right {
+    animation: none;
+  }
 }

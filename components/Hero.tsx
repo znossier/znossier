@@ -86,11 +86,11 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="home"
-      className="min-h-screen flex items-center pt-20 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 fixed top-0 left-0 right-0 z-[5] bg-gradient-to-b from-foreground/[0.03] to-transparent"
+      className="min-h-screen flex items-center pt-20 pb-10 sm:pb-14 md:pb-20 px-4 sm:px-6 lg:px-8 fixed top-0 left-0 right-0 z-[5] bg-gradient-to-b from-foreground/[0.03] to-transparent"
     >
-      <div className="mx-auto max-w-6xl w-full relative z-10 grid grid-cols-1 lg:grid-cols-12 lg:gap-12 xl:gap-16 items-center">
-        {/* Left: greeting + role + description + CTA + socials — all visible */}
-        <div className="lg:col-span-6 flex flex-col gap-5 sm:gap-6 text-left">
+      <div className="mx-auto max-w-6xl w-full relative z-10 grid grid-cols-1 sm:grid-cols-12 gap-5 sm:gap-6 md:gap-8 lg:gap-12 xl:gap-16 items-center">
+        {/* Mobile only: photo first (order-first). From sm (640px): text left, photo right, side-by-side. */}
+        <div className="sm:col-span-6 flex flex-col gap-3 sm:gap-4 md:gap-5 lg:gap-6 text-left order-last sm:order-none">
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -123,7 +123,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.16, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex flex-wrap items-center gap-4 pt-2"
+            className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1 sm:pt-2"
           >
             <Button
               onClick={() => smoothScrollTo('about', 100)}
@@ -163,12 +163,12 @@ export function Hero() {
           </motion.div>
         </div>
 
-        {/* Right: photo — constrained so it doesn't dominate */}
+        {/* Photo: on mobile first (order-first). From sm: right column. */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-          className="lg:col-span-6 flex justify-center lg:justify-end"
+          className="sm:col-span-6 flex justify-center sm:justify-end order-first sm:order-none"
         >
           <motion.div
             ref={imageRef}
@@ -178,7 +178,7 @@ export function Hero() {
               marginBottom: imageMarginBottom,
               perspective: '1000px',
             }}
-            className="relative aspect-[4/3] w-full max-w-md lg:max-w-sm xl:max-w-md max-h-[32vh] sm:max-h-[36vh] lg:max-h-[42vh]"
+            className="relative aspect-[4/3] w-full max-w-md sm:max-w-sm lg:max-w-md max-h-[32vh] sm:max-h-[38vh] md:max-h-[40vh] lg:max-h-[42vh]"
           >
             <motion.div
               onMouseEnter={handleMouseEnter}

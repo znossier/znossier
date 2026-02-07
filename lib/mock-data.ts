@@ -35,6 +35,12 @@ export interface TechStackItem {
   logo: string; // SVG path or image URL
   category?: string;
   url?: string;
+  /** When true, logo is shown black in light mode and white in dark mode */
+  monochrome?: boolean;
+  /** Optional class for logo wrapper (e.g. brand color filter) */
+  logoClassName?: string;
+  /** Optional scale (0–1) for this logo only; default uses global LOGO_BOX_SCALE */
+  logoScale?: number;
 }
 
 export const mockProjects: Project[] = [
@@ -89,7 +95,7 @@ export const mockServices: Service[] = [
     id: 'product-ux-design',
     title: 'Product & UX Design',
     description:
-      'End-to-end product design for web and mobile, from problem framing to polished execution. I design experiences that balance user needs, business goals, and technical constraints.',
+      'End-to-end product design grounded in user research, problem definition, and iterative testing. I turn insights into clear, usable experiences that balance user needs, business goals, and technical constraints.',
     number: '01',
   },
   {
@@ -234,6 +240,7 @@ export const mockTechStack: TechStackItem[] = [
     logo: 'https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/cursor.svg',
     category: 'Development',
     url: 'https://cursor.sh',
+    monochrome: true,
   },
   {
     id: 'notion',
@@ -245,7 +252,7 @@ export const mockTechStack: TechStackItem[] = [
   {
     id: 'framer',
     name: 'Framer',
-    logo: 'https://www.svgrepo.com/show/361507/framer-logo.svg',
+    logo: '/framer-logo.svg',
     category: 'Prototyping',
     url: 'https://www.framer.com',
   },
@@ -259,35 +266,35 @@ export const mockTechStack: TechStackItem[] = [
   {
     id: 'adobe-xd',
     name: 'Adobe XD',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xd/xd-plain.svg',
+    logo: '/adobe-xd.svg',
     category: 'Design',
     url: 'https://www.adobe.com/products/xd.html',
   },
   {
     id: 'adobe-photoshop',
     name: 'Photoshop',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/photoshop/photoshop-plain.svg',
+    logo: '/adobe-photoshop.svg',
     category: 'Design',
     url: 'https://www.adobe.com/products/photoshop.html',
   },
   {
     id: 'adobe-illustrator',
     name: 'Illustrator',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/illustrator/illustrator-plain.svg',
+    logo: '/adobe-illustrator.svg',
     category: 'Design',
     url: 'https://www.adobe.com/products/illustrator.html',
   },
   {
     id: 'adobe-indesign',
     name: 'InDesign',
-    logo: 'https://www.svgrepo.com/show/167696/adobe-indesign-logo.svg',
+    logo: '/adobe-indesign.svg',
     category: 'Design',
     url: 'https://www.adobe.com/products/indesign.html',
   },
   {
     id: 'adobe-after-effects',
     name: 'After Effects',
-    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/aftereffects/aftereffects-original.svg',
+    logo: '/adobe-after-effects.svg',
     category: 'Design',
     url: 'https://www.adobe.com/products/aftereffects.html',
   },
@@ -297,5 +304,22 @@ export const mockTechStack: TechStackItem[] = [
     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg',
     category: 'Version Control',
     url: 'https://github.com',
+    monochrome: true,
+  },
+  {
+    id: 'vercel',
+    name: 'Vercel',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg',
+    category: 'Development',
+    url: 'https://vercel.com',
+    monochrome: true,
+    logoScale: 0.78,
+  },
+  {
+    id: 'shopify',
+    name: 'Shopify',
+    logo: '/shopify-logo.svg',
+    category: 'E-commerce',
+    url: 'https://www.shopify.com',
   },
 ];

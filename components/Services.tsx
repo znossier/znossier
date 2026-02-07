@@ -34,8 +34,8 @@ function ServiceCard({
       }}
       className="mb-4"
     >
-      <div className="border-t border-border pt-4 pb-4 hover:border-foreground/40 transition-all duration-200 bg-background h-[280px] md:h-[320px]">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-stretch h-full">
+      <div className="border-t border-border pt-4 pb-4 hover:border-foreground/40 transition-all duration-200 bg-background md:h-[320px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-stretch md:h-full">
           {/* Left ~2/3: number on top, then title and description stacked with same left alignment */}
           <div className="md:col-span-2 flex flex-col justify-center space-y-3 md:space-y-4 py-2 text-left">
             <div className="text-xs md:text-sm font-medium text-foreground/60">
@@ -48,7 +48,7 @@ function ServiceCard({
               {service.description}
             </p>
           </div>
-          {/* Right ~1/3: placeholder image — fixed height so all cards match */}
+          {/* Right ~1/3: placeholder image — fixed height so all cards match; same width as text above on mobile */}
           <div className="min-h-[140px] md:min-h-0 md:h-full rounded-lg overflow-hidden bg-accent/10 flex items-center justify-center">
             <span className="text-3xl md:text-4xl text-foreground/30" aria-hidden>
               {service.number}
