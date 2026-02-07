@@ -74,13 +74,8 @@ export function Hero() {
     if (!reduceMotion && !isTouch) setIsHovered(true);
   }, [reduceMotion, isTouch]);
 
-  const firstName = mockAbout.name.split(' ')[0];
-  const greeting = `Hi, I'm ${firstName}.`;
-  const roleLine = `I'm a ${mockAbout.title}.`;
-  const supportLine =
-    'heroSupport' in mockAbout && mockAbout.heroSupport
-      ? mockAbout.heroSupport
-      : mockAbout.bio.split('.')[0] + '.';
+  const greeting = "Hi, I'm Zeina👩🏻‍💻";
+  const roleLine = "Product & UI/UX Designer";
 
   return (
     <section
@@ -110,19 +105,10 @@ export function Hero() {
             {roleLine}
           </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
-            className="text-base text-foreground/70 leading-relaxed max-w-md"
-          >
-            {supportLine}
-          </motion.p>
-
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.16, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 0.4, delay: 0.12, ease: [0.25, 0.1, 0.25, 1] }}
             className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1 sm:pt-2"
           >
             <Button
