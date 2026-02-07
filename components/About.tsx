@@ -1,34 +1,73 @@
 'use client';
 
-import { mockAbout } from '@/lib/mock-data';
+import { mockAbout, isExperienceGroup, type ExperienceGroup, type ExperienceItem, type ExperienceRole } from '@/lib/mock-data';
 import { smoothScrollTo } from '@/lib/utils';
+import { Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import { useRef, useState } from 'react';
+import { Button } from '@/components/Button';
 
-function ExperienceItem({ 
-  item, 
-  index, 
-  isExpanded, 
-  onToggle 
-}: { 
-  item: typeof mockAbout.experience[0] & { description?: string }; 
-  index: number; 
+/** LinkedIn-style icon badge for company logos */
+function CompanyLogo({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
+  const isExternal = src.startsWith('http');
+  return (
+    <div
+      className={`relative flex h-9 w-9 flex-shrink-0 overflow-hidden rounded-md border border-border/60 bg-background shadow-sm ${className}`}
+    >
+      {isExternal ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={alt} className="h-full w-full object-contain p-1" />
+      ) : (
+        <div className="relative h-full w-full">
+          <Image src={src} alt={alt} fill className="object-contain p-1" sizes="36px" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Plus icon that rotates 45° to become X when expanded */
+function ExpandIcon({ isExpanded }: { isExpanded: boolean }) {
+  return (
+    <motion.span
+      animate={{ rotate: isExpanded ? 45 : 0 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
+      className="inline-flex"
+      aria-hidden
+    >
+      <Plus size={16} strokeWidth={2} />
+    </motion.span>
+  );
+}
+
+function ExperienceRoleRow({
+  role,
+  index,
+  isExpanded,
+  onToggle,
+  showLogo,
+  logo,
+  company,
+  isInGroup,
+}: {
+  role: ExperienceRole;
+  index: number;
   isExpanded: boolean;
   onToggle: () => void;
+  showLogo: boolean;
+  logo?: string;
+  company: string;
+  isInGroup: boolean;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
+    <div
       className="relative pb-4 mb-4 last:mb-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Separator line with hover animation */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-border overflow-hidden">
         <motion.div
           className="h-full bg-foreground/40"
@@ -45,27 +84,30 @@ function ExperienceItem({
         aria-controls={`experience-details-${index}`}
       >
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <h4 className="text-base md:text-lg font-semibold text-foreground group-hover:text-link transition-colors mb-1">
-              {item.role}
-            </h4>
-            <p className="text-sm text-foreground/70 mb-1">{item.company}</p>
-            <p className="text-xs text-foreground/60">{item.period}</p>
+          <div className="flex flex-1 items-start gap-3">
+            {showLogo && logo ? (
+              <CompanyLogo src={logo} alt={company} />
+            ) : (
+              <div className="w-10 flex-shrink-0" aria-hidden />
+            )}
+            <div>
+              <h4 className="text-base md:text-lg font-semibold text-foreground group-hover:text-link transition-colors mb-1">
+                {role.role}
+              </h4>
+              {!isInGroup && <p className="text-sm text-foreground/70 mb-1">{company}</p>}
+              <p className="text-xs text-foreground/60">{role.period}</p>
+            </div>
           </div>
-          <motion.div
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.25 }}
+          <div
             className="text-foreground/40 group-hover:text-foreground transition-colors flex-shrink-0 mt-1"
             aria-hidden="true"
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </motion.div>
+            <ExpandIcon isExpanded={isExpanded} />
+          </div>
         </div>
-        
+
         <AnimatePresence>
-          {isExpanded && item.description && (
+          {isExpanded && role.description && (
             <motion.div
               id={`experience-details-${index}`}
               initial={{ height: 0, opacity: 0 }}
@@ -76,7 +118,129 @@ function ExperienceItem({
               role="region"
               aria-live="polite"
             >
-              <p className="text-sm text-foreground/70 leading-relaxed pt-3">
+              <p className="text-sm text-foreground/70 leading-relaxed pt-3 pl-[52px]">
+                {role.description}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </button>
+    </div>
+  );
+}
+
+function ExperienceGroupCard({
+  group,
+  groupIndex,
+  expandedKeys,
+  onToggle,
+}: {
+  group: ExperienceGroup;
+  groupIndex: number;
+  expandedKeys: Set<string>;
+  onToggle: (key: string) => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.3, delay: groupIndex * 0.05 }}
+      className="relative rounded-xl border border-border/80 bg-foreground/[0.02] p-4 md:p-5"
+    >
+      <div className="flex items-center gap-2.5 mb-4">
+        {group.logo && <CompanyLogo src={group.logo} alt={group.company} />}
+        <span className="text-sm font-medium text-foreground/80 capitalize">{group.company}</span>
+      </div>
+      <div className="space-y-0 border-l-2 border-border/50 pl-4 ml-1">
+        {group.roles.map((role, roleIndex) => (
+          <ExperienceRoleRow
+            key={roleIndex}
+            role={role}
+            index={roleIndex}
+            isExpanded={expandedKeys.has(`${groupIndex}-${roleIndex}`)}
+            onToggle={() => onToggle(`${groupIndex}-${roleIndex}`)}
+            showLogo={false}
+            logo={group.logo}
+            company={group.company}
+            isInGroup={true}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function ExperienceSingleItem({
+  item,
+  index,
+  isExpanded,
+  onToggle,
+}: {
+  item: ExperienceItem;
+  index: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      className="relative pb-4 mb-4 last:mb-0"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-border overflow-hidden">
+        <motion.div
+          className="h-full bg-foreground/40"
+          initial={{ width: 0 }}
+          animate={{ width: isHovered ? '100%' : 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+        />
+      </div>
+
+      <button
+        onClick={onToggle}
+        className="w-full text-left group focus:outline-none p-2 -m-2"
+        aria-expanded={isExpanded}
+        aria-controls={`experience-details-single-${index}`}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-1 items-start gap-3">
+            {item.logo ? <CompanyLogo src={item.logo} alt={item.company} /> : <div className="w-10 flex-shrink-0" aria-hidden />}
+            <div>
+              <h4 className="text-base md:text-lg font-semibold text-foreground group-hover:text-link transition-colors mb-1">
+                {item.role}
+              </h4>
+              <p className="text-sm text-foreground/70 mb-1">{item.company}</p>
+              <p className="text-xs text-foreground/60">{item.period}</p>
+            </div>
+          </div>
+          <div
+            className="text-foreground/40 group-hover:text-foreground transition-colors flex-shrink-0 mt-1"
+            aria-hidden="true"
+          >
+            <ExpandIcon isExpanded={isExpanded} />
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {isExpanded && item.description && (
+            <motion.div
+              id={`experience-details-single-${index}`}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+              role="region"
+              aria-live="polite"
+            >
+              <p className="text-sm text-foreground/70 leading-relaxed pt-3 pl-[52px]">
                 {item.description}
               </p>
             </motion.div>
@@ -89,48 +253,51 @@ function ExperienceItem({
 
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
-  const toggleItem = (index: number) => {
-    setExpandedItems((prev) => {
+  const toggleItem = (key: string) => {
+    setExpandedKeys((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(index)) {
-        newSet.delete(index);
+      if (newSet.has(key)) {
+        newSet.delete(key);
       } else {
-        newSet.add(index);
+        newSet.add(key);
       }
       return newSet;
     });
   };
 
-  return (
-    <section ref={sectionRef} id="about" className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative bg-background z-20">
-      <div className="mx-auto max-w-7xl w-full">
-        {/* Header - Sticky with left column */}
-        <div className="lg:sticky lg:top-20 lg:z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5 }}
-            className="mb-10 md:mb-12 lg:bg-background lg:pb-4"
-          >
-            <div className="flex items-center gap-4 md:gap-6">
-              {/* Horizontal line on left */}
-              <div className="w-12 md:w-16 border-t border-border"></div>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-                About Me
-              </h2>
-            </div>
-          </motion.div>
+  const experienceEntries = mockAbout.experience;
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-            {/* Left Column - Sticky with header */}
+  return (
+    <section
+      ref={sectionRef}
+      id="about"
+      className="min-h-screen py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative bg-background z-20"
+    >
+      <div className="mx-auto max-w-7xl w-full h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 min-h-0">
+          {/* Left Column - Sticky */}
+          <div className="lg:sticky lg:top-24 lg:self-start flex flex-col gap-6 lg:gap-8">
             <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="flex items-center gap-4 md:gap-6">
+                <div className="w-12 md:w-16 border-t border-border"></div>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+                  About Me
+                </h2>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5 }}
               className="space-y-4"
             >
               <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
@@ -139,39 +306,48 @@ export function About() {
               <p className="text-sm md:text-base text-foreground/80 leading-relaxed">
                 {mockAbout.bio}
               </p>
-              <a
-                href="#footer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  smoothScrollTo('footer', 100);
-                }}
-                className="inline-block text-sm font-medium text-foreground/70 hover:text-foreground hover-underline transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded px-2 py-1"
+              <Button
+                onClick={() => smoothScrollTo('footer', 100)}
+                className="text-sm px-6 py-2.5"
                 aria-label="Scroll to contact section"
               >
                 Contact me →
-              </a>
+              </Button>
             </motion.div>
+          </div>
 
-            {/* Right Column - Scrolls independently */}
-            <motion.div
+          {/* Right Column - Experiences */}
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.5 }}
-              className="space-y-1"
-            >
-              {/* Removed "Experience" subtitle */}
-              {mockAbout.experience.map((item, index) => (
-                <ExperienceItem
+            className="space-y-1"
+          >
+            {experienceEntries.map((entry, index) => {
+              if (isExperienceGroup(entry)) {
+                return (
+                  <ExperienceGroupCard
+                    key={index}
+                    group={entry}
+                    groupIndex={index}
+                    expandedKeys={expandedKeys}
+                    onToggle={toggleItem}
+                  />
+                );
+              }
+              const expandedKey = `s-${index}`;
+              return (
+                <ExperienceSingleItem
                   key={index}
-                  item={item}
+                  item={entry}
                   index={index}
-                  isExpanded={expandedItems.has(index)}
-                  onToggle={() => toggleItem(index)}
+                  isExpanded={expandedKeys.has(expandedKey)}
+                  onToggle={() => toggleItem(expandedKey)}
                 />
-              ))}
-            </motion.div>
-          </div>
+              );
+            })}
+          </motion.div>
         </div>
       </div>
     </section>

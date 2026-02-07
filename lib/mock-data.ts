@@ -23,6 +23,13 @@ export interface Service {
   number: string;
 }
 
+export interface ProcessStep {
+  id: string;
+  title: string;
+  description: string;
+  number: string;
+}
+
 export interface SocialLink {
   platform: string;
   url: string;
@@ -121,6 +128,70 @@ export const mockServices: Service[] = [
   },
 ];
 
+export const mockProcessSteps: ProcessStep[] = [
+  {
+    id: 'discover',
+    title: 'DISCOVER',
+    description:
+      'I start by understanding the problem space—diving into user needs, business goals, and market context through research, stakeholder interviews, and competitive analysis.',
+    number: '01',
+  },
+  {
+    id: 'define',
+    title: 'DEFINE',
+    description:
+      'I translate insights into clear goals and define the product vision. This includes personas, user journeys, and problem statements to align the team and guide design decisions.',
+    number: '02',
+  },
+  {
+    id: 'develop',
+    title: 'DEVELOP',
+    description:
+      'I explore solutions through ideation, wireframes, and prototypes—iterating based on feedback to validate concepts before moving into high-fidelity design.',
+    number: '03',
+  },
+  {
+    id: 'design',
+    title: 'DESIGN',
+    description:
+      'I bring concepts to life through high-fidelity design, interaction detailing, and design systems—ensuring consistency, accessibility, and visual impact.',
+    number: '04',
+  },
+  {
+    id: 'deliver-iterate',
+    title: 'DELIVER & ITERATE',
+    description:
+      'I collaborate closely with developers to hand off and support implementation. After launch, I track usage, gather feedback, and iterate to refine the experience.',
+    number: '05',
+  },
+];
+
+export interface ExperienceRole {
+  role: string;
+  period: string;
+  description?: string;
+}
+
+export interface ExperienceGroup {
+  company: string;
+  logo?: string;
+  roles: ExperienceRole[];
+}
+
+export interface ExperienceItem {
+  role: string;
+  company: string;
+  period: string;
+  description?: string;
+  logo?: string;
+}
+
+export type ExperienceEntry = ExperienceGroup | ExperienceItem;
+
+export function isExperienceGroup(entry: ExperienceEntry): entry is ExperienceGroup {
+  return 'roles' in entry && Array.isArray(entry.roles);
+}
+
 export const mockAbout = {
   name: 'Zeina Nossier',
   title: 'UI/UX & Product Designer',
@@ -131,41 +202,48 @@ export const mockAbout = {
   heroSupport: 'End-to-end from research to high-fidelity.',
   experience: [
     {
-      role: 'Product Designer II',
       company: 'noon',
-      period: 'Jan 2026 - Present',
-      description:
-        "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
-    },
-    {
-      role: 'Product Designer',
-      company: 'noon',
-      period: 'Jul 2024 - Jan 2026',
-      description:
-        "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
-    },
+      logo: 'https://f.nooncdn.com/s/app/com/noon/design-system/logos/noon-logo-en.svg',
+      roles: [
+        {
+          role: 'Product Designer II',
+          period: 'Jan 2026 - Present',
+          description:
+            "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
+        },
+        {
+          role: 'Product Designer',
+          period: 'Jul 2024 - Jan 2026',
+          description:
+            "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
+        },
+      ],
+    } as ExperienceGroup,
     {
       role: 'Graphic & Web Designer',
       company: 'Bespoke Furniture',
       period: 'Jun 2021 - Jul 2024',
+      logo: '/logos/bespoke.svg',
       description:
         "Led a brand identity refresh, modernizing the company's visuals across print and digital platforms. Designed catalogs, brochures, and social content; contributed to UX and layout of the website redesign. Developed and designed the full company website and e-commerce shop, focusing on user experience, visual clarity, and responsive design.",
-    },
+    } as ExperienceItem,
     {
       role: 'Undergraduate Teaching Assistant',
       company: 'The American University in Cairo (AUC)',
       period: 'Sep - Dec 2022',
+      logo: '/logos/auc.svg',
       description:
         "Assisted the Design Principles & Practices (DPP) course for the Fall 2022 semester; managing the organization and digital filing of student submissions, streamlining the grading process for the professor. Served as the primary liaison between the professor and students, effectively communicating course updates, concepts, and resolving inquiries.",
-    },
+    } as ExperienceItem,
     {
       role: 'Summer Intern',
       company: 'Microsoft',
       period: 'Jun - Aug 2017',
+      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoft/microsoft-original.svg',
       description:
         "Participated in a high school tech internship focused on exploring programming (C++/Java) and basic app logic. Built small-scale tools like calculators while learning development environments and code structure. Delivered weekly demos and attended Microsoft's DigiGirlz workshops, sparking a long-term interest in digital design and tech innovation.",
-    },
-  ],
+    } as ExperienceItem,
+  ] as ExperienceEntry[],
   image: '/zeina-photo.jpg', // Add your photo file to /public/zeina-photo.jpg
 };
 
@@ -195,6 +273,7 @@ export const mockContact = {
 export const navigationItems = [
   { label: 'Works', href: '#works' },
   { label: 'Expertise', href: '#expertise' },
+  { label: 'Process', href: '#process' },
   { label: 'About', href: '#about' },
 ];
 

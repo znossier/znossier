@@ -23,6 +23,11 @@ const nextConfig: NextConfig = {
         hostname: 'raw.githubusercontent.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'f.nooncdn.com',
+        pathname: '/**',
+      },
     ],
   },
 };
