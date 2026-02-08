@@ -144,8 +144,8 @@ export const mockProcessSteps: ProcessStep[] = [
     number: '02',
   },
   {
-    id: 'develop',
-    title: 'DEVELOP',
+    id: 'ideate',
+    title: 'IDEATE',
     description:
       'I explore solutions through ideation, wireframes, and prototypes—iterating based on feedback to validate concepts before moving into high-fidelity design.',
     number: '03',
@@ -203,7 +203,7 @@ export const mockAbout = {
   experience: [
     {
       company: 'noon',
-      logo: 'https://f.nooncdn.com/s/app/com/noon/design-system/logos/noon-logo-en.svg',
+      logo: '/logos/noon.png',
       roles: [
         {
           role: 'Product Designer II',
@@ -223,7 +223,7 @@ export const mockAbout = {
       role: 'Graphic & Web Designer',
       company: 'Bespoke Furniture',
       period: 'Jun 2021 - Jul 2024',
-      logo: '/logos/bespoke.svg',
+      logo: '/logos/bespoke.png',
       description:
         "Led a brand identity refresh, modernizing the company's visuals across print and digital platforms. Designed catalogs, brochures, and social content; contributed to UX and layout of the website redesign. Developed and designed the full company website and e-commerce shop, focusing on user experience, visual clarity, and responsive design.",
     } as ExperienceItem,
@@ -231,7 +231,7 @@ export const mockAbout = {
       role: 'Undergraduate Teaching Assistant',
       company: 'The American University in Cairo (AUC)',
       period: 'Sep - Dec 2022',
-      logo: '/logos/auc.svg',
+      logo: '/logos/auc.png',
       description:
         "Assisted the Design Principles & Practices (DPP) course for the Fall 2022 semester; managing the organization and digital filing of student submissions, streamlining the grading process for the professor. Served as the primary liaison between the professor and students, effectively communicating course updates, concepts, and resolving inquiries.",
     } as ExperienceItem,
@@ -239,7 +239,7 @@ export const mockAbout = {
       role: 'Summer Intern',
       company: 'Microsoft',
       period: 'Jun - Aug 2017',
-      logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/microsoft/microsoft-original.svg',
+      logo: '/logos/microsoft.png',
       description:
         "Participated in a high school tech internship focused on exploring programming (C++/Java) and basic app logic. Built small-scale tools like calculators while learning development environments and code structure. Delivered weekly demos and attended Microsoft's DigiGirlz workshops, sparking a long-term interest in digital design and tech innovation.",
     } as ExperienceItem,

@@ -106,10 +106,11 @@ export function Navigation() {
               href="#home"
               onClick={(e) => {
                 e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                smoothScrollTo('home', 100);
               }}
-              className="flex items-center gap-3 text-lg md:text-xl font-bold text-foreground hover:text-foreground/80 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
+              className="flex items-center gap-3 text-lg md:text-xl font-bold text-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded no-underline"
               aria-label="Zeina Nossier - Go to home"
+              style={{ textDecoration: 'none' }}
             >
               {mounted && (
                 <Image
@@ -124,7 +125,7 @@ export function Navigation() {
               {!mounted && (
                 <div className="w-6 h-6 bg-foreground/20 rounded flex-shrink-0" aria-hidden="true" />
               )}
-              <span className="underline-animate">Zeina Nossier</span>
+              <span>Zeina Nossier</span>
             </a>
 
             <div className="flex items-center gap-6">
