@@ -198,7 +198,7 @@ export const mockAbout = {
   bio: 'Designer focused on creating intuitive interfaces and thoughtful user experiences. I work across the entire design process, from initial research to final implementation.',
   tagline: 'UI/UX & Product Designer based in Cairo, EG.',
   heroHeadline: 'Product design that turns complexity into clarity.',
-  heroSubhead: 'Zeina Nossier — Product & UX Designer',
+  heroSubhead: 'Zeina Nossier',
   heroSupport: 'End-to-end from research to high-fidelity.',
   experience: [
     {
@@ -264,7 +264,7 @@ export const mockContact = {
     },
     {
       platform: 'GitHub',
-      url: 'https://github.com/z-nossier',
+      url: 'https://github.com/znossier',
       icon: 'github',
     },
   ],

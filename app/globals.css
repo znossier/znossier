@@ -131,11 +131,13 @@ a {
   text-decoration: none !important;
 }
 
-/* Animated underline - left to right (only this class provides underline) */
+/* Animated underline - left to right, text lifts up on hover (no color change) */
 .underline-animate {
   position: relative;
   display: inline-block;
   text-decoration: none !important;
+  transform: translateY(3px);
+  transition: transform 0.25s ease;
 }
 
 .underline-animate::after {
@@ -146,20 +148,20 @@ a {
   width: 0;
   height: 1px;
   background-color: currentColor;
-  transition: width 0.2s ease;
+  transition: width 0.25s ease;
   pointer-events: none;
 }
 
 .underline-animate:hover {
-  color: var(--link);
   text-decoration: none !important;
+  transform: translateY(0);
 }
 
 .underline-animate:hover::after {
   width: 100%;
 }
 
-/* Links that should have regular underline on hover (without animation) */
+/* Links that should have regular underline on hover (without color change) */
 .hover-underline {
   text-decoration: none !important;
 }
@@ -167,7 +169,73 @@ a {
 .hover-underline:hover {
   text-decoration: underline !important;
   text-underline-offset: 4px;
-  color: var(--link);
+}
+
+/* Link swap: text slides up and disappears, reappears from bottom + underline left-to-right */
+.link-swap {
+  position: relative;
+  display: inline-block;
+  text-decoration: none !important;
+}
+
+.link-swap::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width 0.25s ease;
+  pointer-events: none;
+}
+
+.link-swap:hover::after {
+  width: 100%;
+}
+
+.link-swap-track {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.link-swap-visible,
+.link-swap-hidden {
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.link-swap-hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: translateY(100%);
+}
+
+.link-swap:hover .link-swap-visible {
+  transform: translateY(-100%);
+}
+
+.link-swap:hover .link-swap-hidden {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-swap-visible,
+  .link-swap-hidden {
+    transition: none;
+  }
+
+  .link-swap:hover .link-swap-visible {
+    transform: translateY(0);
+  }
+
+  .link-swap:hover .link-swap-hidden {
+    transform: translateY(100%);
+  }
 }
 
 /* Ensure buttons never get underlined */
@@ -249,6 +317,26 @@ button:hover {
 @media (prefers-reduced-motion: reduce) {
   .animate-marquee-left,
   .animate-marquee-right {
+    animation: none;
+  }
+}
+
+/* Vinyl rotation animation */
+@keyframes vinyl-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-vinyl {
+  animation: vinyl-rotate 3s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-vinyl {
     animation: none;
   }
 }

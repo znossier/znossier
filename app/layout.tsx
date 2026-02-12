@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/lib/theme";
 import { Cursor } from "@/components/Cursor";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { VinylPlayerWrapper } from "@/components/VinylPlayerWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zeina Nossier - UI/UX & Product Designer",
+  title: "Zeina Nossier",
   description: "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
   metadataBase: new URL("https://znossier.com"),
   keywords: [
@@ -41,20 +42,20 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://znossier.com",
     siteName: "Zeina Nossier Portfolio",
-    title: "Zeina Nossier - UI/UX & Product Designer",
+    title: "Zeina Nossier",
     description: "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
     images: [
       {
         url: "/zeina-photo.jpg",
         width: 1200,
         height: 630,
-        alt: "Zeina Nossier - UI/UX & Product Designer",
+        alt: "Zeina Nossier",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Zeina Nossier - UI/UX & Product Designer",
+    title: "Zeina Nossier",
     description: "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
     images: ["/zeina-photo.jpg"],
   },
@@ -115,7 +116,7 @@ export default function RootLayout({
     sameAs: [
       "https://linkedin.com/in/zeinanossier",
       "https://behance.net/zeinanossier",
-      "https://github.com/z-nossier",
+      "https://github.com/znossier",
     ],
     email: "zeina.nossier@gmail.com",
     knowsAbout: [
@@ -148,6 +149,7 @@ export default function RootLayout({
             {children}
           </SmoothScroll>
           <ThemeToggle variant="fab" />
+          <VinylPlayerWrapper />
         </ThemeProvider>
       </body>
     </html>

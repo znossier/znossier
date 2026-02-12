@@ -1,5 +1,6 @@
 'use client';
 
+import { SectionHeading } from '@/components/SectionHeading';
 import { mockServices } from '@/lib/mock-data';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
@@ -73,13 +74,7 @@ export function Services() {
           transition={{ duration: 0.5 }}
           className="mb-10 md:mb-12"
         >
-          <div className="flex items-center gap-4 md:gap-6">
-            {/* Horizontal line on left */}
-            <div className="w-12 md:w-16 border-t border-border"></div>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-              Expertise
-            </h2>
-          </div>
+          <SectionHeading>Expertise</SectionHeading>
         </motion.div>
 
         <div className="relative" style={{ minHeight: `${mockServices.length * 340}px` }}>

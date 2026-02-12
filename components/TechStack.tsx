@@ -1,5 +1,6 @@
 'use client';
 
+import { SectionHeading } from '@/components/SectionHeading';
 import { mockTechStack } from '@/lib/mock-data';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -128,12 +129,7 @@ export function TechStack() {
           transition={{ duration: 0.5 }}
           className="mb-10 md:mb-12"
         >
-          <div className="flex items-center gap-4 md:gap-6">
-            <div className="w-12 border-t border-border md:w-16" />
-            <h2 className="text-2xl font-bold text-foreground md:text-3xl lg:text-4xl">
-              Tech Stack
-            </h2>
-          </div>
+          <SectionHeading>Tech Stack</SectionHeading>
         </motion.div>
 
         <div className="space-y-1">

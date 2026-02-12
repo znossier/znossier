@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import { navigationItems } from '@/lib/mock-data';
 import { ThemeToggle } from './ThemeToggle';
+import { LinkSwap } from './LinkSwap';
 import { smoothScrollTo } from '@/lib/utils';
 
 export function Navigation() {
@@ -135,8 +136,9 @@ export function Navigation() {
                   const sectionId = item.href.substring(1);
                   const isActive = activeSection === sectionId;
                   return (
-                    <a
+                    <LinkSwap
                       key={item.href}
+                      as="a"
                       href={item.href}
                       onClick={(e) => {
                         e.preventDefault();
@@ -144,14 +146,14 @@ export function Navigation() {
                       }}
                       role="listitem"
                       aria-current={isActive ? 'page' : undefined}
-                      className={`text-sm font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full px-3 py-1.5 ${
+                      className={`text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full px-3 py-1.5 ${
                         isActive
                           ? 'text-foreground cursor-default bg-foreground/10'
                           : 'text-foreground/60 hover:text-foreground hover:bg-foreground/10'
                       }`}
                     >
                       {item.label}
-                    </a>
+                    </LinkSwap>
                   );
                 })}
               </div>
@@ -195,8 +197,9 @@ export function Navigation() {
                 const sectionId = item.href.substring(1);
                 const isActive = activeSection === sectionId;
                 return (
-                  <a
+                  <LinkSwap
                     key={item.href}
+                    as="a"
                     href={item.href}
                     onClick={(e) => {
                       e.preventDefault();
@@ -204,14 +207,14 @@ export function Navigation() {
                     }}
                     role="menuitem"
                     aria-current={isActive ? 'page' : undefined}
-                    className={`mx-4 px-6 py-3 text-base font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full ${
+                    className={`mx-4 px-6 py-3 text-base font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full ${
                       isActive
                         ? 'text-foreground bg-foreground/10'
                         : 'text-foreground/60 hover:text-foreground hover:bg-foreground/10'
                     }`}
                   >
                     {item.label}
-                  </a>
+                  </LinkSwap>
                 );
               })}
             </div>

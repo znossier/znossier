@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/Button';
+import { SectionHeading } from '@/components/SectionHeading';
 
 /** LinkedIn-style icon badge for company logos. Uses img to avoid Next.js Image cache serving wrong asset. */
 function CompanyLogo({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
@@ -309,12 +310,7 @@ export function About() {
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5 }}
             >
-              <div className="flex items-center gap-4 md:gap-6">
-                <div className="w-12 md:w-16 border-t border-border"></div>
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-                  About Me
-                </h2>
-              </div>
+              <SectionHeading>About Me</SectionHeading>
             </motion.div>
 
             <motion.div

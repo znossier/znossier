@@ -20,7 +20,7 @@ export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVaria
     if (variant === 'fab') {
       return (
         <div
-          className="fixed bottom-6 right-6 z-40 md:hidden w-12 h-12 rounded-full bg-white shadow-xl"
+          className="fixed z-40 md:hidden w-12 h-12 rounded-full bg-white shadow-xl bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-[max(1.5rem,env(safe-area-inset-right))]"
           aria-hidden
         />
       );
@@ -36,7 +36,7 @@ export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVaria
     return (
       <button
         onClick={toggle}
-        className={`fixed bottom-6 right-6 z-40 md:hidden w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+        className={`fixed z-40 md:hidden w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-[max(1.5rem,env(safe-area-inset-right))] ${
           isDark
             ? 'bg-white text-[#1A1A1A] hover:bg-gray-100 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-white'
             : 'bg-[#1A1A1A] text-white hover:bg-[#333] focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-[#FAFAFA]'

@@ -1,5 +1,6 @@
 'use client';
 
+import { SectionHeading } from '@/components/SectionHeading';
 import { mockProjects } from '@/lib/mock-data';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -160,13 +161,7 @@ export function Works() {
           transition={{ duration: 0.5 }}
           className="mb-10 md:mb-12"
         >
-          <div className="flex items-center gap-4 md:gap-6">
-            {/* Horizontal line on left */}
-            <div className="w-12 md:w-16 border-t border-border"></div>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-              Selected Works
-            </h2>
-          </div>
+          <SectionHeading>Selected Works</SectionHeading>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
