@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
 
   let artist: string | null = null;
   let source: 'webapi' | 'scrape' | 'musicbrainz' | null = null;
+  let cacheFromWebApi = false;
 
   try {
     // 0) Optional: Spotify Web API (canonical artist) when env is set — one request at a time to avoid 429
@@ -83,7 +84,10 @@ export async function GET(request: NextRequest) {
           const first = trackData.artists?.[0]?.name;
           if (first) {
             artist = sanitizeArtist(first) ?? null;
-            if (artist) source = 'webapi';
+            if (artist) {
+              source = 'webapi';
+              cacheFromWebApi = true;
+            }
           }
         }
       };
@@ -219,8 +223,8 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching track artist:', error);
   }
 
-  if (source === 'webapi' && artist) {
-    trackCache.set(trackId, { artist, source, at: Date.now() });
+  if (cacheFromWebApi && artist) {
+    trackCache.set(trackId, { artist, source: 'webapi', at: Date.now() });
   }
 
   return NextResponse.json({ artist, source });
