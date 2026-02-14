@@ -146,10 +146,10 @@ export function Navigation() {
                       }}
                       role="listitem"
                       aria-current={isActive ? 'page' : undefined}
-                      className={`text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full px-3 py-1.5 ${
+                      className={`nav-desktop-link text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background w-fit px-3 py-1.5 ${isActive ? 'nav-link-active' : ''} ${
                         isActive
-                          ? 'text-foreground cursor-default bg-foreground/10'
-                          : 'text-foreground/60 hover:text-foreground hover:bg-foreground/10'
+                          ? 'text-foreground cursor-default'
+                          : 'text-foreground/60 hover:text-foreground'
                       }`}
                     >
                       {item.label}
@@ -207,7 +207,7 @@ export function Navigation() {
                     }}
                     role="menuitem"
                     aria-current={isActive ? 'page' : undefined}
-                    className={`mx-4 px-6 py-3 text-base font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full ${
+                    className={`nav-mobile-item mx-4 px-6 py-3 text-base font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-full ${
                       isActive
                         ? 'text-foreground bg-foreground/10'
                         : 'text-foreground/60 hover:text-foreground hover:bg-foreground/10'

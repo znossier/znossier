@@ -18,7 +18,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zeina Nossier",
+  title: {
+    default: "Zeina Nossier",
+    template: "%s | Zeina Nossier",
+  },
   description: "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
   metadataBase: new URL("https://znossier.com"),
   keywords: [

@@ -26,17 +26,9 @@ export function useSpotifyTrackInfo(
     let checkInterval: NodeJS.Timeout | null = null;
 
     const extractTrackInfo = () => {
-      // #region agent log
-      fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:28',message:'extractTrackInfo called',data:{hasRef:!!embedRef.current},timestamp:Date.now(),runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
-      // #endregion
       try {
         const iframeDoc = embedRef.current?.contentDocument || embedRef.current?.contentWindow?.document;
-        if (!iframeDoc) {
-          // #region agent log
-          fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:31',message:'Cannot access iframe document',data:{hasRef:!!embedRef.current},timestamp:Date.now(),runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
-          // #endregion
-          return;
-        }
+        if (!iframeDoc) return;
 
         // Try to find track name and artist
         // Spotify embed structure may vary, so we try multiple selectors
@@ -64,9 +56,6 @@ export function useSpotifyTrackInfo(
           const element = iframeDoc.querySelector(selector);
           if (element) {
             const text = element.textContent?.trim();
-            // #region agent log
-            fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:56',message:'Found track name element',data:{selector,text,currentName:trackInfo.name,willUpdate:text!==trackInfo.name&&text.length>0},timestamp:Date.now(),runId:'run1',hypothesisId:'H7'})}).catch(()=>{});
-            // #endregion
             if (text && text.length > 0 && text !== trackInfo.name) {
               trackName = text;
               break;
@@ -79,9 +68,6 @@ export function useSpotifyTrackInfo(
           const element = iframeDoc.querySelector(selector);
           if (element) {
             const text = element.textContent?.trim();
-            // #region agent log
-            fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:68',message:'Found artist element',data:{selector,text,currentArtist:trackInfo.artist,willUpdate:text!==trackInfo.artist&&text.length>0},timestamp:Date.now(),runId:'run1',hypothesisId:'H7'})}).catch(()=>{});
-            // #endregion
             if (text && text.length > 0 && text !== trackInfo.artist) {
               artist = text;
               break;
@@ -106,26 +92,16 @@ export function useSpotifyTrackInfo(
           }
         }
 
-        // Only update if we found new info
         const shouldUpdate = trackName !== trackInfo.name || artist !== trackInfo.artist || imageUrl !== trackInfo.imageUrl;
-        // #region agent log
-        fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:96',message:'Track info extraction result',data:{trackName,artist,imageUrl,currentName:trackInfo.name,currentArtist:trackInfo.artist,currentImage:trackInfo.imageUrl,shouldUpdate},timestamp:Date.now(),runId:'run1',hypothesisId:'H8'})}).catch(()=>{});
-        // #endregion
         if (shouldUpdate) {
-          // #region agent log
-          fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:100',message:'Updating track info state',data:{trackName,artist,imageUrl},timestamp:Date.now(),runId:'run1',hypothesisId:'H8'})}).catch(()=>{});
-          // #endregion
           setTrackInfo({
             name: trackName,
             artist: artist,
             imageUrl: imageUrl,
           });
         }
-      } catch (e) {
-        // #region agent log
-        fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:104',message:'CORS error in extractTrackInfo',data:{error:String(e)},timestamp:Date.now(),runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
-        // #endregion
-        // CORS restrictions - silently fail
+      } catch {
+        // CORS prevents iframe document access in most embeds; ignore
       }
     };
 
@@ -133,15 +109,7 @@ export function useSpotifyTrackInfo(
     try {
       const iframeDoc = embedRef.current.contentDocument || embedRef.current.contentWindow?.document;
       if (iframeDoc) {
-        // #region agent log
-        fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:110',message:'Setting up MutationObserver',data:{hasBody:!!iframeDoc.body,hasDocElement:!!iframeDoc.documentElement},timestamp:Date.now(),runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
-        // #endregion
-        observer = new MutationObserver(() => {
-          // #region agent log
-          fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:113',message:'MutationObserver callback fired',data:{},timestamp:Date.now(),runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
-          // #endregion
-          extractTrackInfo();
-        });
+        observer = new MutationObserver(() => extractTrackInfo());
 
         observer.observe(iframeDoc.body || iframeDoc.documentElement, {
           childList: true,
@@ -154,11 +122,7 @@ export function useSpotifyTrackInfo(
         // Also check periodically as fallback
         checkInterval = setInterval(extractTrackInfo, 2000);
       }
-    } catch (e) {
-      // #region agent log
-      fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useSpotifyTrackInfo.ts:128',message:'MutationObserver setup failed, using interval only',data:{error:String(e)},timestamp:Date.now(),runId:'run1',hypothesisId:'H6'})}).catch(()=>{});
-      // #endregion
-      // CORS restrictions - fallback to periodic checks only
+    } catch {
       checkInterval = setInterval(extractTrackInfo, 2000);
     }
 

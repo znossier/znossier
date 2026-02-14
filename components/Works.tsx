@@ -1,6 +1,7 @@
 'use client';
 
 import { SectionHeading } from '@/components/SectionHeading';
+import { Button } from '@/components/Button';
 import { mockProjects } from '@/lib/mock-data';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -18,11 +19,16 @@ function ProjectCard({ project, index }: { project: typeof mockProjects[0]; inde
 
   const cardContent = (
     <>
-        {/* Image on Top - with padding */}
+        {/* Cover: scale on hover, then dark overlay + blur + description */}
         <div className="p-3 md:p-4">
           <div className="relative aspect-[4/3] bg-accent/10 overflow-hidden rounded-md">
-            {project.image && !imageError ? (
-              <>
+            {/* Media layer - scales within frame on hover */}
+            <motion.div
+              className="absolute inset-0"
+              animate={{ scale: isHovered ? 1.06 : 1 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
+              {project.image && !imageError ? (
                 <Image
                   src={project.image}
                   alt={`${project.title} project preview`}
@@ -31,32 +37,34 @@ function ProjectCard({ project, index }: { project: typeof mockProjects[0]; inde
                   loading="lazy"
                   onError={() => setImageError(true)}
                 />
-                {/* Hover Overlay - black with blurred description */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: isHovered ? 1 : 0,
-                  }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute inset-0 bg-black/60 flex items-center justify-center"
-                  aria-hidden="true"
-                >
-                  {isHovered && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-white text-sm md:text-base text-center px-6 backdrop-blur-sm"
-                    >
-                      {project.description}
-                    </motion.div>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-5xl bg-gradient-to-br from-accent/20 to-accent/10" aria-hidden="true">
+                  {project.emoji}
+                  {!hasValidLink && (
+                    <span className="text-xs font-medium text-foreground/70 uppercase tracking-wider">
+                      Coming soon
+                    </span>
                   )}
-                </motion.div>
-              </>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-accent/20 to-accent/10" aria-hidden="true">
-                {project.emoji}
-              </div>
-            )}
+                </div>
+              )}
+            </motion.div>
+            {/* Hover overlay: dark + blur, short description */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center"
+              aria-hidden="true"
+            >
+              <motion.p
+                initial={{ opacity: 0, y: 8 }}
+                animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+                transition={{ duration: 0.25, delay: isHovered ? 0.05 : 0 }}
+                className="text-white text-sm md:text-base text-center px-6 max-w-md"
+              >
+                {project.description}
+              </motion.p>
+            </motion.div>
           </div>
         </div>
         
@@ -127,10 +135,14 @@ function ProjectCard({ project, index }: { project: typeof mockProjects[0]; inde
   );
 }
 
+const INITIAL_COUNT = 4;
+const LOAD_MORE_COUNT = 4;
+
 export function Works() {
   const sectionRef = useRef<HTMLElement>(null);
   const heroRef = useRef<HTMLElement | null>(null);
-  
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+
   useEffect(() => {
     heroRef.current = document.getElementById('home') as HTMLElement;
   }, []);
@@ -143,34 +155,52 @@ export function Works() {
   // Works section moves up to cover hero - starts below viewport and scrolls up to cover
   const worksY = useTransform(scrollYProgress, [0, 1], ['100vh', '0vh']);
 
+  const visibleProjects = mockProjects.slice(0, visibleCount);
+  const hasMore = visibleCount < mockProjects.length;
+
+  const loadMore = () => {
+    setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, mockProjects.length));
+  };
+
   return (
     <>
       {/* Spacer to prevent content jump when hero is fixed */}
       <div className="h-screen" aria-hidden="true" />
-      <motion.section 
-        ref={sectionRef} 
-        id="works" 
+      <motion.section
+        ref={sectionRef}
+        id="works"
         className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative z-20 bg-background"
         style={{ y: worksY }}
       >
-      <div className="mx-auto max-w-7xl w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.5 }}
-          className="mb-10 md:mb-12"
-        >
-          <SectionHeading>Selected Works</SectionHeading>
-        </motion.div>
+        <div className="mx-auto max-w-7xl w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="mb-10 md:mb-12"
+          >
+            <SectionHeading>Selected Works</SectionHeading>
+          </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
-          {mockProjects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
-          ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
+            {visibleProjects.map((project, index) => (
+              <ProjectCard key={project.id} project={project} index={index} />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div className="mt-10 md:mt-12 flex justify-center">
+              <Button
+                onClick={loadMore}
+                aria-label={`Show ${Math.min(LOAD_MORE_COUNT, mockProjects.length - visibleCount)} more projects`}
+              >
+                Show more
+              </Button>
+            </div>
+          )}
         </div>
-      </div>
-    </motion.section>
+      </motion.section>
     </>
   );
 }

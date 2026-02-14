@@ -1,6 +1,8 @@
 # Zeina Nossier Portfolio
 
-A modern portfolio website built with Next.js, TypeScript, Tailwind CSS, and Sanity CMS.
+Personal portfolio site — designed and developed by Zeina Nossier.
+
+A modern portfolio website built with Next.js, TypeScript, Tailwind CSS, and Sanity CMS. Live at [znossier.com](https://znossier.com).
 
 ## Features
 
@@ -13,7 +15,7 @@ A modern portfolio website built with Next.js, TypeScript, Tailwind CSS, and San
 
 ## Tech Stack
 
-- **Framework**: Next.js 14+ (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Font**: Geist
@@ -42,7 +44,9 @@ npm run dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Sanity CMS Setup (Optional)
+## Optional Setup
+
+### Sanity CMS
 
 The site works with mock data by default. To use Sanity CMS:
 
@@ -69,6 +73,10 @@ sanity deploy
 
 The site will automatically use Sanity data when configured, otherwise it falls back to mock data.
 
+### Spotify (vinyl player)
+
+To enable the vinyl player and optional artist lookup, see **[docs/SPOTIFY_APP_SETUP.md](docs/SPOTIFY_APP_SETUP.md)** for environment variables and setup.
+
 ## Project Structure
 
 ```
@@ -76,24 +84,45 @@ znossier/
 ├── app/                    # Next.js App Router
 │   ├── layout.tsx         # Root layout with theme provider
 │   ├── page.tsx           # Main page
+│   ├── works/[slug]/      # Project detail pages
+│   ├── sitemap.ts         # Sitemap
+│   ├── robots.ts          # Robots.txt
 │   └── api/               # API routes
+│       ├── spotify/       # Spotify token, playlist, track
+│       ├── spotify-track/ # Track artist lookup (with fallbacks)
+│       └── sanity/        # Sanity CMS
 ├── components/            # React components
-│   ├── Navigation.tsx    # Header navigation
-│   ├── Hero.tsx          # Hero section
-│   ├── About.tsx         # About section
-│   ├── Works.tsx         # Projects section
-│   ├── Services.tsx      # Services section
-│   ├── Contact.tsx       # Contact section
-│   ├── Footer.tsx        # Footer
-│   └── ThemeToggle.tsx   # Theme toggle
-├── lib/                  # Utilities
-│   ├── mock-data.ts      # Mock data
-│   ├── sanity.ts         # Sanity client
-│   ├── sanity-queries.ts # Sanity queries
-│   ├── theme.tsx         # Theme provider
-│   └── utils.ts          # Helper functions
-└── sanity/               # Sanity schemas
-    └── schemas/          # Content schemas
+│   ├── Navigation.tsx     # Header navigation
+│   ├── Hero.tsx           # Hero section
+│   ├── About.tsx          # About section
+│   ├── Works.tsx          # Projects section
+│   ├── Services.tsx       # Services section
+│   ├── Process.tsx        # Process section
+│   ├── TechStack.tsx      # Tech stack
+│   ├── Footer.tsx         # Footer (includes contact)
+│   ├── ThemeToggle.tsx    # Theme toggle
+│   ├── VinylPlayer.tsx    # Spotify vinyl player
+│   ├── VinylPlayerWrapper.tsx
+│   ├── ProjectDetailPage.tsx
+│   └── ...
+├── hooks/                 # React hooks
+│   ├── useSpotifyPlayer.ts
+│   └── useSpotifyTrackInfo.ts
+├── lib/                   # Utilities & data
+│   ├── mock-data.ts       # Mock data
+│   ├── sanity.ts          # Sanity client
+│   ├── sanity-queries.ts  # Sanity queries
+│   ├── theme.tsx          # Theme provider
+│   ├── utils.ts           # Helper functions
+│   ├── spotify.ts         # Spotify API client
+│   └── ...
+├── sanity/                # Sanity schemas
+│   └── schemas/
+└── docs/                  # Setup & deployment docs
+    ├── DEPLOYMENT.md
+    ├── VERCEL_SETUP.md
+    ├── SPOTIFY_APP_SETUP.md
+    └── ...
 ```
 
 ## Customization
@@ -112,21 +141,10 @@ Update content in `lib/mock-data.ts` or through Sanity CMS.
 
 ## Deployment
 
-### Vercel (Recommended)
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for the full deployment guide. For Vercel-specific steps, see [docs/VERCEL_SETUP.md](docs/VERCEL_SETUP.md).
 
-1. Push your code to GitHub
-2. Import project in Vercel
-3. Add environment variables if using Sanity
-4. Deploy!
-
-### Other Platforms
-
-The site can be deployed to any platform that supports Next.js:
-- Netlify
-- AWS Amplify
-- Railway
-- etc.
+The site can also be deployed to any platform that supports Next.js (Netlify, AWS Amplify, Railway, etc.).
 
 ## License
 
-Private project - All rights reserved
+Private project — All rights reserved. Zeina Nossier.

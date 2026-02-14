@@ -2,6 +2,8 @@
 
 import { mockAbout, mockContact, navigationItems } from '@/lib/mock-data';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { LinkSwap } from '@/components/LinkSwap';
 import { smoothScrollTo } from '@/lib/utils';
 
@@ -25,13 +27,18 @@ const itemVariants = {
   },
 };
 
+const navLinkClass =
+  'text-sm text-foreground/70 hover:text-foreground transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded';
+
 export function Footer() {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
   const handleNavClick = (sectionId: string) => {
     smoothScrollTo(sectionId, 100);
   };
 
   return (
-    <footer id="footer" className="bg-background relative z-20">
+    <footer id="footer" className="bg-footer relative z-20">
       <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
         <motion.div
@@ -41,11 +48,11 @@ export function Footer() {
           variants={containerVariants}
           className="py-12 md:py-16 lg:py-20"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-8 md:gap-12 lg:gap-16">
             {/* Navigation Section */}
-            <motion.section 
-              variants={itemVariants} 
-              className="flex flex-col"
+            <motion.section
+              variants={itemVariants}
+              className="flex flex-col min-w-0"
             >
               <h3 className="text-xs font-medium text-foreground/50 mb-4 uppercase tracking-widest">
                 Navigation
@@ -54,19 +61,28 @@ export function Footer() {
                 <ul className="flex flex-col gap-3">
                   {navigationItems.map((item) => {
                     const sectionId = item.href.substring(1);
+                    if (isHome) {
+                      return (
+                        <li key={item.href}>
+                          <LinkSwap
+                            as="a"
+                            href={item.href}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleNavClick(sectionId);
+                            }}
+                            className={navLinkClass}
+                          >
+                            {item.label}
+                          </LinkSwap>
+                        </li>
+                      );
+                    }
                     return (
                       <li key={item.href}>
-                        <LinkSwap
-                          as="a"
-                          href={item.href}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleNavClick(sectionId);
-                          }}
-                          className="text-sm text-foreground/70 hover:text-foreground transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
-                        >
+                        <Link href={`/${item.href}`} className={navLinkClass}>
                           {item.label}
-                        </LinkSwap>
+                        </Link>
                       </li>
                     );
                   })}
@@ -77,7 +93,7 @@ export function Footer() {
             {/* Contact Section */}
             <motion.section 
               variants={itemVariants} 
-              className="flex flex-col"
+              className="flex flex-col min-w-0"
             >
               <h3 className="text-xs font-medium text-foreground/50 mb-4 uppercase tracking-widest">
                 Contact
@@ -157,7 +173,7 @@ export function Footer() {
             {/* Social Links Section */}
             <motion.section 
               variants={itemVariants} 
-              className="flex flex-col"
+              className="flex flex-col min-w-0"
             >
               <h3 className="text-xs font-medium text-foreground/50 mb-4 uppercase tracking-widest">
                 Connect

@@ -2,7 +2,7 @@
 
 ## ✅ Completed
 - Code committed to Git
-- Code pushed to GitHub: https://github.com/z-nossier/znossier
+- Code pushed to GitHub: https://github.com/znossier/znossier
 - Production build verified
 
 ## Next Steps
@@ -13,7 +13,7 @@
 2. Click **"Add New Project"** or **"Import Project"**
 3. Select **"Import Git Repository"**
 4. Choose **GitHub** as your Git provider
-5. Find and select the **z-nossier/znossier** repository
+5. Find and select the **znossier/znossier** repository
 6. Click **"Import"**
 
 ### 2. Configure Project Settings

@@ -130,66 +130,41 @@ export function Process() {
   }
 
   return (
-    <section
+    <div
       id="process"
+      ref={wrapperRef}
+      style={{ height: `${WRAPPER_HEIGHT_VH}vh` }}
       className="relative bg-background z-20"
       aria-labelledby="process-heading"
     >
-      {/* Mobile: vertical stack (below md) — no scroll-driven horizontal motion */}
-      <div className="block md:hidden py-16 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl w-full">
-          <div className="mb-10 md:mb-12">
+      <div className="sticky top-20 h-[calc(100vh-5rem)] w-full flex flex-col pb-32 md:pb-0">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.5 }}
+          className="flex-shrink-0 pt-6 pb-8 md:pb-10 px-4 sm:px-6 lg:px-8"
+        >
+          <div className="mx-auto max-w-7xl w-full">
             <SectionHeading id="process-heading">My Process</SectionHeading>
           </div>
-          <div className="flex flex-col gap-6">
-            {mockProcessSteps.map((step, index) => (
-              <ProcessCard
-                key={step.id}
-                step={step}
-                variant="vertical"
-                stepIndex={index + 1}
-                totalSteps={mockProcessSteps.length}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop (md+): scroll-driven horizontal track */}
-      <div
-        ref={wrapperRef}
-        style={{ height: `${WRAPPER_HEIGHT_VH}vh` }}
-        className="hidden md:block relative"
-      >
-        <div className="sticky top-0 h-screen w-full flex flex-col">
+        </motion.div>
+        <div
+          ref={viewportRef}
+          className="flex-1 min-h-0 w-full overflow-hidden flex items-end"
+          aria-label="Process steps"
+        >
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5 }}
-            className="flex-shrink-0 pt-16 md:pt-20 pb-8 md:pb-10 px-4 sm:px-6 lg:px-8"
+            ref={trackRef}
+            style={{ x: translateX }}
+            className="flex gap-6 sm:gap-8 md:gap-10 w-max items-end pl-4 sm:pl-6 lg:pl-8 xl:pl-[max(2rem,calc(2rem+(100vw-84rem)/2))] pr-4 sm:pr-6 lg:pr-8 pt-8 pb-6"
           >
-            <div className="mx-auto max-w-7xl w-full">
-              <SectionHeading id="process-heading">My Process</SectionHeading>
-            </div>
+            {mockProcessSteps.map((step) => (
+              <ProcessCard key={step.id} step={step} />
+            ))}
           </motion.div>
-          <div
-            ref={viewportRef}
-            className="flex-1 min-h-0 w-full overflow-hidden flex items-end"
-            aria-label="Process steps"
-          >
-            <motion.div
-              ref={trackRef}
-              style={{ x: translateX }}
-              className="flex gap-8 md:gap-10 w-max items-end pl-4 sm:pl-6 lg:pl-8 xl:pl-[max(2rem,calc(2rem+(100vw-84rem)/2))] pr-4 sm:pr-6 lg:pr-8 pt-8 pb-6"
-            >
-              {mockProcessSteps.map((step) => (
-                <ProcessCard key={step.id} step={step} />
-              ))}
-            </motion.div>
-          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

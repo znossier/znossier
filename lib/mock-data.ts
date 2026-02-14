@@ -3,6 +3,40 @@
  * This will be replaced with Sanity CMS queries in Phase 2
  */
 
+/** Block types for rich section content (CMS-editable) */
+export interface ProjectSectionBlockHeading {
+  type: 'heading';
+  text: string;
+}
+export interface ProjectSectionBlockParagraph {
+  type: 'paragraph';
+  text: string;
+}
+export interface ProjectSectionBlockImage {
+  type: 'image';
+  src: string;
+  alt?: string;
+}
+export interface ProjectSectionBlockTwoImages {
+  type: 'twoImages';
+  left: { src: string; alt?: string };
+  right: { src: string; alt?: string };
+}
+export type ProjectSectionBlock =
+  | ProjectSectionBlockHeading
+  | ProjectSectionBlockParagraph
+  | ProjectSectionBlockImage
+  | ProjectSectionBlockTwoImages;
+
+export interface ProjectSection {
+  id: string;
+  title: string;
+  /** Legacy: single paragraph (used when blocks are empty) */
+  content?: string;
+  /** Rich blocks: heading, paragraph, image, twoImages (CMS-editable) */
+  blocks?: ProjectSectionBlock[];
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -14,6 +48,15 @@ export interface Project {
   link?: string;
   featured: boolean;
   date?: string;
+  /** Cover image for the detail page (below header) */
+  coverImage?: string;
+  /** Optional detail-page sections (left sticky titles + right content) */
+  sections?: ProjectSection[];
+  client?: string;
+  role?: string;
+  service?: string;
+  /** Slug of another project to show as "Next work" suggestion */
+  nextWorkSlug?: string;
 }
 
 export interface Service {
@@ -52,50 +95,117 @@ export interface TechStackItem {
 
 export const mockProjects: Project[] = [
   {
-    id: '1',
-    title: 'Green Fern',
-    emoji: '🌿',
-    description: 'A redesign for a fast-growing platform, focusing on improving usability and engagement.',
-    categories: ['Zenith'],
-    image: '/placeholder-project-1.jpg',
-    link: '#',
-    featured: true,
-    date: 'Feb 3, 2025',
-  },
-  {
-    id: '2',
-    title: 'Yellow Flower',
-    emoji: '🌼',
-    description: 'A complete brand refresh to establish a stronger market presence and differentiate from competitors.',
-    categories: ['Nexa'],
-    image: '/placeholder-project-2.jpg',
-    link: '#',
-    featured: true,
-    date: 'Jan 27, 2025',
-  },
-  {
-    id: '3',
-    title: 'Orange Flower',
-    emoji: '🌺',
-    description: 'An e-commerce platform redesign aimed at reducing bounce rates and boosting conversions.',
-    categories: ['Aether'],
-    image: '/placeholder-project-3.jpg',
+    id: 'storktech',
+    title: 'StorkTech Landing Page',
+    emoji: '🚀',
+    description: 'Software development house landing page.',
+    categories: ['Landing', 'Web'],
     link: '#',
     featured: true,
     date: 'Dec 30, 2024',
+    client: 'StorkTech',
+    role: 'UX Designer',
+    service: 'Web Design',
+    coverImage: '/placeholder-project-1.jpg',
+    nextWorkSlug: 'ardi',
+    sections: [
+      {
+        id: 'project-details',
+        title: 'Project Details',
+        blocks: [
+          { type: 'heading', text: 'Understanding user challenges' },
+          {
+            type: 'paragraph',
+            text: 'StorkTech needed a digital presence that could communicate its technical capabilities without overwhelming visitors. The main goal was to uncover how to present a development house in a way that felt approachable and professional.',
+          },
+          { type: 'heading', text: 'Designing a seamless flow' },
+          {
+            type: 'paragraph',
+            text: 'Through research and iterative design, we identified key messaging priorities and simplified the information architecture. The result is a focused, scannable layout that guides visitors from first impression to inquiry.',
+          },
+          {
+            type: 'twoImages',
+            left: { src: '/placeholder-project-2.jpg', alt: 'StorkTech design exploration' },
+            right: { src: '/placeholder-project-3.jpg', alt: 'StorkTech final layout' },
+          },
+        ],
+      },
+      {
+        id: 'solution',
+        title: 'Solution',
+        blocks: [
+          {
+            type: 'paragraph',
+            text: 'Through intuitive navigation, a clean UI, and a mobile-first approach, we enhanced usability and boosted conversions. The redesign led to a measurable increase in engagement.',
+          },
+          {
+            type: 'image',
+            src: '/placeholder-project-4.jpg',
+            alt: 'StorkTech landing page hero',
+          },
+        ],
+      },
+    ],
   },
   {
-    id: '4',
-    title: 'Purple Flower',
-    emoji: '💜',
-    description: 'A modular design system to unify and streamline digital product design at scale.',
-    categories: ['Horizon'],
-    image: '/placeholder-project-4.jpg',
+    id: 'ardi',
+    title: 'Ardi',
+    emoji: '🗺️',
+    description: 'Land management system.',
+    categories: ['Product', 'Web'],
     link: '#',
     featured: true,
-    date: 'Dec 20, 2024',
+  },
+  {
+    id: 'kad',
+    title: 'KAD',
+    emoji: '🏛️',
+    description: 'Architecture firm portfolio website.',
+    categories: ['Portfolio', 'Web'],
+    link: '#',
+    featured: true,
+  },
+  {
+    id: 'fleetsync',
+    title: 'FleetSync',
+    emoji: '🚛',
+    description: 'Fleet management system.',
+    categories: ['Product', 'Web'],
+    link: '#',
+    featured: true,
+  },
+  {
+    id: 'ui-design-challenges',
+    title: 'UI Design Challenges',
+    emoji: '🎨',
+    description: '20+ replicas of existing UI designs.',
+    categories: ['UI', 'Design'],
+    link: '#',
+    featured: true,
+  },
+  {
+    id: 'samba',
+    title: 'Samba',
+    emoji: '⚽',
+    description: "Thesis project app for women's football leagues in Egypt.",
+    categories: ['Thesis', 'Product'],
+    link: '#',
+    featured: true,
+  },
+  {
+    id: 'bespoke-furniture',
+    title: 'Bespoke Furniture',
+    emoji: '🪑',
+    description: 'Furniture e-commerce website.',
+    categories: ['E-commerce', 'Web'],
+    link: '#',
+    featured: true,
   },
 ];
+
+export function getProjectBySlug(slug: string): Project | undefined {
+  return mockProjects.find((p) => p.id === slug);
+}
 
 export const mockServices: Service[] = [
   {
@@ -212,7 +322,7 @@ export const mockAbout = {
             "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
         },
         {
-          role: 'Product Designer',
+          role: 'Product Designer I',
           period: 'Jul 2024 - Jan 2026',
           description:
             "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",

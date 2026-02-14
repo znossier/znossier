@@ -3,8 +3,9 @@
 @custom-variant dark (&:where([data-theme="dark"] *));
 
 :root {
-  --background: #FAFAFA;
+  --background: #F7F6F4;
   --foreground: #1A1A1A;
+  --footer-background: #EDECEA;
   --accent: #6B7987;
   --link: #3E99F3;
   --border: #E5E5E5;
@@ -13,6 +14,7 @@
 [data-theme="dark"] {
   --background: #1A1A1A;
   --foreground: #FAFAFA;
+  --footer-background: #141414;
   --accent: #6B7987;
   --link: #3E99F3;
   --border: #333333;
@@ -26,6 +28,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-footer: var(--footer-background);
   --color-accent: var(--accent);
   --color-link: var(--link);
   --color-border: var(--border);
@@ -105,10 +108,6 @@ body {
 }
 
 /* Performance optimizations */
-section {
-  contain: layout style paint;
-}
-
 img {
   will-change: transform;
   contain: layout style paint;
@@ -236,6 +235,42 @@ a {
   .link-swap:hover .link-swap-hidden {
     transform: translateY(100%);
   }
+}
+
+/* Nav: desktop - underline on track (doesn't move on hover; stays under text) */
+.nav-desktop-link.link-swap::after {
+  display: none !important;
+}
+
+.nav-desktop-link .link-swap-track {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 4px; /* space for underline inside track (avoids overflow:hidden clip) */
+}
+
+.nav-desktop-link .link-swap-track::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: currentColor;
+  transition: width 0.25s ease;
+  pointer-events: none;
+}
+
+.nav-desktop-link.link-swap:hover .link-swap-track::after {
+  width: 100%;
+}
+
+.nav-link-active.link-swap .link-swap-track::after {
+  width: 100%;
+}
+
+/* Nav: mobile menu items - no underline, pill only */
+.nav-mobile-item.link-swap::after {
+  display: none !important;
 }
 
 /* Ensure buttons never get underlined */

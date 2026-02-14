@@ -6,6 +6,9 @@ import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
 const NAV_HEIGHT_PX = 80;
+/** Space reserved for the sticky section title so it stays visible below the nav */
+const TITLE_BLOCK_HEIGHT_PX = 56;
+const CARD_STACK_OFFSET_PX = 14;
 
 function ServiceCard({
   service,
@@ -20,7 +23,7 @@ function ServiceCard({
   const isInView = useInView(cardRef, { once: true, margin: '-50px', amount: 0.2 });
 
   const zIndex = index + 1;
-  const stickyTop = NAV_HEIGHT_PX + index * 10;
+  const stickyTop = NAV_HEIGHT_PX + TITLE_BLOCK_HEIGHT_PX + index * CARD_STACK_OFFSET_PX;
 
   return (
     <motion.div
@@ -65,23 +68,29 @@ export function Services() {
   const sectionRef = useRef<HTMLElement>(null);
 
   return (
-    <section ref={sectionRef} id="expertise" className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative bg-background z-20">
+    <section
+      ref={sectionRef}
+      id="expertise"
+      className="pt-24 pb-16 md:pt-28 md:pb-20 lg:pt-32 lg:pb-24 px-4 sm:px-6 lg:px-8 relative bg-background z-20"
+    >
       <div className="mx-auto max-w-7xl w-full">
+        {/* Sticky title: stays below navbar so it stays visible while cards pile up */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.5 }}
-          className="mb-10 md:mb-12"
+          className="sticky top-[80px] z-10 mb-10 md:mb-12 pt-2 pb-2 bg-background"
+          style={{ minHeight: TITLE_BLOCK_HEIGHT_PX }}
         >
           <SectionHeading>Expertise</SectionHeading>
         </motion.div>
 
         <div className="relative" style={{ minHeight: `${mockServices.length * 340}px` }}>
           {mockServices.map((service, index) => (
-            <ServiceCard 
-              key={service.id} 
-              service={service} 
+            <ServiceCard
+              key={service.id}
+              service={service}
               index={index}
               total={mockServices.length}
             />
