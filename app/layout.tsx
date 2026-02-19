@@ -3,9 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/lib/theme";
 import { Cursor } from "@/components/Cursor";
+import { GridOverlay } from "@/components/GridOverlay";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { VinylPlayerWrapper } from "@/components/VinylPlayerWrapper";
+import { UnderConstructionRibbon } from "@/components/UnderConstructionRibbon";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -147,7 +149,9 @@ export default function RootLayout({
           enableSystem={true}
           disableTransitionOnChange={false}
         >
+          <UnderConstructionRibbon />
           <SmoothScroll>
+            <GridOverlay />
             <Cursor />
             {children}
           </SmoothScroll>

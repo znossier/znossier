@@ -37,7 +37,7 @@ function ProcessCard({
           Step {stepIndex} of {totalSteps}
         </span>
       )}
-      <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-4 flex-shrink-0">
+      <h3 className="text-xl sm:text-2xl font-mono font-bold uppercase tracking-wider text-foreground mb-4 flex-shrink-0">
         {step.title}
       </h3>
       <p
@@ -49,7 +49,7 @@ function ProcessCard({
       </p>
       {/* Oversized number clipped at bottom-right edge */}
       <span
-        className="absolute bottom-0 right-0 text-7xl sm:text-8xl md:text-8xl font-bold text-foreground/15 select-none pointer-events-none translate-x-[8%] translate-y-[12%]"
+        className="absolute bottom-0 right-0 text-7xl sm:text-8xl md:text-8xl font-mono font-bold text-foreground/15 select-none pointer-events-none translate-x-[8%] translate-y-[12%]"
         aria-hidden
       >
         {step.number}
@@ -112,7 +112,7 @@ export function Process() {
     return (
       <section
         id="process"
-        className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative bg-background z-20"
+        className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative bg-section-accent dark:bg-background z-20"
         aria-labelledby="process-heading"
       >
         <div className="mx-auto max-w-7xl w-full">
@@ -134,10 +134,11 @@ export function Process() {
       id="process"
       ref={wrapperRef}
       style={{ height: `${WRAPPER_HEIGHT_VH}vh` }}
-      className="relative bg-background z-20"
+      className="relative bg-section-accent dark:bg-background z-20"
       aria-labelledby="process-heading"
     >
-      <div className="sticky top-20 h-[calc(100vh-5rem)] w-full flex flex-col pb-32 md:pb-0">
+      {/* Sticky block stops below navbar (ribbon + nav = 112px) so title stays visible */}
+      <div className="sticky h-[calc(100vh-7rem)] w-full flex flex-col pb-32 md:pb-0" style={{ top: 112 }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

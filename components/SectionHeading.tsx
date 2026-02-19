@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { HighlightText } from '@/components/HighlightText';
 
 export function SectionHeading({
   id,
@@ -15,9 +16,9 @@ export function SectionHeading({
       />
       <h2
         id={id}
-        className="text-xs md:text-sm uppercase tracking-widest font-medium text-foreground/50"
+        className="text-xs md:text-sm font-mono uppercase tracking-widest font-medium text-foreground/50"
       >
-        {children}
+        <HighlightText>{children}</HighlightText>
       </h2>
     </div>
   );

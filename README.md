@@ -6,7 +6,6 @@ A modern portfolio website built with Next.js, TypeScript, Tailwind CSS, and San
 
 ## Features
 
-- 🎨 Pixel-perfect design matching reference site
 - 🌓 Light/Dark mode toggle
 - 📱 Fully responsive design
 - 🎯 Smooth scroll navigation

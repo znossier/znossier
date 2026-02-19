@@ -5,7 +5,8 @@ import { mockServices } from '@/lib/mock-data';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
-const NAV_HEIGHT_PX = 80;
+/** Ribbon (top-8) + nav bar height so section title sticks below navbar */
+const NAV_OFFSET_PX = 112;
 /** Space reserved for the sticky section title so it stays visible below the nav */
 const TITLE_BLOCK_HEIGHT_PX = 56;
 const CARD_STACK_OFFSET_PX = 14;
@@ -23,7 +24,7 @@ function ServiceCard({
   const isInView = useInView(cardRef, { once: true, margin: '-50px', amount: 0.2 });
 
   const zIndex = index + 1;
-  const stickyTop = NAV_HEIGHT_PX + TITLE_BLOCK_HEIGHT_PX + index * CARD_STACK_OFFSET_PX;
+  const stickyTop = NAV_OFFSET_PX + TITLE_BLOCK_HEIGHT_PX + index * CARD_STACK_OFFSET_PX;
 
   return (
     <motion.div
@@ -38,26 +39,17 @@ function ServiceCard({
       }}
       className="mb-4"
     >
-      <div className="border-t border-border pt-4 pb-4 hover:border-foreground/40 transition-all duration-200 bg-background md:h-[320px]">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-stretch md:h-full">
-          {/* Left ~2/3: number on top, then title and description stacked with same left alignment */}
-          <div className="md:col-span-2 flex flex-col justify-center space-y-3 md:space-y-4 py-2 text-left">
-            <div className="text-xs md:text-sm font-medium text-foreground/60">
-              {service.number}
-            </div>
-            <h4 className="text-xl md:text-2xl font-bold text-foreground">
-              {service.title}
-            </h4>
-            <p className="text-sm md:text-base text-foreground/70 leading-relaxed">
-              {service.description}
-            </p>
+      <div className="border-t border-border pt-4 pb-4 hover:border-foreground/40 transition-all duration-200 bg-background dark:bg-section-accent md:h-[320px]">
+        <div className="flex flex-col justify-center space-y-3 md:space-y-4 py-2 text-left md:h-full">
+          <div className="text-xs md:text-sm font-mono font-medium text-foreground/60">
+            {service.number}
           </div>
-          {/* Right ~1/3: placeholder image — fixed height so all cards match; same width as text above on mobile */}
-          <div className="min-h-[140px] md:min-h-0 md:h-full rounded-lg overflow-hidden bg-accent/10 flex items-center justify-center">
-            <span className="text-3xl md:text-4xl text-foreground/30" aria-hidden>
-              {service.number}
-            </span>
-          </div>
+          <h4 className="text-xl md:text-2xl font-bold text-foreground">
+            {service.title}
+          </h4>
+          <p className="text-sm md:text-base text-foreground/70 leading-relaxed">
+            {service.description}
+          </p>
         </div>
       </div>
     </motion.div>
@@ -71,17 +63,17 @@ export function Services() {
     <section
       ref={sectionRef}
       id="expertise"
-      className="pt-24 pb-16 md:pt-28 md:pb-20 lg:pt-32 lg:pb-24 px-4 sm:px-6 lg:px-8 relative bg-background z-20"
+      className="pt-24 pb-16 md:pt-28 md:pb-20 lg:pt-32 lg:pb-24 px-4 sm:px-6 lg:px-8 relative bg-background dark:bg-section-accent z-20"
     >
       <div className="mx-auto max-w-7xl w-full">
-        {/* Sticky title: stays below navbar so it stays visible while cards pile up */}
+        {/* Sticky title: stops below navbar, then cards stack underneath */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.5 }}
-          className="sticky top-[80px] z-10 mb-10 md:mb-12 pt-2 pb-2 bg-background"
-          style={{ minHeight: TITLE_BLOCK_HEIGHT_PX }}
+          className="sticky z-10 mb-10 md:mb-12 pt-2 pb-2 bg-background dark:bg-section-accent"
+          style={{ top: NAV_OFFSET_PX, minHeight: TITLE_BLOCK_HEIGHT_PX }}
         >
           <SectionHeading>Expertise</SectionHeading>
         </motion.div>

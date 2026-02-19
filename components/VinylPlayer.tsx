@@ -93,9 +93,10 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
   // Mobile: swipe-down to close expanded sheet
   const sheetDragY = useMotionValue(0);
 
-  // Mobile: single default position (aligned with theme FAB: same bottom, left of FAB)
-  const MOBILE_DEFAULT_LEFT = 16;
-  const MOBILE_DEFAULT_BOTTOM = 24;
+  // Mobile: default position — equal inset from left and bottom (same pixels)
+  const WIDGET_INSET_PX = 24;
+  const MOBILE_DEFAULT_LEFT = WIDGET_INSET_PX;
+  const MOBILE_DEFAULT_BOTTOM = WIDGET_INSET_PX;
   const MOBILE_BAR_W = 200;
   const MOBILE_BAR_H = 52;
   const [mobileFloatLeft, setMobileFloatLeft] = useState(MOBILE_DEFAULT_LEFT);
@@ -530,7 +531,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
         aria-label="Spotify music player"
         className={cn(
           'fixed z-50',
-          !isMobile && 'left-[2rem] bottom-[2rem]',
+          !isMobile && 'left-6 bottom-6',
           isMobile && isHovered && 'inset-x-0 bottom-0',
           isMobile && !isHovered && 'w-[min(200px,calc(100vw-5rem))]',
           'px-4 pt-3 md:px-0 md:pt-0',
@@ -882,9 +883,9 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
                     )}
                   >
                     {isPlaying ? (
-                      <Pause className={cn('w-3.5 h-3.5', isDark ? 'text-white' : 'text-neutral-800')} />
+                      <Pause className="w-3.5 h-3.5 text-white" />
                     ) : (
-                      <Play className={cn('w-3.5 h-3.5 ml-0.5', isDark ? 'text-white' : 'text-neutral-800')} />
+                      <Play className="w-3.5 h-3.5 ml-0.5 text-white" />
                     )}
                   </span>
                 </motion.button>

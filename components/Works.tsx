@@ -19,15 +19,22 @@ function ProjectCard({ project, index }: { project: typeof mockProjects[0]; inde
 
   const cardContent = (
     <>
-        {/* Cover: scale on hover, then dark overlay + blur + description */}
+        {/* Cover: scale on hover, grid corners with + markers */}
         <div className="p-3 md:p-4">
-          <div className="relative aspect-[4/3] bg-accent/10 overflow-hidden rounded-md">
-            {/* Media layer - scales within frame on hover */}
-            <motion.div
-              className="absolute inset-0"
-              animate={{ scale: isHovered ? 1.06 : 1 }}
-              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
+          <div className="relative aspect-[4/3] bg-accent/10 border border-foreground/20">
+            {/* + markers centered on corners, intersecting border lines - positioned outside overflow-hidden */}
+            <span className="absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2 text-xs font-mono leading-none text-foreground/50 z-10" aria-hidden>+</span>
+            <span className="absolute right-0 top-0 translate-x-1/2 -translate-y-1/2 text-xs font-mono leading-none text-foreground/50 z-10" aria-hidden>+</span>
+            <span className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 text-xs font-mono leading-none text-foreground/50 z-10" aria-hidden>+</span>
+            <span className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 text-xs font-mono leading-none text-foreground/50 z-10" aria-hidden>+</span>
+            {/* Content wrapper with overflow-hidden to clip scaled image */}
+            <div className="absolute inset-0 overflow-hidden">
+              {/* Media layer - scales within frame on hover */}
+              <motion.div
+                className="absolute inset-0"
+                animate={{ scale: isHovered ? 1.06 : 1 }}
+                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
               {project.image && !imageError ? (
                 <Image
                   src={project.image}
@@ -47,24 +54,25 @@ function ProjectCard({ project, index }: { project: typeof mockProjects[0]; inde
                   )}
                 </div>
               )}
-            </motion.div>
-            {/* Hover overlay: dark + blur, short description */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isHovered ? 1 : 0 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center"
-              aria-hidden="true"
-            >
-              <motion.p
-                initial={{ opacity: 0, y: 8 }}
-                animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-                transition={{ duration: 0.25, delay: isHovered ? 0.05 : 0 }}
-                className="text-white text-sm md:text-base text-center px-6 max-w-md"
+              </motion.div>
+              {/* Hover overlay: dark + blur, short description */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isHovered ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center"
+                aria-hidden="true"
               >
-                {project.description}
-              </motion.p>
-            </motion.div>
+                <motion.p
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+                  transition={{ duration: 0.25, delay: isHovered ? 0.05 : 0 }}
+                  className="text-white text-sm md:text-base text-center px-6 max-w-md"
+                >
+                  {project.description}
+                </motion.p>
+              </motion.div>
+            </div>
           </div>
         </div>
         
@@ -78,7 +86,7 @@ function ProjectCard({ project, index }: { project: typeof mockProjects[0]; inde
             {project.categories.map((category, idx) => (
               <span 
                 key={idx} 
-                className="text-xs text-foreground/60 bg-foreground/5 px-2 py-1 rounded"
+                className="text-xs font-mono uppercase tracking-wider text-foreground/60 bg-foreground/5 px-2 py-1"
               >
                 {category}
               </span>
@@ -169,7 +177,7 @@ export function Works() {
       <motion.section
         ref={sectionRef}
         id="works"
-        className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative z-20 bg-background"
+        className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative z-20 bg-section-accent dark:bg-background"
         style={{ y: worksY }}
       >
         <div className="mx-auto max-w-7xl w-full">
@@ -193,6 +201,7 @@ export function Works() {
             <div className="mt-10 md:mt-12 flex justify-center">
               <Button
                 onClick={loadMore}
+                className="font-mono uppercase tracking-wider"
                 aria-label={`Show ${Math.min(LOAD_MORE_COUNT, mockProjects.length - visibleCount)} more projects`}
               >
                 Show more

@@ -280,6 +280,7 @@ export interface ExperienceRole {
   role: string;
   period: string;
   description?: string;
+  bullets?: string[];
 }
 
 export interface ExperienceGroup {
@@ -294,6 +295,7 @@ export interface ExperienceItem {
   period: string;
   description?: string;
   logo?: string;
+  bullets?: string[];
 }
 
 export type ExperienceEntry = ExperienceGroup | ExperienceItem;
@@ -305,8 +307,9 @@ export function isExperienceGroup(entry: ExperienceEntry): entry is ExperienceGr
 export const mockAbout = {
   name: 'Zeina Nossier',
   title: 'UI/UX & Product Designer',
-  bio: 'Designer focused on creating intuitive interfaces and thoughtful user experiences. I work across the entire design process, from initial research to final implementation.',
+  bio: "Product Designer working on complex apps and internal systems where clarity and structure make or break the experience. I’m big on bringing order to messy workflows and turning them into intuitive, usable products while keeping user needs and business goals aligned. Recently, I’ve been exploring AI-driven building and front-end development to get closer to how things are built—not just how they look.",
   tagline: 'UI/UX & Product Designer based in Cairo, EG.',
+  bioShort: "Product Designer focused on complex apps and internal systems—bringing order to messy workflows and aligning user needs with business goals. Exploring AI and front-end to get closer to how things are built.",
   heroHeadline: 'Product design that turns complexity into clarity.',
   heroSubhead: 'Zeina Nossier',
   heroSupport: 'End-to-end from research to high-fidelity.',
@@ -318,14 +321,19 @@ export const mockAbout = {
         {
           role: 'Product Designer II',
           period: 'Jan 2026 - Present',
-          description:
-            "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
+          // Content intentionally left blank for now
         },
         {
           role: 'Product Designer I',
           period: 'Jul 2024 - Jan 2026',
           description:
             "Designed internal tools for noon minutes' Commercial & Instock Squad, improving efficiency and aligning UX with business needs. Created user flows, wireframes, and high-fidelity UIs to streamline inventory, pricing, and product import processes. Collaborated cross-functionally with developers and product managers to deliver scalable solutions. Contributed to internal design systems and usability audits for workflow optimization.",
+          bullets: [
+            "Designed and shipped internal tools for noon minutes' Commercial and Instock Squad, improving operational efficiency and reducing friction across key workflows.",
+            'Mapped complex logistics, instock, and product onboarding journeys, translating them into clear user flows and high-fidelity interfaces.',
+            'Partnered closely with product managers and engineers to scope features, validate requirements, and deliver scalable, production-ready solutions.',
+            'Contributed to internal design systems and usability audits for workflow optimization.',
+          ],
         },
       ],
     } as ExperienceGroup,
@@ -336,6 +344,12 @@ export const mockAbout = {
       logo: '/logos/bespoke.png',
       description:
         "Led a brand identity refresh, modernizing the company's visuals across print and digital platforms. Designed catalogs, brochures, and social content; contributed to UX and layout of the website redesign. Developed and designed the full company website and e-commerce shop, focusing on user experience, visual clarity, and responsive design.",
+      bullets: [
+        "Led a brand identity refresh that modernized Bespoke Furniture's visuals across print and digital touchpoints.",
+        'Designed catalogs, brochures, and social content that supported sales and clarified the product offer.',
+        'Contributed to the UX and layout of a website redesign, improving how users browse and evaluate products.',
+        'Developed and designed the full e-commerce website with a focus on responsive layouts and visual clarity.',
+      ],
     } as ExperienceItem,
     {
       role: 'Undergraduate Teaching Assistant',
@@ -344,6 +358,12 @@ export const mockAbout = {
       logo: '/logos/auc.png',
       description:
         "Assisted the Design Principles & Practices (DPP) course for the Fall 2022 semester; managing the organization and digital filing of student submissions, streamlining the grading process for the professor. Served as the primary liaison between the professor and students, effectively communicating course updates, concepts, and resolving inquiries.",
+      bullets: [
+        'Assisted with the Design Principles & Practices (DPP) course during the Fall 2022 semester.',
+        'Organized and maintained digital filing of student submissions to streamline grading for the professor.',
+        'Acted as a liaison between the professor and students, sharing updates and clarifying course concepts.',
+        'Helped resolve student questions and logistical issues so the course ran smoothly.',
+      ],
     } as ExperienceItem,
     {
       role: 'Summer Intern',
@@ -352,6 +372,12 @@ export const mockAbout = {
       logo: '/logos/microsoft.png',
       description:
         "Participated in a high school tech internship focused on exploring programming (C++/Java) and basic app logic. Built small-scale tools like calculators while learning development environments and code structure. Delivered weekly demos and attended Microsoft's DigiGirlz workshops, sparking a long-term interest in digital design and tech innovation.",
+      bullets: [
+        'Completed a high school tech internship focused on programming fundamentals in C++ and Java.',
+        'Built small tools such as calculators while learning about app logic and development environments.',
+        "Presented weekly demos of work-in-progress projects and practiced communicating technical concepts simply.",
+        "Attended Microsoft's DigiGirlz workshops, which sparked a long-term interest in digital design and product work.",
+      ],
     } as ExperienceItem,
   ] as ExperienceEntry[],
   image: '/zeina-photo.jpg', // Add your photo file to /public/zeina-photo.jpg
@@ -510,5 +536,12 @@ export const mockTechStack: TechStackItem[] = [
     logo: '/shopify-logo.svg',
     category: 'E-commerce',
     url: 'https://www.shopify.com',
+  },
+  {
+    id: 'xcode',
+    name: 'Xcode',
+    logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/xcode/xcode-original.svg',
+    category: 'Development',
+    url: 'https://developer.apple.com/xcode/',
   },
 ];
