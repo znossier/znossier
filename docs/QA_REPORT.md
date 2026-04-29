@@ -1,12 +1,14 @@
 # QA Testing Report - Zeina Nossier Portfolio
 
-**Date:** January 2025  
+**Date:** January 2025 (Updated February 2025)  
 **Project:** Portfolio Website  
 **Framework:** Next.js 16 with TypeScript
 
 ## Executive Summary
 
 Comprehensive QA testing was performed on the portfolio website covering functionality, accessibility, and code organization. Multiple issues were identified and resolved, significantly improving the site's accessibility, user experience, and code quality.
+
+**February 2025 update:** Bug fixes (mobile menu click-outside), favicon/organization, SEO (viewport, theme color), and lint cleanups. Re-QA: build and core flows verified.
 
 ---
 
@@ -17,7 +19,7 @@ Comprehensive QA testing was performed on the portfolio website covering functio
 #### 1.1 Navigation Improvements
 - **Added mobile navigation menu** with hamburger button
 - **Implemented keyboard navigation** support (Escape key to close menu)
-- **Added click-outside detection** to close mobile menu
+- **Added click-outside detection** to close mobile menu (fixed: only close when click is outside the nav element, so opening the menu with the hamburger no longer immediately closes it)
 - **Fixed navigation link behavior** with proper scroll handling
 
 #### 1.2 Project Cards
@@ -137,8 +139,8 @@ Comprehensive QA testing was performed on the portfolio website covering functio
 ### Future Enhancements
 
 1. **Error Boundaries**
-   - Consider adding React Error Boundaries for better error handling
-   - Implement global error handling for API failures
+   - ✅ A root-level React Error Boundary has been added (`components/ErrorBoundary.tsx`), wrapping the app in the root layout. It shows a “Something went wrong” message with Try again, Reload page, and Back to home. Errors are logged in development.
+   - Consider implementing global error handling for API failures (e.g. toast or inline error UI for failed fetches).
 
 2. **Loading States**
    - Add loading skeletons for images
@@ -148,10 +150,12 @@ Comprehensive QA testing was performed on the portfolio website covering functio
    - Add analytics tracking for user interactions
    - Track navigation patterns
 
-4. **SEO**
-   - Add Open Graph meta tags
-   - Implement structured data (JSON-LD)
-   - Add sitemap.xml
+4. **SEO** ✅ Addressed Feb 2025
+   - ✅ Open Graph meta tags (layout + work detail pages)
+   - ✅ Structured data (JSON-LD Person in layout)
+   - ✅ Sitemap (`/sitemap.xml`) and robots (`/robots.txt`)
+   - ✅ Viewport and theme-color (light/dark) in layout
+   - ✅ Canonical URLs and metadataBase
 
 5. **Testing**
    - Add unit tests for utility functions
@@ -209,9 +213,8 @@ Comprehensive QA testing was performed on the portfolio website covering functio
    - Common pattern for preventing hydration mismatches
    - No functional issues
 
-4. **Button Component** - Unused `variant` prop
-   - Reserved for future use
-   - No impact on functionality
+4. **Button Component** - `variant` prop
+   - Implemented: `primary` (default) and `secondary` variants using design tokens.
 
 **Note:** All new code added during QA testing passes linting without errors.
 
@@ -231,5 +234,22 @@ The portfolio website has been significantly improved through comprehensive QA t
 
 ---
 
-**Report Generated:** January 2025  
+## 9. Favicon & PWA (Feb 2025)
+
+- **Favicon:** Uses only existing assets: `favicon-light.svg` and `favicon-dark.svg` with `prefers-color-scheme` (light/dark). Removed references to non-existent PNG/apple icons.
+- **Manifest:** `site.webmanifest` updated to reference `favicon-light.svg` and full description; removed non-existent icon-192/512 PNGs.
+- **Organization:** All icon metadata lives in `app/layout.tsx` under `metadata.icons`; manifest in `public/site.webmanifest`.
+
+---
+
+## 10. Re-QA (Feb 2025)
+
+- **Build:** `npm run build` succeeds (Next.js 16, static + dynamic routes).
+- **Bug fix:** Mobile menu no longer closes immediately when opening (click-outside now ignores clicks inside the nav).
+- **Lint:** Addressed SmoothScroll `any` (Window type), unused vars (Footer, GridOverlay, Services, VinylPlayer). Remaining lint items are pre-existing (Sanity schemas, setState-in-effect patterns for hydration/reduced-motion).
+- **SEO:** Viewport and themeColor added; sitemap/robots/OG/JSON-LD already in place.
+
+---
+
+**Report Generated:** January 2025 · **Updated:** February 2025  
 **Status:** ✅ All Critical Issues Resolved

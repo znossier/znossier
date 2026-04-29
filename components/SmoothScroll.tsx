@@ -3,6 +3,12 @@
 import { useEffect } from 'react';
 import Lenis from 'lenis';
 
+declare global {
+  interface Window {
+    lenis?: Lenis;
+  }
+}
+
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const lenis = new Lenis({
@@ -16,9 +22,8 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
       infinite: false,
     });
 
-    // Make lenis available globally for smoothScrollTo utility
     if (typeof window !== 'undefined') {
-      (window as any).lenis = lenis;
+      window.lenis = lenis;
     }
 
     function raf(time: number) {
@@ -31,7 +36,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     return () => {
       lenis.destroy();
       if (typeof window !== 'undefined') {
-        delete (window as any).lenis;
+        delete window.lenis;
       }
     };
   }, []);

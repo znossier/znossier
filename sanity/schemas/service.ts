@@ -1,37 +1,43 @@
-export default {
+import { defineField, defineType } from 'sanity';
+
+const serviceSchema = defineType({
   name: 'service',
   title: 'Service',
   type: 'document',
   fields: [
-    {
+    defineField({
       name: 'title',
       title: 'Title',
       type: 'string',
-      validation: (Rule: any) => Rule.required(),
-    },
-    {
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'description',
       title: 'Description',
       type: 'text',
-    },
-    {
-      name: 'skills',
-      title: 'Skills',
-      type: 'array',
-      of: [{ type: 'string' }],
-      validation: (Rule: any) => Rule.required(),
-    },
-    {
+      rows: 5,
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'number',
+      title: 'Display number',
+      type: 'string',
+      description: 'Optional label such as 01, 02, 03.',
+    }),
+    defineField({
       name: 'order',
       title: 'Order',
       type: 'number',
-      description: 'Display order (lower numbers appear first)',
+      description: 'Lower numbers appear first.',
       initialValue: 0,
-    },
+    }),
   ],
   preview: {
     select: {
       title: 'title',
+      subtitle: 'number',
     },
   },
-};
+});
+
+export default serviceSchema;

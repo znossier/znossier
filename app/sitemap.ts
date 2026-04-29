@@ -1,11 +1,12 @@
 import { MetadataRoute } from 'next';
-import { mockProjects } from '@/lib/mock-data';
+import { getPublishedProjects } from '@/lib/projects';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://znossier.com';
+  const projects = await getPublishedProjects();
 
-  const projectEntries: MetadataRoute.Sitemap = mockProjects.map((project) => ({
-    url: `${baseUrl}/works/${project.id}`,
+  const projectEntries: MetadataRoute.Sitemap = projects.map((project) => ({
+    url: `${baseUrl}/works/${project.slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.8,

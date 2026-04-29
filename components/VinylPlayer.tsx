@@ -75,7 +75,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
-  const [isInteractingWithEmbed, setIsInteractingWithEmbed] = useState(false);
+  const [, setIsInteractingWithEmbed] = useState(false);
   const rotation = useMotionValue(0);
 
   const spotifyUrl = `https://open.spotify.com/playlist/${playlistId}`;
@@ -93,8 +93,8 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
   // Mobile: swipe-down to close expanded sheet
   const sheetDragY = useMotionValue(0);
 
-  // Mobile: default position — equal inset from left and bottom (same pixels)
-  const WIDGET_INSET_PX = 24;
+  // Equal inset from edges so widget doesn’t sit on the bottom edge
+  const WIDGET_INSET_PX = 16;
   const MOBILE_DEFAULT_LEFT = WIDGET_INSET_PX;
   const MOBILE_DEFAULT_BOTTOM = WIDGET_INSET_PX;
   const MOBILE_BAR_W = 200;
@@ -136,7 +136,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
             setIsPlaying(true);
             fetchTrackMetadata(trackId);
           }
-        } catch (e) {
+        } catch {
           // Ignore parsing errors
         }
       }
@@ -144,7 +144,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [isPlaying]);
+  }, [isPlaying, currentTrackId]);
 
   // Load Spotify iframe API and create controller for play/pause
   useEffect(() => {
@@ -222,28 +222,6 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
       embedControllerRef.current = null;
     };
   }, [spotifyPlaylistUri]);
-
-  // First user interaction: start playback (unlocks autoplay) and mark interacted
-  useEffect(() => {
-    const handleFirstInteraction = () => {
-      setHasUserInteracted(true);
-      try {
-        embedControllerRef.current?.resume();
-      } catch {
-        // ignore
-      }
-    };
-
-    document.addEventListener('click', handleFirstInteraction, { once: true });
-    document.addEventListener('touchstart', handleFirstInteraction, { once: true });
-    document.addEventListener('keydown', handleFirstInteraction, { once: true });
-
-    return () => {
-      document.removeEventListener('click', handleFirstInteraction);
-      document.removeEventListener('touchstart', handleFirstInteraction);
-      document.removeEventListener('keydown', handleFirstInteraction);
-    };
-  }, []);
 
   // Fetch track metadata from Spotify oEmbed API and track page (one in-flight per trackId app-wide)
   const fetchTrackMetadata = async (trackId: string) => {
@@ -487,15 +465,15 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
           type="button"
           className={cn(
             'fixed z-50 rounded-r-lg rounded-l-none rounded-t-lg rounded-b-lg flex items-center justify-center touch-manipulation focus:outline-none focus:ring-2 min-w-[44px] min-h-[44px]',
-            isDark ? 'focus:ring-white/30' : 'focus:ring-black/20 text-neutral-700'
+            'focus:ring-link focus:ring-offset-2 focus:ring-offset-background text-foreground/70'
           )}
           style={{
             width: mobileDock === 'left' || mobileDock === 'right' ? 36 : 48,
             height: mobileDock === 'left' || mobileDock === 'right' ? 72 : 44,
             ...(mobileDock === 'left' ? { left: 0, top: '50%', transform: 'translateY(-50%)', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 } : {}),
             ...(mobileDock === 'right' ? { right: 0, top: '50%', transform: 'translateY(-50%)', borderTopRightRadius: 0, borderBottomRightRadius: 0 } : {}),
-            ...(mobileDock === 'top' ? { top: 0, left: '50%', transform: 'translateX(-50%)', borderTopLeftRadius: 0, borderTopRightRadius: 0 } : {}),
-            ...(mobileDock === 'bottom' ? { bottom: 'env(safe-area-inset-bottom, 0px)', left: '50%', transform: 'translateX(-50%)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 } : {}),
+            ...(mobileDock === 'top' ? { top: 'var(--chrome-top)', left: '50%', transform: 'translateX(-50%)', borderTopLeftRadius: 0, borderTopRightRadius: 0 } : {}),
+            ...(mobileDock === 'bottom' ? { bottom: 'calc(env(safe-area-inset-bottom, 0px) + 0.5rem)', left: '50%', transform: 'translateX(-50%)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 } : {}),
             background: isDark
               ? 'linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)'
               : 'linear-gradient(145deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.5) 100%)',
@@ -516,10 +494,10 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
           aria-label="Show player"
           whileTap={{ scale: 0.96 }}
         >
-          {mobileDock === 'left' && <ChevronRight className={cn('w-4 h-4', isDark ? 'text-white/70' : 'text-neutral-600')} />}
-          {mobileDock === 'right' && <ChevronLeft className={cn('w-4 h-4', isDark ? 'text-white/70' : 'text-neutral-600')} />}
-          {mobileDock === 'top' && <ChevronDown className={cn('w-4 h-4', isDark ? 'text-white/70' : 'text-neutral-600')} />}
-          {mobileDock === 'bottom' && <ChevronUp className={cn('w-4 h-4', isDark ? 'text-white/70' : 'text-neutral-600')} />}
+          {mobileDock === 'left' && <ChevronRight className={cn('w-4 h-4', 'text-foreground/70')} />}
+          {mobileDock === 'right' && <ChevronLeft className={cn('w-4 h-4', 'text-foreground/70')} />}
+          {mobileDock === 'top' && <ChevronDown className={cn('w-4 h-4', 'text-foreground/70')} />}
+          {mobileDock === 'bottom' && <ChevronUp className={cn('w-4 h-4', 'text-foreground/70')} />}
         </motion.button>
       )}
 
@@ -531,11 +509,11 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
         aria-label="Spotify music player"
         className={cn(
           'fixed z-50',
-          !isMobile && 'left-6 bottom-6',
+          !isMobile && 'left-8 bottom-8',
           isMobile && isHovered && 'inset-x-0 bottom-0',
-          isMobile && !isHovered && 'w-[min(200px,calc(100vw-5rem))]',
-          'px-4 pt-3 md:px-0 md:pt-0',
-          'pb-[max(0.5rem,env(safe-area-inset-bottom))] md:pb-0',
+          isMobile && !isHovered && 'w-[min(200px,calc(100vw-6rem))]',
+          'px-3 pt-3 md:px-0 md:pt-0',
+          'pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-0',
           'max-w-[calc(100vw-2rem)] md:max-w-none',
           isMobile && isHovered && 'rounded-t-xl',
           className
@@ -621,7 +599,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
           className={cn('relative', isMobile && 'w-full')}
           animate={
             isMobile
-              ? { width: '100%', height: isHovered ? 420 : MOBILE_BAR_H }
+              ? { width: '100%', height: isHovered ? 'min(420px, calc(100svh - var(--chrome-top) - 1rem))' : MOBILE_BAR_H }
               : {
                   width: isHovered ? 380 : 220,
                   height: isHovered ? 260 : 80,
@@ -633,35 +611,36 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
         }}
         style={{
           transformOrigin: isMobile ? 'center bottom' : 'left bottom',
+          maxHeight: isMobile && isHovered ? 'calc(100svh - var(--chrome-top) - 1rem)' : undefined,
         }}
       >
-        {/* Shadow/glow effect */}
+        {/* Shadow panel */}
         <motion.div
-          className="absolute inset-0 rounded-xl"
+          className="absolute inset-0"
           style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%)',
-            filter: 'blur(12px)',
-            transform: 'translateY(4px)',
+            background: isDark ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.08)',
+            filter: 'blur(10px)',
+            transform: 'translateY(5px)',
             zIndex: -1,
           }}
           animate={{
-            opacity: isHovered ? 0.8 : 0.4,
-            scale: isHovered ? 1.05 : 1,
+            opacity: isHovered ? 0.7 : 0.35,
+            scale: isHovered ? 1.02 : 1,
           }}
           transition={{ duration: 0.4 }}
         />
 
-        {/* Main card - mobile expanded: swipe down to close. Glassy bg, theme-aware. */}
+        {/* Main card - mobile expanded: swipe down to close. Matte frame treatment. */}
         <motion.div
-          className="rounded-xl relative overflow-hidden backdrop-blur-xl"
+          className="relative overflow-hidden border backdrop-blur-md"
           style={{
             background: isDark
-              ? 'linear-gradient(145deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 100%)'
-              : 'linear-gradient(145deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.35) 100%)',
+              ? 'linear-gradient(180deg, rgba(18,18,18,0.94) 0%, rgba(11,11,11,0.9) 100%)'
+              : 'linear-gradient(180deg, rgba(235,231,223,0.94) 0%, rgba(224,219,211,0.9) 100%)',
             boxShadow: isDark
-              ? `inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2), 0 8px 32px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)`
-              : `inset 0 1px 0 rgba(255,255,255,0.8), inset 0 -1px 0 rgba(0,0,0,0.06), 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)`,
-            border: isDark ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(0,0,0,0.08)',
+              ? `inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 28px rgba(0,0,0,0.32)`
+              : `inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 28px rgba(0,0,0,0.1)`,
+            borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(17,17,17,0.12)',
             ...(isMobile && isHovered ? { y: sheetDragY } : {}),
           }}
           drag={isMobile && isHovered ? 'y' : false}
@@ -680,13 +659,13 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
           }}
           transition={{ duration: 0.4 }}
         >
-          {/* Glass shine overlay */}
+          {/* Top rule */}
           <div
-            className="absolute top-0 left-0 right-0 h-1/2 rounded-t-xl opacity-40"
+            className="absolute top-0 left-0 right-0 h-px opacity-80"
             style={{
               background: isDark
-                ? 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, transparent 100%)'
-                : 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, transparent 100%)',
+                ? 'rgba(255,255,255,0.08)'
+                : 'rgba(17,17,17,0.08)',
               pointerEvents: 'none',
             }}
           />
@@ -805,7 +784,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
                     </>
                   ) : (
                     <div
-                      className="absolute inset-0 bg-neutral-700"
+                      className="absolute inset-0 bg-foreground/80"
                       style={{
                         background: 'linear-gradient(135deg, rgba(60,60,60,0.98) 0%, rgba(40,40,40,0.98) 100%)',
                       }}
@@ -852,7 +831,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
                     </defs>
                   </svg>
                   <div
-                    className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1 rounded-sm bg-neutral-600"
+                    className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1 rounded-sm bg-foreground/70"
                     style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.6)' }}
                   />
                 </div>
@@ -868,7 +847,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
                     'left-[26px] top-[30px] -translate-x-1/2 -translate-y-1/2',
                     'w-8 h-8',
                     'rounded-full focus:outline-none focus:ring-2',
-                    isDark ? 'focus:ring-white/30' : 'focus:ring-black/20'
+                    'focus:ring-link focus:ring-offset-2 focus:ring-offset-background'
                   )}
                   whileHover={{ scale: 1.06 }}
                   whileTap={{ scale: 0.95 }}
@@ -877,15 +856,15 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
                   <span
                     className={cn(
                       'w-6 h-6 rounded-full flex items-center justify-center shrink-0',
-                      'bg-white/10 group-hover:bg-white/20 backdrop-blur-md',
-                      'border border-white/20 shadow-sm',
+                      'bg-black/55 group-hover:bg-black/65 backdrop-blur-sm',
+                      'border border-white/10 shadow-sm',
                       'transition-colors'
                     )}
                   >
                     {isPlaying ? (
-                      <Pause className="w-3.5 h-3.5 text-white" />
+                      <Pause className="h-3.5 w-3.5 text-white" />
                     ) : (
-                      <Play className="w-3.5 h-3.5 ml-0.5 text-white" />
+                      <Play className="ml-0.5 h-3.5 w-3.5 text-white" />
                     )}
                   </span>
                 </motion.button>
@@ -921,8 +900,9 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
                     className={cn(
                       'font-semibold truncate leading-tight',
                       isMobile && !isHovered ? 'text-xs' : 'text-sm',
-                      isDark ? 'text-white' : 'text-neutral-900'
+                      'text-foreground'
                     )}
+                    style={{ fontFamily: 'var(--font-oswald), var(--font-geist-sans), sans-serif', letterSpacing: '-0.03em' }}
                   >
                     {trackInfo.name}
                   </div>
@@ -930,15 +910,16 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
                     className={cn(
                       'truncate leading-tight mt-0.5',
                       isMobile && !isHovered ? 'text-[10px]' : 'text-xs',
-                      isDark ? 'text-white/50' : 'text-neutral-500'
+                      'text-foreground/50'
                     )}
+                    style={{ letterSpacing: '0.16em', textTransform: 'uppercase', fontFamily: 'var(--font-geist-mono), monospace' }}
                   >
                     {trackInfo.artist}
                   </div>
                 </div>
                 {/* Mobile expanded: chevron right-aligned on same row (collapse affordance) */}
                 {isMobile && isHovered && (
-                  <span className={cn('flex-shrink-0 w-8 h-8 flex items-center justify-center -mr-0.5', isDark ? 'text-white/50' : 'text-neutral-500')} aria-hidden>
+                  <span className={cn('flex-shrink-0 w-8 h-8 flex items-center justify-center -mr-0.5', 'text-foreground/50')} aria-hidden>
                     <ChevronDown className="w-4 h-4" />
                   </span>
                 )}
@@ -961,11 +942,11 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
               style={{
                 visibility: isHovered ? 'visible' : 'hidden',
                 pointerEvents: isHovered ? 'auto' : 'none',
-                background: 'rgba(0,0,0,0.25)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
+                background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(17,17,17,0.03)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
                 borderRadius: SPOTIFY_EMBED_RADIUS,
-                border: '1px solid rgba(255,255,255,0.06)',
+                border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(17,17,17,0.08)',
               }}
             >
               {isMobile && isHovered && (
@@ -974,7 +955,7 @@ export function VinylPlayer({ playlistId, className }: VinylPlayerProps) {
                   onClick={() => setIsHovered(false)}
                   aria-label="Close player"
                 >
-                  <div className={cn('w-10 h-1 rounded-full', isDark ? 'bg-white/25' : 'bg-black/20')} />
+                  <div className={cn('w-10 h-1 rounded-full', 'bg-foreground/25')} />
                 </div>
               )}
               {/* Spotify Embed - iframe styled in JS for rounded corners. The "Get Spotify" / CTA overlay is rendered by Spotify inside the iframe and cannot be disabled via the embed API. */}

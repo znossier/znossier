@@ -1,51 +1,138 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useHasMounted } from '@/hooks/useHasMounted';
 
 type ThemeToggleVariant = 'switch' | 'fab';
 
+const TRACK_WIDTH = 132;
+const TRACK_HEIGHT = 40;
+const TRACK_PADDING = 4;
+const EDGE_RADIUS = 2;
+const INNER_RADIUS = Math.max(0, EDGE_RADIUS - 1);
+const GLOSS_RADIUS = Math.max(0, EDGE_RADIUS - 2);
+const THUMB_WIDTH = (TRACK_WIDTH - TRACK_PADDING * 2) / 2;
+const THUMB_HEIGHT = TRACK_HEIGHT - TRACK_PADDING * 2;
+const THUMB_TRAVEL = TRACK_WIDTH - TRACK_PADDING * 2 - THUMB_WIDTH;
+const LABEL_TOP = TRACK_PADDING;
+const LABEL_HEIGHT = THUMB_HEIGHT;
+const LABEL_WIDTH = THUMB_WIDTH;
+const LABEL_FONT_SIZE = '0.95rem';
+const RIGHT_SLOT_LEFT = TRACK_PADDING + THUMB_TRAVEL;
+const LIGHT_FAB_BACKGROUND = '#FFFFFF';
+const LIGHT_TRACK_BACKGROUND = '#F2F4F7';
+const LIGHT_LABEL_COLOR = '#68707C';
+
 export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVariant }) {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const mounted = useHasMounted();
+  const prefersReducedMotion = useReducedMotion();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const isDark = mounted ? resolvedTheme === 'dark' : true;
+  const toggle = () => setTheme(isDark ? 'light' : 'dark');
+  const pillX = isDark ? 0 : THUMB_TRAVEL;
 
-  const isDark = theme === 'dark';
-  const isOn = theme === 'light'; // ON = light, OFF = dark (dark remains default)
-  const toggle = () => setTheme(isOn ? 'dark' : 'light');
+  const trackTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        duration: 0.52,
+        ease: [0.16, 1, 0.3, 1] as const,
+      };
+
+  const pillMotionTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        x: {
+          type: 'spring' as const,
+          stiffness: 260,
+          damping: 27,
+          mass: 0.92,
+        },
+        width: {
+          duration: 0.46,
+          ease: [0.16, 1, 0.3, 1] as const,
+          times: [0, 0.56, 1],
+        },
+        scaleX: trackTransition,
+        backgroundColor: trackTransition,
+        boxShadow: trackTransition,
+      };
+
+  const labelTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        duration: 0.34,
+        ease: [0.16, 1, 0.3, 1] as const,
+      };
 
   if (!mounted) {
     if (variant === 'fab') {
       return (
         <div
-          className="fixed z-40 md:hidden w-12 h-12 rounded-full bg-white shadow-xl bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-[max(1.5rem,env(safe-area-inset-right))]"
+          className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 h-11 w-11 rounded-full md:hidden"
+          style={{
+            backgroundColor: '#171717',
+            border: '1px solid rgba(245, 242, 236, 0.1)',
+            boxShadow: '0 14px 32px rgba(0, 0, 0, 0.28)',
+          }}
           aria-hidden
         />
       );
     }
+
     return (
       <div
-        className="relative w-[120px] h-[32px] rounded-full bg-gradient-to-r from-[#0F0F0F] to-[#1A1A1A] border border-black/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+        className="relative overflow-hidden"
+        style={{
+          height: TRACK_HEIGHT,
+          width: TRACK_WIDTH,
+          backgroundColor: '#121212',
+          border: '1px solid rgba(245, 242, 236, 0.1)',
+          boxShadow: '0 14px 34px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+          borderRadius: EDGE_RADIUS,
+        }}
         aria-hidden
       >
-        <span className="absolute left-[4px] top-1/2 w-[56px] h-[24px] -translate-y-1/2 rounded-full bg-white border border-black/20 shadow-[0_10px_24px_rgba(0,0,0,0.35)]" />
+        <span
+          className="absolute inset-[1px]"
+          style={{
+            background:
+              'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 48%, rgba(0,0,0,0.12) 100%)',
+            borderRadius: INNER_RADIUS,
+          }}
+        />
+        <span
+          className="absolute top-1/2 -translate-y-1/2"
+          style={{
+            left: TRACK_PADDING,
+            height: THUMB_HEIGHT,
+            width: THUMB_WIDTH,
+            backgroundColor: '#F7F2EA',
+            boxShadow: '0 10px 24px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255,255,255,0.82)',
+            borderRadius: INNER_RADIUS,
+          }}
+        />
       </div>
     );
   }
 
   if (variant === 'fab') {
     return (
-      <button
+      <motion.button
+        type="button"
         onClick={toggle}
-        className={`fixed z-40 md:hidden w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-[max(1.5rem,env(safe-area-inset-right))] ${
-          isDark
-            ? 'bg-white text-[#1A1A1A] hover:bg-gray-100 focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-white'
-            : 'bg-[#1A1A1A] text-white hover:bg-[#333] focus-visible:ring-[#1A1A1A] focus-visible:ring-offset-[#FAFAFA]'
-        }`}
+        whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
+        animate={{
+          backgroundColor: isDark ? '#171717' : LIGHT_FAB_BACKGROUND,
+          borderColor: isDark ? 'rgba(245, 242, 236, 0.1)' : 'rgba(17, 17, 17, 0.12)',
+          color: isDark ? '#F5F2EC' : '#111111',
+          boxShadow: isDark
+            ? '0 14px 32px rgba(0, 0, 0, 0.3)'
+            : '0 14px 32px rgba(17, 17, 17, 0.08)',
+        }}
+        transition={trackTransition}
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 flex h-11 w-11 items-center justify-center rounded-full border focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background md:hidden"
         aria-label="Toggle theme"
       >
         {isDark ? (
@@ -55,7 +142,7 @@ export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVaria
             viewBox="0 0 24 24"
             strokeWidth={2}
             stroke="currentColor"
-            className="w-5 h-5"
+            className="h-5 w-5"
             aria-hidden
           >
             <path
@@ -73,7 +160,7 @@ export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVaria
             stroke="currentColor"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="w-5 h-5"
+            className="h-5 w-5"
             aria-hidden
           >
             <circle cx="12" cy="12" r="4" />
@@ -87,75 +174,130 @@ export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVaria
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
           </svg>
         )}
-      </button>
+      </motion.button>
     );
   }
 
   return (
     <motion.button
+      type="button"
       onClick={toggle}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-      className="relative w-[120px] h-[32px] rounded-full flex items-center overflow-hidden border border-black/80 bg-gradient-to-r from-[#0F0F0F] to-[#1A1A1A] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      aria-label="Toggle theme (ON = light, OFF = dark)"
+      whileTap={prefersReducedMotion ? undefined : { scale: 0.978 }}
+      animate={{
+        backgroundColor: isDark ? '#121212' : LIGHT_TRACK_BACKGROUND,
+        borderColor: isDark ? 'rgba(245, 242, 236, 0.1)' : 'rgba(17, 17, 17, 0.12)',
+        boxShadow: isDark
+          ? '0 14px 34px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.04)'
+          : '0 14px 34px rgba(17, 17, 17, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.82)',
+      }}
+      transition={trackTransition}
+      className="relative flex items-center overflow-hidden border backdrop-blur-md focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      style={{ height: TRACK_HEIGHT, width: TRACK_WIDTH, borderRadius: EDGE_RADIUS }}
+      aria-label="Toggle theme"
       role="switch"
-      aria-checked={isOn}
+      aria-checked={isDark}
     >
-      {/* ON label (left) – fades out as thumb covers it */}
       <motion.span
-        className="absolute left-[12px] top-1/2 -translate-y-1/2 font-mono text-[11px] font-bold uppercase tracking-wider select-none pointer-events-none"
-        animate={{
-          opacity: isOn ? 0 : 1,
-          scale: isOn ? 0.92 : 1,
+        className="pointer-events-none absolute inset-[1px]"
+        animate={{ opacity: isDark ? 0.86 : 1 }}
+        transition={trackTransition}
+        style={{
+          background: isDark
+            ? 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 44%, rgba(0,0,0,0.12) 100%)'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.62) 44%, rgba(17,17,17,0.04) 100%)',
+          borderRadius: INNER_RADIUS,
         }}
-        transition={{ duration: 0.26, ease: [0.33, 1, 0.68, 1] }}
-        style={{ color: 'rgba(255,255,255,0.92)' }}
         aria-hidden
-      >
-        ON
-      </motion.span>
+      />
 
-      {/* OFF label (right) – fades in as thumb leaves */}
-      <motion.span
-        className="absolute right-[12px] top-1/2 -translate-y-1/2 font-mono text-[11px] font-bold uppercase tracking-wider select-none pointer-events-none"
-        animate={{
-          opacity: isOn ? 1 : 0.28,
-          scale: isOn ? 1 : 0.92,
-        }}
-        transition={{ duration: 0.26, ease: [0.33, 1, 0.68, 1], delay: isOn ? 0.04 : 0 }}
-        style={{ color: isOn ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.28)' }}
-        aria-hidden
-      >
-        OFF
-      </motion.span>
-
-      {/* Thumb: smooth spring with slight overshoot, shadow follows state */}
-      <motion.div
-        className="absolute left-[4px] top-1/2 h-[24px] w-[56px] -translate-y-1/2 rounded-full flex items-center justify-center font-mono text-[11px] font-bold uppercase tracking-wider border border-black/20 bg-white text-black overflow-hidden"
-        animate={{
-          x: isOn ? 0 : 56,
-          scale: 1,
-          boxShadow: isOn
-            ? '0 10px 28px rgba(0,0,0,0.38), 0 2px 8px rgba(0,0,0,0.12)'
-            : '0 8px 22px rgba(0,0,0,0.32), 0 2px 6px rgba(0,0,0,0.1)',
-        }}
-        transition={{
-          type: 'spring',
-          stiffness: 380,
-          damping: 26,
-          mass: 0.6,
-        }}
-      >
-        {/* Thumb label with subtle pop when state changes */}
+      <span className="pointer-events-none absolute inset-0" aria-hidden>
         <motion.span
-          key={isOn ? 'on' : 'off'}
-          initial={{ opacity: 0, scale: 0.88 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: [0.33, 1, 0.68, 1], delay: 0.06 }}
-          className="block"
+          animate={{
+            opacity: isDark ? 0.18 : 0.42,
+            color: isDark ? '#F5F2EC' : LIGHT_LABEL_COLOR,
+          }}
+          transition={labelTransition}
+          className="absolute flex items-center justify-center font-medium uppercase leading-none tracking-[0.04em]"
+          style={{
+            left: TRACK_PADDING,
+            top: LABEL_TOP,
+            width: LABEL_WIDTH,
+            height: LABEL_HEIGHT,
+            fontSize: LABEL_FONT_SIZE,
+            fontFamily: 'var(--font-oswald), var(--font-geist-sans), sans-serif',
+          }}
         >
-          {isOn ? 'ON' : 'OFF'}
+          ON
         </motion.span>
+        <motion.span
+          animate={{
+            opacity: isDark ? 0.42 : 0.18,
+            color: isDark ? '#F5F2EC' : LIGHT_LABEL_COLOR,
+          }}
+          transition={labelTransition}
+          className="absolute flex items-center justify-center font-medium uppercase leading-none tracking-[0.04em]"
+          style={{
+            left: RIGHT_SLOT_LEFT,
+            top: LABEL_TOP,
+            width: LABEL_WIDTH,
+            height: LABEL_HEIGHT,
+            fontSize: LABEL_FONT_SIZE,
+            fontFamily: 'var(--font-oswald), var(--font-geist-sans), sans-serif',
+          }}
+        >
+          OFF
+        </motion.span>
+      </span>
+
+      <motion.div
+        className="absolute top-1/2 flex -translate-y-1/2 items-center justify-center"
+        animate={{
+          x: pillX,
+          width: prefersReducedMotion ? THUMB_WIDTH : [THUMB_WIDTH, THUMB_WIDTH + 10, THUMB_WIDTH],
+          scaleX: prefersReducedMotion ? 1 : [1, 1.035, 1],
+          backgroundColor: isDark ? '#F7F2EA' : '#111111',
+          boxShadow: isDark
+            ? '0 10px 24px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255,255,255,0.82)'
+            : '0 12px 28px rgba(17, 17, 17, 0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
+        }}
+        transition={pillMotionTransition}
+        style={{
+          left: TRACK_PADDING,
+          height: THUMB_HEIGHT,
+          width: THUMB_WIDTH,
+          borderRadius: INNER_RADIUS,
+          transformOrigin: isDark ? 'left center' : 'right center',
+        }}
+      >
+        <motion.span
+          className="pointer-events-none absolute inset-[1px]"
+          animate={{ opacity: isDark ? 1 : 0.72 }}
+          transition={trackTransition}
+          style={{
+            background: isDark
+              ? 'linear-gradient(180deg, rgba(255,255,255,0.58) 0%, rgba(255,255,255,0) 70%)'
+              : 'linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0) 72%)',
+            borderRadius: GLOSS_RADIUS,
+          }}
+          aria-hidden
+        />
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={isDark ? 'on' : 'off'}
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 5, scale: 0.975, filter: 'blur(6px)' }}
+            animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -5, scale: 0.99, filter: 'blur(6px)' }}
+            transition={labelTransition}
+            className="relative z-10 font-medium uppercase leading-none tracking-[0.04em]"
+            style={{
+              color: isDark ? '#111111' : '#F5F2EC',
+              fontSize: LABEL_FONT_SIZE,
+              fontFamily: 'var(--font-oswald), var(--font-geist-sans), sans-serif',
+            }}
+          >
+            {isDark ? 'ON' : 'OFF'}
+          </motion.span>
+        </AnimatePresence>
       </motion.div>
     </motion.button>
   );

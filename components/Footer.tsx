@@ -1,90 +1,110 @@
 'use client';
 
-import { mockAbout, mockContact, navigationItems } from '@/lib/mock-data';
-import { SocialLinks } from '@/components/SocialLinks';
+import { SectionGridLines } from '@/components/SectionGridLines';
+import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
+import { navigationItems } from '@/lib/mock-data';
+import type { ContactContent } from '@/lib/site-content';
+import { smoothScrollTo, smoothScrollToTop } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LinkSwap } from '@/components/LinkSwap';
-import { smoothScrollTo } from '@/lib/utils';
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
+      staggerChildren: 0.08,
+      delayChildren: 0.12,
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 18 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5 },
+    transition: { duration: 0.45 },
   },
 };
 
-const navLinkClass =
-  'text-sm font-mono uppercase tracking-wider text-foreground/70 hover:text-foreground transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded';
+const footerLinkClass =
+  'text-sm font-mono uppercase tracking-[0.14em] sm:tracking-[0.18em] text-foreground/72 transition-colors duration-200 hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:hover:text-link';
 
-export function Footer() {
+const footerTopCellClass =
+  'relative z-10 h-full border-x border-border/90 px-5 py-5 md:px-6 md:py-6';
+
+const footerPanelClass =
+  'grid-edge-frame relative z-10 isolate h-full border-x border-b border-border/90 px-5 py-5 md:px-6 md:py-6';
+
+export function Footer({ contact }: { contact: ContactContent }) {
   const pathname = usePathname();
   const isHome = pathname === '/';
+
   const handleNavClick = (sectionId: string) => {
-    smoothScrollTo(sectionId, 100);
+    smoothScrollTo(sectionId, 96);
   };
 
   return (
-    <footer id="footer" className="bg-section-accent dark:bg-background relative z-20 border-t border-foreground/20">
-      {/* Grid corner + at top-left of footer content */}
-      <div className="mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 relative">
-        <span className="absolute left-4 sm:left-6 top-0 -translate-y-1/2 text-xs font-mono leading-none text-foreground/40" aria-hidden>+</span>
-        <span className="absolute right-4 sm:right-6 top-0 -translate-y-1/2 text-xs font-mono leading-none text-foreground/40" aria-hidden>+</span>
-        {/* Main Footer Content */}
+    <footer id="footer" className="relative z-20 border-t border-border/90 bg-footer pb-[var(--mobile-bottom-controls)] dark:bg-background md:pb-0">
+      <SectionGridLines boundaries={HOME_SECTION_BOUNDARIES.footer} />
+      <div className="mx-auto w-full max-w-[var(--site-max-width)] px-[var(--site-padding-inline)] lg:px-0">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
           variants={containerVariants}
-          className="py-12 md:py-16 lg:py-20"
+          className="relative z-10"
         >
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 lg:gap-16">
-            {/* Navigation Section */}
-            <motion.section
-              variants={itemVariants}
-              className="flex flex-col min-w-0 md:col-span-4"
-            >
-              <h3 className="text-xs font-mono font-medium text-foreground/50 mb-4 uppercase tracking-widest">
+          <div className="border-b border-border/90">
+            <div className="site-grid">
+              <motion.div
+                variants={itemVariants}
+                className={`${footerTopCellClass} [grid-column:3/span_4] sm:[grid-column:3/span_6] lg:[grid-column:17/span_8]`}
+              >
+                <button
+                  type="button"
+                  onClick={smoothScrollToTop}
+                  className={`${footerLinkClass} inline-flex w-full items-center justify-between gap-3`}
+                >
+                  <span>Back to top</span>
+                  <span aria-hidden>↑</span>
+                </button>
+              </motion.div>
+            </div>
+          </div>
+
+          <div className="site-grid gap-y-0">
+            <motion.section variants={itemVariants} className={`${footerPanelClass} [grid-column:1/span_4] sm:[grid-column:1/span_4] lg:[grid-column:1/span_8]`}>
+              <h3 className="mb-5 text-xs font-mono font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Navigation
               </h3>
               <nav aria-label="Footer navigation">
                 <ul className="flex flex-col gap-3">
                   {navigationItems.map((item) => {
                     const sectionId = item.href.substring(1);
+
                     if (isHome) {
                       return (
                         <li key={item.href}>
-                          <LinkSwap
-                            as="a"
+                          <a
                             href={item.href}
-                            onClick={(e) => {
-                              e.preventDefault();
+                            onClick={(event) => {
+                              event.preventDefault();
                               handleNavClick(sectionId);
                             }}
-                            className={navLinkClass}
+                            className={footerLinkClass}
                           >
                             {item.label}
-                          </LinkSwap>
+                          </a>
                         </li>
                       );
                     }
+
                     return (
                       <li key={item.href}>
-                        <Link href={`/${item.href}`} className={navLinkClass}>
+                        <Link href={`/${item.href}`} className={footerLinkClass}>
                           {item.label}
                         </Link>
                       </li>
@@ -94,95 +114,54 @@ export function Footer() {
               </nav>
             </motion.section>
 
-            {/* Contact Section */}
-            <motion.section 
-              variants={itemVariants} 
-              className="flex flex-col min-w-0 md:col-span-4"
-            >
-              <h3 className="text-xs font-mono font-medium text-foreground/50 mb-4 uppercase tracking-widest">
+            <motion.section variants={itemVariants} className={`${footerPanelClass} [grid-column:2/span_5] sm:[grid-column:5/span_4] lg:[grid-column:9/span_8]`}>
+              <h3 className="mb-5 text-xs font-mono font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Contact
               </h3>
               <div className="flex flex-col gap-3">
                 <a
-                  href={`mailto:${mockContact.email}`}
-                  className="inline-flex items-center gap-2.5 text-sm font-mono text-foreground/70 hover:text-foreground transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded w-fit"
-                  aria-label={`Email: ${mockContact.email}`}
+                  href={`mailto:${contact.email}`}
+                  className="break-words text-[0.75rem] font-mono uppercase tracking-[0.04em] text-foreground/74 transition-colors duration-200 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background min-[375px]:text-sm sm:tracking-[0.12em] dark:hover:text-link"
+                  aria-label={`Email: ${contact.email}`}
                 >
-                  <svg
-                    className="w-4 h-4 flex-shrink-0 self-center"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <LinkSwap as="span">{mockContact.email}</LinkSwap>
+                  {contact.email}
                 </a>
-                <a
-                  href="tel:+20122009325"
-                  className="inline-flex items-center gap-2.5 text-sm font-mono text-foreground/70 hover:text-foreground transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded w-fit"
-                  aria-label="Phone: +20122009325"
-                >
-                  <svg
-                    className="w-4 h-4 flex-shrink-0 self-center"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
+                {contact.phone ? (
+                  <a
+                    href={`tel:${contact.phone}`}
+                    className="break-words text-[0.75rem] font-mono uppercase tracking-[0.04em] text-foreground/74 transition-colors duration-200 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background min-[375px]:text-sm sm:tracking-[0.12em] dark:hover:text-link"
+                    aria-label={`Phone: ${contact.phone}`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                  <LinkSwap as="span">+20122009325</LinkSwap>
-                </a>
-                <p className="inline-flex items-center gap-2.5 text-sm font-mono text-foreground/70 leading-relaxed">
-                  <svg
-                    className="w-4 h-4 flex-shrink-0 self-center"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  Cairo, EG
-                </p>
+                    {contact.phone}
+                  </a>
+                ) : null}
+                {contact.address ? (
+                  <p className="break-words text-sm font-mono uppercase tracking-[0.08em] text-foreground/62 sm:tracking-[0.12em]">
+                    {contact.address}
+                  </p>
+                ) : null}
               </div>
             </motion.section>
 
-            {/* Social Links Section */}
-            <motion.section 
-              variants={itemVariants} 
-              className="flex flex-col min-w-0 md:col-span-4"
-            >
-              <h3 className="text-xs font-mono font-medium text-foreground/50 mb-4 uppercase tracking-widest">
+            <motion.section variants={itemVariants} className={`${footerPanelClass} [grid-column:1/span_6] sm:[grid-column:1/span_8] lg:[grid-column:17/span_8]`}>
+              <h3 className="mb-5 text-xs font-mono font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Connect
               </h3>
-              <SocialLinks />
+              <ul className="flex flex-col gap-3">
+                {contact.socialLinks.map((social) => (
+                  <li key={social.platform}>
+                    <a
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={footerLinkClass}
+                      aria-label={social.platform}
+                    >
+                      {social.platform}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </motion.section>
           </div>
         </motion.div>

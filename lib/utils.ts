@@ -9,8 +9,8 @@ export function smoothScrollTo(elementId: string, offset: number = 80) {
   const element = document.getElementById(elementId);
   if (element) {
     // Check if Lenis is available (client-side)
-    if (typeof window !== 'undefined' && (window as any).lenis) {
-      (window as any).lenis.scrollTo(element, {
+    if (typeof window !== 'undefined' && window.lenis) {
+      window.lenis.scrollTo(element, {
         offset: -offset,
         duration: 1.2,
       });
@@ -24,4 +24,20 @@ export function smoothScrollTo(elementId: string, offset: number = 80) {
       });
     }
   }
+}
+
+export function smoothScrollToTop() {
+  if (typeof window === 'undefined') return;
+
+  if (window.lenis) {
+    window.lenis.scrollTo(0, {
+      duration: 1.2,
+    });
+    return;
+  }
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
 }

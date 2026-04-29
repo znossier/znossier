@@ -1,13 +1,20 @@
 'use client';
 
 import { SectionHeading } from '@/components/SectionHeading';
+import { SectionGridLines } from '@/components/SectionGridLines';
+import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
 import { mockProcessSteps } from '@/lib/mock-data';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, memo, type CSSProperties } from 'react';
+import { useHasMounted } from '@/hooks/useHasMounted';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const WRAPPER_HEIGHT_VH = 400;
+const PROCESS_CARD_SPAN = 8;
+const PROCESS_GAP_SPAN = 1;
+const PROCESS_SECTION_BUFFER_PX = 220;
 
-function ProcessCard({
+const ProcessCard = memo(function ProcessCard({
   step,
   variant = 'scroll',
   stepIndex,
@@ -23,25 +30,25 @@ function ProcessCard({
   const showStepIndicator = isVertical && stepIndex != null && totalSteps != null && totalSteps > 0;
   return (
     <article
-      className={`flex flex-col bg-background border border-border rounded-lg overflow-hidden relative ${
+      className={`editorial-panel surface-raised relative flex flex-col overflow-hidden border border-border/95 shadow-[0_18px_46px_rgba(0,0,0,0.08)] dark:bg-background dark:shadow-[0_18px_46px_rgba(0,0,0,0.3)] ${
         isScroll
-          ? 'flex-shrink-0 w-[88vw] sm:w-[calc((100vw-3rem)/1.5)] md:w-[calc((100vw-5rem)/2)] lg:w-[calc((100vw-9rem)/2.5)] lg:max-w-[500px] h-[400px] sm:h-[440px] md:h-[480px] p-5 sm:p-6 md:p-8'
-          : isVertical
-            ? 'min-h-0 p-5 sm:p-6 md:p-8'
-            : 'min-h-[240px] p-5 sm:p-6 md:p-8'
+          ? 'h-[400px] w-[88vw] flex-shrink-0 p-5 sm:h-[440px] sm:w-[calc((100vw-3rem)/1.5)] sm:p-6 md:h-[480px] md:w-[calc((100vw-5rem)/2)] md:p-8 lg:w-[var(--process-card-width)] lg:max-w-none'
+            : isVertical
+              ? 'min-h-0 p-5 sm:p-6 md:p-8'
+            : 'min-h-[220px] p-5 sm:p-6 md:min-h-[240px] md:p-8'
       }`}
       aria-label={`${step.title}: ${step.description}`}
     >
       {showStepIndicator && (
-        <span className="text-xs font-medium text-foreground/50 mb-2 flex-shrink-0" aria-hidden>
+        <span className="editorial-kicker mb-2 flex-shrink-0 text-foreground/58" aria-hidden>
           Step {stepIndex} of {totalSteps}
         </span>
       )}
-      <h3 className="text-xl sm:text-2xl font-mono font-bold uppercase tracking-wider text-foreground mb-4 flex-shrink-0">
+      <h3 className="mb-4 flex-shrink-0 font-mono text-[1.55rem] font-bold uppercase leading-[0.95] tracking-[-0.04em] text-foreground sm:text-[1.9rem]">
         {step.title}
       </h3>
       <p
-        className={`text-sm sm:text-base text-foreground/70 leading-relaxed flex-1 min-h-0 mb-14 ${
+        className={`mb-14 min-h-0 flex-1 text-sm leading-relaxed text-foreground/78 sm:text-base ${
           isVertical ? 'overflow-visible' : 'overflow-y-auto'
         }`}
       >
@@ -49,26 +56,33 @@ function ProcessCard({
       </p>
       {/* Oversized number clipped at bottom-right edge */}
       <span
-        className="absolute bottom-0 right-0 text-7xl sm:text-8xl md:text-8xl font-mono font-bold text-foreground/15 select-none pointer-events-none translate-x-[8%] translate-y-[12%]"
+        className="pointer-events-none absolute bottom-0 right-0 translate-x-[4%] translate-y-[7%] select-none font-mono text-6xl font-bold uppercase tracking-[-0.06em] text-foreground/22 sm:text-7xl md:text-7xl"
         aria-hidden
       >
         {step.number}
       </span>
     </article>
   );
-}
+});
 
 export function Process() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const hasMounted = useHasMounted();
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
   const [maxScroll, setMaxScroll] = useState(0);
+  const [wrapperHeightPx, setWrapperHeightPx] = useState<number | null>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: wrapperRef,
-    offset: ['start start', 'end end'],
-  });
+  const { scrollYProgress } = useScroll(
+    hasMounted && !reduceMotion && isDesktop
+      ? {
+          target: wrapperRef,
+          offset: ['start start', 'end end'],
+        }
+      : undefined
+  );
 
   const translateX = useTransform(
     scrollYProgress,
@@ -76,16 +90,17 @@ export function Process() {
     [0, -Math.max(0, maxScroll)]
   );
 
-  useEffect(() => {
-    const mm = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReduceMotion(mm.matches);
-    const fn = () => setReduceMotion(mm.matches);
-    mm.addEventListener('change', fn);
-    return () => mm.removeEventListener('change', fn);
-  }, []);
+  const desktopTrackVars = {
+    '--process-col-width':
+      'calc(min(100vw - (2 * var(--site-padding-inline)), var(--site-max-width)) / var(--site-grid-columns-desktop))',
+    '--process-card-width':
+      `calc(var(--process-col-width) * ${PROCESS_CARD_SPAN})`,
+    '--process-track-gap':
+      `calc(var(--process-col-width) * ${PROCESS_GAP_SPAN})`,
+  } as CSSProperties;
 
   useEffect(() => {
-    if (reduceMotion) return;
+    if (reduceMotion || !isDesktop || !hasMounted) return;
 
     const measure = () => {
       const track = trackRef.current;
@@ -93,7 +108,9 @@ export function Process() {
       if (track && viewport) {
         const trackWidth = track.offsetWidth;
         const viewportWidth = viewport.offsetWidth;
-        setMaxScroll(Math.max(0, trackWidth - viewportWidth));
+        const nextMaxScroll = Math.max(0, trackWidth - viewportWidth);
+        setMaxScroll(nextMaxScroll);
+        setWrapperHeightPx(window.innerHeight + nextMaxScroll + PROCESS_SECTION_BUFFER_PX);
       }
     };
 
@@ -106,23 +123,38 @@ export function Process() {
       ro.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [reduceMotion, mockProcessSteps.length]);
+  }, [reduceMotion, isDesktop, hasMounted]);
 
-  if (reduceMotion) {
+  if (reduceMotion || !isDesktop) {
     return (
       <section
         id="process"
-        className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative bg-section-accent dark:bg-background z-20"
+        className="relative z-20 border-t border-border/90 bg-section-accent py-[var(--mobile-section-padding)] md:py-20 lg:py-24 dark:bg-background"
         aria-labelledby="process-heading"
       >
-        <div className="mx-auto max-w-7xl w-full">
-          <div className="mb-10 md:mb-12">
-            <SectionHeading id="process-heading">My Process</SectionHeading>
+        <SectionGridLines boundaries={HOME_SECTION_BOUNDARIES.process} />
+        <div className="site-grid relative z-10 mx-auto w-full max-w-[var(--site-max-width)] px-[var(--site-padding-inline)] lg:px-0">
+          <div className="mb-10 [grid-column:1/span_5] md:mb-12 lg:col-span-full">
+            <SectionHeading id="process-heading" surfaceClassName="bg-section-accent dark:bg-background">My Process</SectionHeading>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockProcessSteps.map((step) => (
-              <ProcessCard key={step.id} step={step} variant="grid" />
-            ))}
+          <div
+            className="-mx-[var(--site-padding-inline)] [grid-column:1/span_6] overflow-x-auto px-[var(--site-padding-inline)] pb-2 [scrollbar-width:none] lg:col-span-full [&::-webkit-scrollbar]:hidden"
+            aria-label="Process steps"
+          >
+            <div className="flex w-max snap-x snap-mandatory gap-4 md:grid md:w-auto md:grid-cols-2 md:gap-6">
+              {mockProcessSteps.map((step, index) => (
+                <motion.div
+                  key={step.id}
+                  className="w-[calc(var(--site-grid-col-width)*5)] max-w-[22rem] shrink-0 snap-start md:w-auto md:max-w-none"
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: reduceMotion ? 0 : 0.42, delay: index * 0.04 }}
+                >
+                  <ProcessCard step={step} variant="grid" />
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -133,32 +165,32 @@ export function Process() {
     <div
       id="process"
       ref={wrapperRef}
-      style={{ height: `${WRAPPER_HEIGHT_VH}vh` }}
-      className="relative bg-section-accent dark:bg-background z-20"
+      style={{ height: wrapperHeightPx ? `${wrapperHeightPx}px` : `${WRAPPER_HEIGHT_VH}vh` }}
+      className="relative z-20 border-t border-border/90 bg-section-accent dark:bg-background"
       aria-labelledby="process-heading"
     >
-      {/* Sticky block stops below navbar (ribbon + nav = 112px) so title stays visible */}
+      <SectionGridLines boundaries={HOME_SECTION_BOUNDARIES.process} />
       <div className="sticky h-[calc(100vh-7rem)] w-full flex flex-col pb-32 md:pb-0" style={{ top: 112 }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.5 }}
-          className="flex-shrink-0 pt-6 pb-8 md:pb-10 px-4 sm:px-6 lg:px-8"
+          className="mx-auto w-full max-w-[var(--site-max-width)] flex-shrink-0 px-0 pt-6 pb-8 md:pb-10"
         >
-          <div className="mx-auto max-w-7xl w-full">
-            <SectionHeading id="process-heading">My Process</SectionHeading>
-          </div>
+          <SectionHeading id="process-heading" surfaceClassName="bg-section-accent dark:bg-background">My Process</SectionHeading>
         </motion.div>
         <div
           ref={viewportRef}
-          className="flex-1 min-h-0 w-full overflow-hidden flex items-end"
+          className="process-scroll-fade flex min-h-0 w-full flex-1 items-end overflow-hidden"
+          style={desktopTrackVars}
           aria-label="Process steps"
         >
           <motion.div
             ref={trackRef}
             style={{ x: translateX }}
-            className="flex gap-6 sm:gap-8 md:gap-10 w-max items-end pl-4 sm:pl-6 lg:pl-8 xl:pl-[max(2rem,calc(2rem+(100vw-84rem)/2))] pr-4 sm:pr-6 lg:pr-8 pt-8 pb-6"
+            className="site-track-pad flex w-max items-end pt-8 pb-6 lg:gap-[var(--process-track-gap)]"
+            aria-hidden={false}
           >
             {mockProcessSteps.map((step) => (
               <ProcessCard key={step.id} step={step} />

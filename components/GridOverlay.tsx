@@ -1,48 +1,82 @@
 'use client';
 
-/**
- * Site-wide vertical line grid overlay.
- * Spans the viewport, aligns with content (max-w-7xl), provides structural visual guide.
- * Use pointer-events: none so it doesn't block interactions.
- */
+import { usePathname } from 'next/navigation';
+import { GRID_COLUMNS, getGridLinePositions } from '@/lib/grid';
+
+function OverlayLayer({
+  columns,
+  className,
+  opacity,
+  showPlusMarkers,
+}: {
+  columns: number;
+  className?: string;
+  opacity: number;
+  showPlusMarkers: boolean;
+}) {
+  const positions = getGridLinePositions(undefined, columns);
+
+  return (
+    <div className={className}>
+      {positions.map((position) => (
+        <div
+          key={`${columns}-${position}`}
+          className="absolute inset-y-0 border-l border-foreground/8"
+          style={{
+            left: `calc(${(position / columns) * 100}% - 0.5px)`,
+            opacity,
+          }}
+        >
+          {showPlusMarkers && (
+            <span
+              className="absolute -top-px left-1/2 -translate-x-1/2 text-[10px] font-mono leading-none text-foreground/30"
+              aria-hidden
+            >
+              +
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function GridOverlay({
-  columns = 12,
-  opacity = 0.15,
-  showPlusMarkers = true,
+  opacity = 1,
+  showPlusMarkers = false,
   className = '',
 }: {
-  columns?: number;
   opacity?: number;
   showPlusMarkers?: boolean;
   className?: string;
 }) {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
   return (
     <div
-      className={`pointer-events-none fixed inset-0 z-[1] ${className}`}
+      className={`pointer-events-none fixed inset-x-0 bottom-0 ${isHome ? 'top-[100svh]' : 'top-0'} z-[0] ${className}`}
       aria-hidden
     >
-      {/* Grid aligned to content width (max-w-7xl) */}
-      <div className="mx-auto h-full w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div
-          className="grid h-full gap-4 sm:gap-6 md:gap-8"
-          style={{
-            gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-          }}
-        >
-          {Array.from({ length: columns }).map((_, i) => (
-            <div key={i} className="relative border-r border-foreground/20">
-              {/* + marker at top of column */}
-              {showPlusMarkers && (
-                <span
-                  className="absolute -top-px left-1/2 -translate-x-1/2 text-[10px] font-mono leading-none text-foreground/40"
-                  aria-hidden
-                >
-                  +
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
+      <div className="site-shell relative h-full">
+        <OverlayLayer
+          columns={GRID_COLUMNS.mobile}
+          opacity={opacity}
+          showPlusMarkers={showPlusMarkers}
+          className="absolute inset-0 sm:hidden"
+        />
+        <OverlayLayer
+          columns={GRID_COLUMNS.tablet}
+          opacity={opacity}
+          showPlusMarkers={showPlusMarkers}
+          className="absolute inset-0 hidden sm:block lg:hidden"
+        />
+        <OverlayLayer
+          columns={GRID_COLUMNS.desktop}
+          opacity={opacity}
+          showPlusMarkers={showPlusMarkers}
+          className="absolute inset-0 hidden lg:block"
+        />
       </div>
     </div>
   );

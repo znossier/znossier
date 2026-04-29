@@ -28,6 +28,11 @@ const nextConfig: NextConfig = {
         hostname: 'f.nooncdn.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+        pathname: '/**',
+      },
     ],
   },
 };

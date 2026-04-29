@@ -221,6 +221,10 @@ export async function GET(request: NextRequest) {
     }
   } catch (error) {
     console.error('Error fetching track artist:', error);
+    return NextResponse.json(
+      { error: 'Internal server error', artist: null, source: null },
+      { status: 500 }
+    );
   }
 
   if (cacheFromWebApi && artist) {

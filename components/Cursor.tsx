@@ -2,17 +2,16 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export function Cursor() {
-  const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(true);
   const [isProjectHover, setIsProjectHover] = useState(false);
+  const isTouchDevice = useMediaQuery('(pointer: coarse)', true);
   
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
   
-  const rafRef = useRef<number | undefined>(undefined);
   const lastMoveTime = useRef<number>(0);
   
   // Lighter spring config for better performance
@@ -36,11 +35,7 @@ export function Cursor() {
   }, [cursorX, cursorY, isVisible]);
 
   useEffect(() => {
-    // Check if device is touch-enabled
-    const checkTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    setIsTouchDevice(checkTouch);
-    
-    if (checkTouch) return;
+    if (isTouchDevice) return;
 
     // Single mousemove listener
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
@@ -48,23 +43,16 @@ export function Cursor() {
     // Check for project card hover and interactive elements
     const handleDocumentMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      const projectCard = target.closest('[data-project-card]');
-      const isInteractive = target.matches('a, button, [role="button"], input, textarea, select, [tabindex]:not([tabindex="-1"]), .cursor-pointer');
+      const projectCard = target.closest('[data-project-card="interactive"]');
       
       if (projectCard) {
         setIsProjectHover(true);
-        setIsHovering(true);
-      } else if (isInteractive) {
-        setIsHovering(true);
-        setIsProjectHover(false);
       } else {
-        setIsHovering(false);
         setIsProjectHover(false);
       }
     };
 
     const handleDocumentMouseOut = () => {
-      setIsHovering(false);
       setIsProjectHover(false);
     };
 
@@ -75,13 +63,10 @@ export function Cursor() {
       window.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseover', handleDocumentMouseOver);
       document.removeEventListener('mouseout', handleDocumentMouseOut);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
     };
-  }, [handleMouseMove]);
+  }, [handleMouseMove, isTouchDevice]);
 
-  if (isTouchDevice || !isVisible) return null;
+  if (isTouchDevice || !isVisible || !isProjectHover) return null;
 
   return (
     <motion.div
@@ -92,43 +77,19 @@ export function Cursor() {
         willChange: 'transform',
       }}
     >
-      {isProjectHover ? (
-        // Filled circle with "view" text for project cards
-        <motion.div
-          className="w-16 h-16 rounded-full bg-foreground flex items-center justify-center -translate-x-1/2 -translate-y-1/2"
-          animate={{
-            scale: 1,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 400,
-            damping: 30,
-          }}
-        >
-          <span className="text-xs font-medium text-background">view</span>
-        </motion.div>
-      ) : (
-        // Outlined circle with blur effect - thinner border, bigger circle
-        <motion.div
-          className={`rounded-full border border-foreground -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ${
-            isHovering ? 'w-8 h-8' : 'w-7 h-7'
-          }`}
-          style={{
-            backdropFilter: 'blur(2px)',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            willChange: 'transform',
-            borderWidth: '1px',
-          }}
-          animate={{
-            scale: isHovering ? 1.15 : 1,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 400,
-            damping: 30,
-          }}
-        />
-      )}
+      <motion.div
+        className="flex h-9 min-w-20 items-center justify-center border border-foreground/55 bg-background/88 px-3 -translate-x-1/2 -translate-y-1/2 backdrop-blur-sm"
+        animate={{
+          scale: 1,
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 400,
+          damping: 30,
+        }}
+      >
+        <span className="text-[0.62rem] font-mono uppercase tracking-[0.2em] text-foreground">Open</span>
+      </motion.div>
     </motion.div>
   );
 }

@@ -1,10 +1,13 @@
 'use client';
 
 import { SectionHeading } from '@/components/SectionHeading';
+import { SectionGridLines } from '@/components/SectionGridLines';
+import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
 import { mockTechStack } from '@/lib/mock-data';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, memo } from 'react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 /** Single scale for every logo so they all render the same size */
 const LOGO_BOX_SCALE = 0.82;
@@ -14,7 +17,7 @@ interface LogoCardProps {
   reduceMotion: boolean;
 }
 
-function LogoCard({ item, reduceMotion }: LogoCardProps) {
+const LogoCard = memo(function LogoCard({ item, reduceMotion }: LogoCardProps) {
   const labelRef = useRef<HTMLSpanElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -27,28 +30,50 @@ function LogoCard({ item, reduceMotion }: LogoCardProps) {
       const labelRect = label.getBoundingClientRect();
       const labelParent = label.parentElement;
       const parentRect = labelParent?.getBoundingClientRect();
-      // #region agent log
-      fetch('http://127.0.0.1:7247/ingest/f07d0baf-6074-4723-bff0-e8558354fee1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TechStack.tsx:handleCardHover',message:'hover dimensions',data:{name:item.name,labelWidth:labelRect.width,cardWidth:cardRect.width,parentWidth:parentRect?.width,labelScrollWidth:label.scrollWidth,labelClientWidth:label.clientWidth},timestamp:Date.now(),hypothesisId:'H1'})}).catch(()=>{});
-      // #endregion
+      const ingestUrl = process.env.NEXT_PUBLIC_ANALYTICS_INGEST_URL;
+      if (ingestUrl) {
+        fetch(ingestUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location: 'TechStack.tsx:handleCardHover',
+            message: 'hover dimensions',
+            data: {
+              name: item.name,
+              labelWidth: labelRect.width,
+              cardWidth: cardRect.width,
+              parentWidth: parentRect?.width,
+              labelScrollWidth: label.scrollWidth,
+              labelClientWidth: label.clientWidth,
+            },
+            timestamp: Date.now(),
+            hypothesisId: 'H1',
+          }),
+        }).catch((e) => {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('TechStack analytics request failed', e);
+          }
+        });
+      }
     });
   };
 
   return (
     <div
-      className="group flex flex-shrink-0 px-2"
+      className="group flex flex-shrink-0 px-1.5 md:px-2"
       title={item.name}
       onMouseEnter={handleCardHover}
     >
       <motion.div
         ref={cardRef}
-        className="relative flex h-24 w-24 flex-col rounded-lg border border-border/60 bg-background transition-[box-shadow,border-color] duration-300 ease-out hover:border-border md:h-28 md:w-28 md:rounded-xl lg:h-32 lg:w-32"
+        className="surface-raised relative z-10 flex h-20 w-20 flex-col border border-border/90 shadow-[0_12px_26px_rgba(17,17,17,0.06)] transition-[box-shadow,border-color,transform] duration-300 ease-out hover:border-foreground/55 sm:h-24 sm:w-24 md:h-28 md:w-28 lg:h-32 lg:w-32 dark:bg-section-accent/92 dark:shadow-[0_10px_24px_rgba(0,0,0,0.18)] dark:hover:border-link/40"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
         whileHover={
           reduceMotion
             ? undefined
-            : { scale: 1.05, boxShadow: '0 8px 20px -4px rgba(0,0,0,0.25), 0 4px 8px -2px rgba(0,0,0,0.15)' }
+            : { y: -2, boxShadow: '0 10px 24px -10px rgba(0,0,0,0.35)' }
         }
       >
         {/* Desktop: logo centered; hover = smooth push-up + label fade-in. Mobile: logo + label block centered. */}
@@ -58,7 +83,7 @@ function LogoCard({ item, reduceMotion }: LogoCardProps) {
           >
             {item.logo ? (
               <div
-                className="relative flex aspect-square h-9 w-9 shrink-0 items-center justify-center md:h-11 md:w-11 lg:h-12 lg:w-12 max-h-full max-w-full"
+                className="relative flex aspect-square h-8 w-8 shrink-0 items-center justify-center sm:h-9 sm:w-9 md:h-11 md:w-11 lg:h-12 lg:w-12 max-h-full max-w-full"
               >
                 <div
                   className="relative aspect-square shrink-0"
@@ -81,14 +106,14 @@ function LogoCard({ item, reduceMotion }: LogoCardProps) {
                 </div>
               </div>
             ) : (
-              <span className="text-sm font-medium text-foreground/60">
+              <span className="text-sm font-medium text-foreground/68">
                 {item.name.charAt(0)}
               </span>
             )}
             {/* Up to 2 lines everywhere so names like Figma / TypeScript show in full; ellipsis only if longer */}
             <span
               ref={labelRef}
-              className="mt-1 w-full min-w-0 px-1 text-center text-[10px] font-medium text-foreground/70 line-clamp-2 md:absolute md:left-0 md:right-0 md:top-full md:mt-1.5 md:px-2 md:text-xs md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100"
+              className="mt-1 w-full min-w-0 px-1 text-center text-[9px] font-medium leading-tight text-foreground/70 line-clamp-2 sm:text-[10px] md:absolute md:left-0 md:right-0 md:top-full md:mt-1.5 md:px-2 md:text-xs md:opacity-0 md:transition-opacity md:duration-200 md:group-hover:opacity-100"
               aria-hidden
             >
               {item.name}
@@ -98,7 +123,7 @@ function LogoCard({ item, reduceMotion }: LogoCardProps) {
       </motion.div>
     </div>
   );
-}
+});
 
 interface MarqueeRowProps {
   items: typeof mockTechStack;
@@ -109,11 +134,11 @@ interface MarqueeRowProps {
 function MarqueeRow({ items, direction, reduceMotion }: MarqueeRowProps) {
   const duplicated = [...items, ...items];
   const animationClass =
-    direction === 'left' ? 'animate-marquee-left' : 'animate-marquee-right';
+    reduceMotion ? '' : direction === 'left' ? 'animate-marquee-left' : 'animate-marquee-right';
 
   return (
-    <div className="tech-stack-marquee-row relative overflow-hidden py-3 md:py-6">
-      <div className={`flex w-max flex-nowrap ${animationClass}`}>
+    <div className="tech-stack-marquee-row relative overflow-hidden py-2 md:py-6">
+      <div className={`flex w-max flex-nowrap ps-[calc(var(--site-padding-inline)+var(--site-grid-col-width))] lg:ps-0 ${animationClass}`}>
         {duplicated.map((item, index) => (
           <LogoCard
             key={`${item.id}-${index}`}
@@ -127,15 +152,7 @@ function MarqueeRow({ items, direction, reduceMotion }: MarqueeRowProps) {
 }
 
 export function TechStack() {
-  const [reduceMotion, setReduceMotion] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReduceMotion(mq.matches);
-    const handler = () => setReduceMotion(mq.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   const mid = Math.ceil(mockTechStack.length / 2);
   const row1 = mockTechStack.slice(0, mid);
@@ -144,20 +161,23 @@ export function TechStack() {
   return (
     <section
       id="tech-stack"
-      className="relative z-20 bg-section-accent dark:bg-background px-4 py-16 sm:px-6 lg:px-8 md:py-20 lg:py-24"
+      className="relative z-20 border-t border-border/90 bg-section-accent py-[var(--mobile-section-padding)] md:py-20 lg:py-24 dark:bg-background"
     >
-      <div className="mx-auto max-w-7xl w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.5 }}
-          className="mb-10 md:mb-12"
-        >
-          <SectionHeading>Tech Stack</SectionHeading>
-        </motion.div>
+      <SectionGridLines boundaries={HOME_SECTION_BOUNDARIES.techStack} />
+      <div className="relative z-10 mx-auto w-full max-w-[var(--site-max-width)] px-[var(--site-padding-inline)] lg:px-0">
+        <div className="site-grid">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+            transition={{ duration: 0.5 }}
+            className="mb-10 [grid-column:1/span_5] md:mb-12 lg:col-span-full"
+          >
+            <SectionHeading surfaceClassName="bg-section-accent dark:bg-background">Tech Stack</SectionHeading>
+          </motion.div>
+        </div>
 
-        <div className="space-y-0 md:space-y-1">
+        <div className="-mx-[var(--site-padding-inline)] lg:mx-0">
           <MarqueeRow items={row1} direction="left" reduceMotion={reduceMotion} />
           <MarqueeRow items={row2} direction="right" reduceMotion={reduceMotion} />
         </div>

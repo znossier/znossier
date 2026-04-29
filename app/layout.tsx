@@ -1,13 +1,16 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono, Oswald } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/lib/theme";
-import { Cursor } from "@/components/Cursor";
-import { GridOverlay } from "@/components/GridOverlay";
-import { SmoothScroll } from "@/components/SmoothScroll";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { VinylPlayerWrapper } from "@/components/VinylPlayerWrapper";
-import { UnderConstructionRibbon } from "@/components/UnderConstructionRibbon";
+import { AppShell } from "@/components/AppShell";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#101214" },
+  ],
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +20,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const oswald = Oswald({
+  variable: "--font-oswald",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -77,21 +86,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      // Light mode / light backgrounds: black ZN
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: light)" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png", media: "(prefers-color-scheme: light)" },
-      { url: "/favicon-light.svg", media: "(prefers-color-scheme: light)", type: "image/svg+xml" },
-      // Dark mode / dark backgrounds: white ZN
-      { url: "/favicon-32x32-dark.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: dark)" },
-      { url: "/favicon-16x16-dark.png", sizes: "16x16", type: "image/png", media: "(prefers-color-scheme: dark)" },
-      { url: "/favicon-dark.svg", media: "(prefers-color-scheme: dark)", type: "image/svg+xml" },
-      // Fallback for browsers that ignore media (default to black on light)
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-light.svg", sizes: "any", type: "image/svg+xml", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-dark.svg", sizes: "any", type: "image/svg+xml", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon-light.svg", sizes: "any", type: "image/svg+xml" },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png", media: "(prefers-color-scheme: light)" },
-      { url: "/apple-touch-icon-dark.png", sizes: "180x180", type: "image/png", media: "(prefers-color-scheme: dark)" },
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/favicon-light.svg", type: "image/svg+xml", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-dark.svg", type: "image/svg+xml", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon-light.svg", type: "image/svg+xml" },
     ],
   },
   manifest: "/site.webmanifest",
@@ -137,27 +139,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}
       >
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
-        <ThemeProvider
-          attribute="data-theme"
-          defaultTheme="dark"
-          enableSystem={true}
-          disableTransitionOnChange={false}
-        >
-          <UnderConstructionRibbon />
-          <SmoothScroll>
-            <GridOverlay />
-            <Cursor />
-            {children}
-          </SmoothScroll>
-          <ThemeToggle variant="fab" />
-          <VinylPlayerWrapper />
-        </ThemeProvider>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

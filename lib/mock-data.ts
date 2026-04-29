@@ -57,6 +57,8 @@ export interface Project {
   service?: string;
   /** Slug of another project to show as "Next work" suggestion */
   nextWorkSlug?: string;
+  /** Whether the internal /works/[slug] page is ready for public viewing */
+  detailPageEnabled?: boolean;
 }
 
 export interface Service {
@@ -106,7 +108,8 @@ export const mockProjects: Project[] = [
     client: 'StorkTech',
     role: 'UX Designer',
     service: 'Web Design',
-    coverImage: '/placeholder-project-1.jpg',
+    coverImage: '/project-placeholder-1.svg',
+    detailPageEnabled: true,
     nextWorkSlug: 'ardi',
     sections: [
       {
@@ -125,8 +128,8 @@ export const mockProjects: Project[] = [
           },
           {
             type: 'twoImages',
-            left: { src: '/placeholder-project-2.jpg', alt: 'StorkTech design exploration' },
-            right: { src: '/placeholder-project-3.jpg', alt: 'StorkTech final layout' },
+            left: { src: '/project-placeholder-2.svg', alt: 'StorkTech design exploration' },
+            right: { src: '/project-placeholder-3.svg', alt: 'StorkTech final layout' },
           },
         ],
       },
@@ -140,7 +143,7 @@ export const mockProjects: Project[] = [
           },
           {
             type: 'image',
-            src: '/placeholder-project-4.jpg',
+            src: '/project-placeholder-4.svg',
             alt: 'StorkTech landing page hero',
           },
         ],
@@ -205,6 +208,14 @@ export const mockProjects: Project[] = [
 
 export function getProjectBySlug(slug: string): Project | undefined {
   return mockProjects.find((p) => p.id === slug);
+}
+
+export function getPublishedProjectBySlug(slug: string): Project | undefined {
+  return mockProjects.find((p) => p.id === slug && p.detailPageEnabled);
+}
+
+export function getPublishedProjects(): Project[] {
+  return mockProjects.filter((project) => project.detailPageEnabled);
 }
 
 export const mockServices: Service[] = [
@@ -385,8 +396,8 @@ export const mockAbout = {
 
 export const mockContact = {
   email: 'zeina.nossier@gmail.com',
-  phone: '123-456-7890',
-  address: '123 Sakura Street, New York City, NY, USA',
+  phone: '+20122009325',
+  address: 'Cairo, EG',
   socialLinks: [
     {
       platform: 'LinkedIn',

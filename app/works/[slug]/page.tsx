@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
-import { getProjectBySlug } from '@/lib/mock-data';
+import { getPublishedProjectBySlug, getPublishedProjects } from '@/lib/projects';
 import { ProjectDetailPage } from '@/components/ProjectDetailPage';
+import { getContactContent } from '@/lib/site-content';
 import type { Metadata } from 'next';
 
 const BASE_URL = 'https://znossier.com';
@@ -17,7 +18,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const project = await getPublishedProjectBySlug(slug);
   if (!project) return { title: 'Project not found' };
   const title = project.title;
   const description = truncateMetaDescription(project.description);
@@ -50,9 +51,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+export async function generateStaticParams() {
+  const projects = await getPublishedProjects();
+
+  return projects.map((project) => ({
+    slug: project.slug,
+  }));
+}
+
 export default async function WorkDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const project = getProjectBySlug(slug);
+  const [project, contact] = await Promise.all([
+    getPublishedProjectBySlug(slug),
+    getContactContent(),
+  ]);
   if (!project) notFound();
-  return <ProjectDetailPage project={project} />;
+  return <ProjectDetailPage project={project} contact={contact} />;
 }

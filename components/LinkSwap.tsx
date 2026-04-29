@@ -1,6 +1,6 @@
 'use client';
 
-import { clsx } from 'clsx';
+import { cn } from '@/lib/utils';
 
 type LinkSwapBaseProps = {
   children: React.ReactNode;
@@ -43,7 +43,7 @@ export function LinkSwap(props: LinkSwapProps) {
       <a
         href={href}
         onClick={onClick}
-        className={clsx('link-swap', className)}
+        className={cn('link-swap', className)}
         aria-current={ariaCurrent}
         role={role}
       >
@@ -52,5 +52,5 @@ export function LinkSwap(props: LinkSwapProps) {
     );
   }
 
-  return <span className={clsx('link-swap', className)}>{swapStructure}</span>;
+  return <span className={cn('link-swap', className)}>{swapStructure}</span>;
 }

@@ -1,215 +1,246 @@
 'use client';
 
-import { SectionHeading } from '@/components/SectionHeading';
 import { Button } from '@/components/Button';
-import { mockProjects } from '@/lib/mock-data';
+import { FrameCorners } from '@/components/FrameCorners';
+import { SectionGridLines } from '@/components/SectionGridLines';
+import { SectionHeading } from '@/components/SectionHeading';
+import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
+import { getProjectHref, type Project } from '@/lib/projects';
 import Image from 'next/image';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import Link from 'next/link';
+import { motion, useInView } from 'framer-motion';
+import { memo, useRef, useState } from 'react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-function ProjectCard({ project, index }: { project: typeof mockProjects[0]; index: number }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px', amount: 0.2 });
+const placeholderVariants = [
+  {
+    shell: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)),linear-gradient(135deg,rgba(255,255,255,0.04),rgba(0,0,0,0.06))]',
+    barOne: 'w-20',
+    barTwo: 'w-12',
+    block: 'h-14 w-14',
+  },
+  {
+    shell: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)),linear-gradient(120deg,rgba(255,255,255,0.03),rgba(0,0,0,0.07))]',
+    barOne: 'w-16',
+    barTwo: 'w-24',
+    block: 'h-10 w-[4.5rem]',
+  },
+  {
+    shell: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)),linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.08))]',
+    barOne: 'w-24',
+    barTwo: 'w-14',
+    block: 'h-12 w-12',
+  },
+  {
+    shell: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)),linear-gradient(135deg,rgba(255,255,255,0.02),rgba(0,0,0,0.08))]',
+    barOne: 'w-14',
+    barTwo: 'w-20',
+    block: 'h-16 w-10',
+  },
+];
+
+function PlaceholderPreview({
+  index,
+}: {
+  index: number;
+}) {
+  const variant = placeholderVariants[index % placeholderVariants.length];
+
+  return (
+    <div className={`flex h-full w-full flex-col justify-between bg-foreground/[0.035] p-5 sm:p-6 ${variant.shell}`}>
+      <div className="space-y-2">
+        <span className={`block h-px ${variant.barOne} bg-foreground/14`} aria-hidden />
+        <span className={`block h-px ${variant.barTwo} bg-foreground/9`} aria-hidden />
+      </div>
+
+      <div className="space-y-3">
+        <span className={`block border border-foreground/12 bg-foreground/8 ${variant.block}`} aria-hidden />
+        <div className="space-y-2">
+          <span className="block h-px w-24 bg-foreground/12" aria-hidden />
+          <span className="block h-px w-16 bg-foreground/9" aria-hidden />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const ProjectCard = memo(function ProjectCard({ project, index }: { project: Project; index: number }) {
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: '-50px', amount: 0.18 });
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
 
-  const hasValidLink = project.link && project.link !== '#';
-  const cardClassName = "group bg-foreground/5 rounded-lg overflow-hidden hover:bg-foreground/10 transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background block";
+  const href = getProjectHref(project);
+  const cardHref = href || '#';
+  const isExternalLink = project.linkMode === 'external' && !!project.externalUrl;
+  const hasValidLink = !!href;
+  const linkLabel = isExternalLink ? 'External Link' : 'Case Study';
+  const previewImage = project.coverImage ?? project.image;
+  const imageAvailable = !!previewImage && !imageError;
+  const categoriesLabel = project.categories.join(' / ');
+  const showPreviewCopy = isHovered || !supportsHover;
 
   const cardContent = (
-    <>
-        {/* Cover: scale on hover, grid corners with + markers */}
-        <div className="p-3 md:p-4">
-          <div className="relative aspect-[4/3] bg-accent/10 border border-foreground/20">
-            {/* + markers centered on corners, intersecting border lines - positioned outside overflow-hidden */}
-            <span className="absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2 text-xs font-mono leading-none text-foreground/50 z-10" aria-hidden>+</span>
-            <span className="absolute right-0 top-0 translate-x-1/2 -translate-y-1/2 text-xs font-mono leading-none text-foreground/50 z-10" aria-hidden>+</span>
-            <span className="absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 text-xs font-mono leading-none text-foreground/50 z-10" aria-hidden>+</span>
-            <span className="absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 text-xs font-mono leading-none text-foreground/50 z-10" aria-hidden>+</span>
-            {/* Content wrapper with overflow-hidden to clip scaled image */}
-            <div className="absolute inset-0 overflow-hidden">
-              {/* Media layer - scales within frame on hover */}
-              <motion.div
-                className="absolute inset-0"
-                animate={{ scale: isHovered ? 1.06 : 1 }}
-                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-              >
-              {project.image && !imageError ? (
+    <div className="relative h-full w-full">
+      <FrameCorners className="project-card-corners text-foreground/70" placement="outside" />
+      <div className="editorial-panel surface-raised relative flex h-full w-full min-h-[27rem] flex-col overflow-visible px-4 py-4 dark:bg-background sm:min-h-[29rem] md:min-h-[32rem] md:px-5 md:py-5">
+        <div className="project-preview-frame relative aspect-[4/3] border border-border/90">
+
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.div
+              className="absolute inset-0"
+              animate={{
+                scale: showPreviewCopy ? 1.015 : 1,
+                filter: showPreviewCopy && supportsHover ? 'blur(5px)' : 'blur(0px)',
+              }}
+              transition={{ duration: 0.42, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
+              {imageAvailable ? (
                 <Image
-                  src={project.image}
+                  src={previewImage}
                   alt={`${project.title} project preview`}
                   fill
-                  className="object-cover"
+                  className="object-cover [filter:contrast(1.03)_brightness(1.01)] dark:[filter:contrast(1.01)_brightness(0.99)]"
                   loading="lazy"
                   onError={() => setImageError(true)}
                 />
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-5xl bg-gradient-to-br from-accent/20 to-accent/10" aria-hidden="true">
-                  {project.emoji}
-                  {!hasValidLink && (
-                    <span className="text-xs font-medium text-foreground/70 uppercase tracking-wider">
-                      Coming soon
-                    </span>
-                  )}
-                </div>
+                <PlaceholderPreview index={index} />
               )}
-              </motion.div>
-              {/* Hover overlay: dark + blur, short description */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isHovered ? 1 : 0 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center"
-                aria-hidden="true"
-              >
-                <motion.p
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={isHovered ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
-                  transition={{ duration: 0.25, delay: isHovered ? 0.05 : 0 }}
-                  className="text-white text-sm md:text-base text-center px-6 max-w-md"
-                >
-                  {project.description}
-                </motion.p>
-              </motion.div>
-            </div>
+            </motion.div>
           </div>
+
+          <motion.div
+            initial={false}
+            animate={{
+              opacity: showPreviewCopy ? 1 : 0,
+              y: showPreviewCopy ? 0 : 10,
+            }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="project-preview-overlay pointer-events-none absolute inset-0 flex items-end p-4 sm:p-5"
+            aria-hidden="true"
+          >
+            <p className="project-preview-copy line-clamp-4 max-w-[28rem] text-sm leading-relaxed sm:line-clamp-none sm:text-[0.95rem]">
+              {project.description}
+            </p>
+          </motion.div>
         </div>
-        
-        {/* Content Below Image */}
-        <div className="px-4 md:px-5 pb-4 md:pb-5">
-          <h4 className="text-lg md:text-xl font-semibold text-foreground mb-2">
-            {project.title}
-          </h4>
-          {/* Tags */}
-          <div className="flex flex-wrap items-center gap-2">
-            {project.categories.map((category, idx) => (
-              <span 
-                key={idx} 
-                className="text-xs font-mono uppercase tracking-wider text-foreground/60 bg-foreground/5 px-2 py-1"
-              >
-                {category}
-              </span>
-            ))}
+
+        <div className="mt-4 grid min-h-[4.75rem] grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 gap-y-3">
+          <div className="min-w-0">
+            <h3 className="project-card-title text-[1.24rem] font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-[1.42rem]">
+              {project.title}
+            </h3>
+            <p className="editorial-kicker mt-2 text-foreground/58">{categoriesLabel}</p>
           </div>
+
+          {hasValidLink && (
+            <span className="project-card-open editorial-kicker mt-1 shrink-0 justify-self-end whitespace-nowrap text-right text-foreground/56">
+              {linkLabel}
+            </span>
+          )}
         </div>
-    </>
+      </div>
+    </div>
   );
 
   return (
     <motion.article
       ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-      className="w-full"
+      initial={{ opacity: 0, y: 26 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 26 }}
+      transition={{ duration: 0.48, delay: index * 0.06 }}
+      className="h-full overflow-visible"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {hasValidLink ? (
+      {hasValidLink && isExternalLink ? (
         <a
-          href={project.link}
+          href={cardHref}
           target="_blank"
           rel="noopener noreferrer"
-          className={cardClassName}
-          data-project-card
+          className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          data-project-card="interactive"
           aria-label={`View project: ${project.title}`}
         >
           {cardContent}
         </a>
-      ) : (
-        <div
-          className={cardClassName}
-          data-project-card
-          onClick={() => {
-            if (project.link && project.link !== '#') {
-              window.open(project.link, '_blank', 'noopener,noreferrer');
-            }
-          }}
-          onKeyDown={(e) => {
-            if ((e.key === 'Enter' || e.key === ' ') && project.link && project.link !== '#') {
-              e.preventDefault();
-              window.open(project.link, '_blank', 'noopener,noreferrer');
-            }
-          }}
-          role={project.link && project.link !== '#' ? 'button' : undefined}
-          tabIndex={project.link && project.link !== '#' ? 0 : undefined}
-          aria-label={project.link && project.link !== '#' ? `View project: ${project.title}` : undefined}
+      ) : hasValidLink ? (
+        <Link
+          href={cardHref}
+          className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          data-project-card="interactive"
+          aria-label={`View project: ${project.title}`}
         >
+          {cardContent}
+        </Link>
+      ) : (
+        <div className="group block h-full" data-project-card="interactive">
           {cardContent}
         </div>
       )}
     </motion.article>
   );
-}
+});
 
 const INITIAL_COUNT = 4;
 const LOAD_MORE_COUNT = 4;
 
-export function Works() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const heroRef = useRef<HTMLElement | null>(null);
+export function Works({ projects }: { projects: Project[] }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
 
-  useEffect(() => {
-    heroRef.current = document.getElementById('home') as HTMLElement;
-  }, []);
-
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start end', 'end start'],
-  });
-
-  // Works section moves up to cover hero - starts below viewport and scrolls up to cover
-  const worksY = useTransform(scrollYProgress, [0, 1], ['100vh', '0vh']);
-
-  const visibleProjects = mockProjects.slice(0, visibleCount);
-  const hasMore = visibleCount < mockProjects.length;
-
-  const loadMore = () => {
-    setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, mockProjects.length));
-  };
+  const visibleProjects = projects.slice(0, visibleCount);
+  const hasMore = visibleCount < projects.length;
 
   return (
     <>
-      {/* Spacer to prevent content jump when hero is fixed */}
-      <div className="h-screen" aria-hidden="true" />
-      <motion.section
-        ref={sectionRef}
+      <div className="hidden h-screen lg:block" aria-hidden="true" />
+      <section
         id="works"
-        className="py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 relative z-20 bg-section-accent dark:bg-background"
-        style={{ y: worksY }}
+        className="relative z-20 border-t border-border/90 bg-section-accent py-[var(--mobile-section-padding)] md:py-20 lg:py-24 dark:bg-background"
       >
-        <div className="mx-auto max-w-7xl w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5 }}
-            className="mb-10 md:mb-12"
-          >
-            <SectionHeading>Selected Works</SectionHeading>
-          </motion.div>
+        <SectionGridLines boundaries={HOME_SECTION_BOUNDARIES.works} />
+        <div className="relative z-10 mx-auto w-full max-w-[var(--site-max-width)] px-[var(--site-padding-inline)] lg:px-0">
+          <div className="site-section-grid">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.45 }}
+              className="[grid-column:1/span_5] lg:col-span-full"
+            >
+              <SectionHeading surfaceClassName="bg-section-accent dark:bg-background">Selected Works</SectionHeading>
+            </motion.div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12">
+          <div className="site-grid mt-10 auto-rows-fr gap-y-10 md:mt-14 md:gap-y-12">
             {visibleProjects.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} />
+              <div
+                key={project.id}
+                className={index % 2 === 0 ? '[grid-column:1/span_6] lg:[grid-column:1/span_11]' : '[grid-column:2/span_5] lg:[grid-column:14/span_11]'}
+              >
+                <ProjectCard project={project} index={index} />
+              </div>
             ))}
           </div>
 
           {hasMore && (
-            <div className="mt-10 md:mt-12 flex justify-center">
-              <Button
-                onClick={loadMore}
-                className="font-mono uppercase tracking-wider"
-                aria-label={`Show ${Math.min(LOAD_MORE_COUNT, mockProjects.length - visibleCount)} more projects`}
-              >
-                Show more
-              </Button>
+            <div className="site-grid mt-12 md:mt-14">
+              <div className="[grid-column:2/span_4] lg:[grid-column:12/span_2]">
+                <Button
+                  onClick={() => setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, projects.length))}
+                  variant="secondary"
+                  className="surface-raised w-full shadow-[0_16px_30px_rgba(17,17,17,0.08)] dark:bg-section-accent dark:shadow-[0_12px_26px_rgba(0,0,0,0.22)]"
+                  aria-label={`Show ${Math.min(LOAD_MORE_COUNT, projects.length - visibleCount)} more projects`}
+                >
+                  Show More
+                </Button>
+              </div>
             </div>
           )}
         </div>
-      </motion.section>
+      </section>
     </>
   );
 }

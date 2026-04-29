@@ -42,20 +42,20 @@ export const designTokens = {
   // Colors
   colors: {
     light: {
-      background: '#F2F2F2',
-      foreground: '#1A1A1A',
-      sectionAccent: '#E2E2E2',
-      accent: '#6B7987',
-      link: '#3E99F3',
-      border: '#CFCFCF',
+      background: '#EFEFEC',
+      foreground: '#111111',
+      sectionAccent: '#E1E2DE',
+      accent: '#7A828C',
+      link: '#5B8FD7',
+      border: '#C1C4BD',
     },
     dark: {
-      background: '#0D0D0D',
-      foreground: '#FAFAFA',
-      sectionAccent: '#1A1A1A',
-      accent: '#6B7987',
-      link: '#3E99F3',
-      border: '#333333',
+      background: '#0B0B0B',
+      foreground: '#F5F2EC',
+      sectionAccent: '#141414',
+      accent: '#CEFF00',
+      link: '#CEFF00',
+      border: '#2A2A2A',
     },
   },
 

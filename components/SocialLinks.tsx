@@ -1,18 +1,26 @@
 'use client';
 
-import { mockContact } from '@/lib/mock-data';
+import type { ContactContent } from '@/lib/site-content';
 
 const socialButtonClass =
-  'w-10 h-10 rounded-sm border border-foreground/30 flex items-center justify-center hover:border-foreground hover:text-foreground transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+  'flex h-11 w-11 items-center justify-center rounded-none border border-foreground/18 bg-white/38 text-foreground/84 shadow-[inset_0_1px_0_rgba(255,255,255,0.38)] backdrop-blur-[3px] hover:border-foreground hover:bg-foreground hover:text-background transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:hover:border-link/55 dark:hover:bg-link/10 dark:hover:text-link';
 
 const socialButtonClassInverted =
-  'w-10 h-10 rounded-sm border border-white/35 text-white/90 flex items-center justify-center hover:border-white hover:text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-transparent';
+  'flex h-11 w-11 items-center justify-center rounded-none border border-white/28 bg-black/12 text-white/90 backdrop-blur-[3px] hover:border-link/60 hover:bg-link/12 hover:text-link transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-transparent';
 
-export function SocialLinks({ className = '', inverted = false }: { className?: string; inverted?: boolean }) {
+export function SocialLinks({
+  socialLinks,
+  className = '',
+  inverted = false,
+}: {
+  socialLinks: ContactContent['socialLinks'];
+  className?: string;
+  inverted?: boolean;
+}) {
   const btnClass = inverted ? socialButtonClassInverted : socialButtonClass;
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      {mockContact.socialLinks.map((social) => (
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      {socialLinks.map((social) => (
         <a
           key={social.platform}
           href={social.url}

@@ -107,7 +107,7 @@ export function useSpotifyTrackInfo(
 
     // Use MutationObserver to watch for DOM changes
     try {
-      const iframeDoc = embedRef.current.contentDocument || embedRef.current.contentWindow?.document;
+      const iframeDoc = embedRef.current?.contentDocument || embedRef.current?.contentWindow?.document;
       if (iframeDoc) {
         observer = new MutationObserver(() => extractTrackInfo());
 
