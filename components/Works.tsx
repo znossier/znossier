@@ -12,58 +12,6 @@ import { motion, useInView } from 'framer-motion';
 import { memo, useRef, useState } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-const placeholderVariants = [
-  {
-    shell: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)),linear-gradient(135deg,rgba(255,255,255,0.04),rgba(0,0,0,0.06))]',
-    barOne: 'w-20',
-    barTwo: 'w-12',
-    block: 'h-14 w-14',
-  },
-  {
-    shell: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)),linear-gradient(120deg,rgba(255,255,255,0.03),rgba(0,0,0,0.07))]',
-    barOne: 'w-16',
-    barTwo: 'w-24',
-    block: 'h-10 w-[4.5rem]',
-  },
-  {
-    shell: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)),linear-gradient(180deg,rgba(0,0,0,0.04),rgba(0,0,0,0.08))]',
-    barOne: 'w-24',
-    barTwo: 'w-14',
-    block: 'h-12 w-12',
-  },
-  {
-    shell: 'bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01)),linear-gradient(135deg,rgba(255,255,255,0.02),rgba(0,0,0,0.08))]',
-    barOne: 'w-14',
-    barTwo: 'w-20',
-    block: 'h-16 w-10',
-  },
-];
-
-function PlaceholderPreview({
-  index,
-}: {
-  index: number;
-}) {
-  const variant = placeholderVariants[index % placeholderVariants.length];
-
-  return (
-    <div className={`flex h-full w-full flex-col justify-between bg-foreground/[0.035] p-5 sm:p-6 ${variant.shell}`}>
-      <div className="space-y-2">
-        <span className={`block h-px ${variant.barOne} bg-foreground/14`} aria-hidden />
-        <span className={`block h-px ${variant.barTwo} bg-foreground/9`} aria-hidden />
-      </div>
-
-      <div className="space-y-3">
-        <span className={`block border border-foreground/12 bg-foreground/8 ${variant.block}`} aria-hidden />
-        <div className="space-y-2">
-          <span className="block h-px w-24 bg-foreground/12" aria-hidden />
-          <span className="block h-px w-16 bg-foreground/9" aria-hidden />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const ProjectCard = memo(function ProjectCard({ project, index }: { project: Project; index: number }) {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-50px', amount: 0.18 });
@@ -85,18 +33,18 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
     <div className="relative h-full w-full">
       <FrameCorners className="project-card-corners text-foreground/70" placement="outside" />
       <div className="editorial-panel surface-raised relative flex h-full w-full min-h-[27rem] flex-col overflow-visible px-4 py-4 dark:bg-background sm:min-h-[29rem] md:min-h-[32rem] md:px-5 md:py-5">
-        <div className="project-preview-frame relative aspect-[4/3] border border-border/90">
+        {imageAvailable && (
+          <div className="project-preview-frame relative aspect-[4/3] border border-border/90">
 
-          <div className="absolute inset-0 overflow-hidden">
-            <motion.div
-              className="absolute inset-0"
-              animate={{
-                scale: showPreviewCopy ? 1.015 : 1,
-                filter: showPreviewCopy && supportsHover ? 'blur(5px)' : 'blur(0px)',
-              }}
-              transition={{ duration: 0.42, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-              {imageAvailable ? (
+            <div className="absolute inset-0 overflow-hidden">
+              <motion.div
+                className="absolute inset-0"
+                animate={{
+                  scale: showPreviewCopy ? 1.015 : 1,
+                  filter: showPreviewCopy && supportsHover ? 'blur(5px)' : 'blur(0px)',
+                }}
+                transition={{ duration: 0.42, ease: [0.25, 0.46, 0.45, 0.94] }}
+              >
                 <Image
                   src={previewImage}
                   alt={`${project.title} project preview`}
@@ -105,27 +53,25 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
                   loading="lazy"
                   onError={() => setImageError(true)}
                 />
-              ) : (
-                <PlaceholderPreview index={index} />
-              )}
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={false}
+              animate={{
+                opacity: showPreviewCopy ? 1 : 0,
+                y: showPreviewCopy ? 0 : 10,
+              }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className="project-preview-overlay pointer-events-none absolute inset-0 flex items-end p-4 sm:p-5"
+              aria-hidden="true"
+            >
+              <p className="project-preview-copy line-clamp-4 max-w-[28rem] text-sm leading-relaxed sm:line-clamp-none sm:text-[0.95rem]">
+                {project.description}
+              </p>
             </motion.div>
           </div>
-
-          <motion.div
-            initial={false}
-            animate={{
-              opacity: showPreviewCopy ? 1 : 0,
-              y: showPreviewCopy ? 0 : 10,
-            }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="project-preview-overlay pointer-events-none absolute inset-0 flex items-end p-4 sm:p-5"
-            aria-hidden="true"
-          >
-            <p className="project-preview-copy line-clamp-4 max-w-[28rem] text-sm leading-relaxed sm:line-clamp-none sm:text-[0.95rem]">
-              {project.description}
-            </p>
-          </motion.div>
-        </div>
+        )}
 
         <div className="mt-4 grid min-h-[4.75rem] grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 gap-y-3">
           <div className="min-w-0">
@@ -141,6 +87,12 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
             </span>
           )}
         </div>
+
+        {!imageAvailable && project.description && (
+          <p className="mt-5 line-clamp-5 text-sm leading-relaxed text-foreground/72">
+            {project.description}
+          </p>
+        )}
       </div>
     </div>
   );

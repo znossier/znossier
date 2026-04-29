@@ -1,10 +1,4 @@
 import { client } from './sanity';
-import { mockProjects } from './mock-data';
-import type {
-  Project as MockProject,
-  ProjectSection as MockProjectSection,
-  ProjectSectionBlock as MockProjectSectionBlock,
-} from './mock-data';
 
 export type ProjectLinkMode = 'internal' | 'external';
 
@@ -222,9 +216,7 @@ function formatProjectDate(dateValue?: string | null) {
   }).format(parsed);
 }
 
-function normalizeBlocks(
-  blocks?: RawSanityProjectSectionBlock[] | MockProjectSectionBlock[] | null
-): ProjectSectionBlock[] | undefined {
+function normalizeBlocks(blocks?: RawSanityProjectSectionBlock[] | null): ProjectSectionBlock[] | undefined {
   if (!blocks?.length) {
     return undefined;
   }
@@ -277,9 +269,7 @@ function normalizeBlocks(
   return normalized.length > 0 ? normalized : undefined;
 }
 
-function normalizeSections(
-  sections?: RawSanityProjectSection[] | MockProjectSection[] | null
-): ProjectSection[] | undefined {
+function normalizeSections(sections?: RawSanityProjectSection[] | null): ProjectSection[] | undefined {
   if (!sections?.length) {
     return undefined;
   }
@@ -356,74 +346,6 @@ function normalizeProject(project: RawSanityProject): Project | null {
   };
 }
 
-function mapMockProject(project: MockProject): Project {
-  const externalUrl = sanitizeProjectUrl(project.link);
-  const linkMode: ProjectLinkMode = externalUrl ? 'external' : 'internal';
-
-  return {
-    id: project.id,
-    slug: project.id,
-    title: project.title,
-    description: project.description,
-    emoji: project.emoji || undefined,
-    categories: project.categories,
-    image: project.image,
-    coverImage: project.coverImage,
-    video: project.video,
-    featured: project.featured,
-    date: project.date,
-    client: project.client,
-    role: project.role,
-    service: project.service,
-    linkMode,
-    externalUrl,
-    published: linkMode === 'internal' ? Boolean(project.detailPageEnabled) : false,
-    sections: normalizeSections(project.sections),
-    nextWork: null,
-  };
-}
-
-function toProjectSummary(project: Project): ProjectSummary {
-  return {
-    slug: project.slug,
-    title: project.title,
-    description: project.description,
-    emoji: project.emoji,
-    image: project.image,
-    coverImage: project.coverImage,
-    published: project.published,
-  };
-}
-
-function buildMockProjectFallback() {
-  const projects = mockProjects.map(mapMockProject);
-  const bySlug = new Map(projects.map((project) => [project.slug, project]));
-
-  return projects.map((project) => ({
-    ...project,
-    nextWork:
-      project.linkMode === 'internal' && project.published
-        ? (() => {
-            const rawProject = mockProjects.find((item) => item.id === project.slug);
-            const nextProject = rawProject?.nextWorkSlug ? bySlug.get(rawProject.nextWorkSlug) : null;
-            return nextProject?.published ? toProjectSummary(nextProject) : null;
-          })()
-        : null,
-  }));
-}
-
-const mockProjectFallback = buildMockProjectFallback();
-
-function getFallbackFeaturedProjects() {
-  return mockProjectFallback.filter((project) => project.featured);
-}
-
-function getFallbackPublishedProjects() {
-  return mockProjectFallback.filter(
-    (project) => project.linkMode === 'internal' && project.published
-  );
-}
-
 export function getProjectHref(project: Project) {
   if (project.linkMode === 'external') {
     return project.externalUrl;
@@ -434,7 +356,7 @@ export function getProjectHref(project: Project) {
 
 export async function getFeaturedProjects(): Promise<Project[]> {
   if (!client) {
-    return getFallbackFeaturedProjects();
+    return [];
   }
 
   try {
@@ -448,16 +370,16 @@ export async function getFeaturedProjects(): Promise<Project[]> {
       .map(normalizeProject)
       .filter((project): project is Project => Boolean(project));
 
-    return normalized.length > 0 ? normalized : getFallbackFeaturedProjects();
+    return normalized;
   } catch (error) {
     console.error('Error fetching featured projects from Sanity:', error);
-    return getFallbackFeaturedProjects();
+    return [];
   }
 }
 
 export async function getPublishedProjects(): Promise<Project[]> {
   if (!client) {
-    return getFallbackPublishedProjects();
+    return [];
   }
 
   try {
@@ -471,18 +393,16 @@ export async function getPublishedProjects(): Promise<Project[]> {
       .map(normalizeProject)
       .filter((project): project is Project => Boolean(project));
 
-    return normalized.length > 0 ? normalized : getFallbackPublishedProjects();
+    return normalized;
   } catch (error) {
     console.error('Error fetching published projects from Sanity:', error);
-    return getFallbackPublishedProjects();
+    return [];
   }
 }
 
 export async function getPublishedProjectBySlug(slug: string): Promise<Project | null> {
   if (!client) {
-    return (
-      getFallbackPublishedProjects().find((project) => project.slug === slug) || null
-    );
+    return null;
   }
 
   try {
@@ -496,9 +416,9 @@ export async function getPublishedProjectBySlug(slug: string): Promise<Project |
     );
 
     const normalized = project ? normalizeProject(project) : null;
-    return normalized ?? (getFallbackPublishedProjects().find((item) => item.slug === slug) || null);
+    return normalized;
   } catch (error) {
     console.error('Error fetching project by slug from Sanity:', error);
-    return getFallbackPublishedProjects().find((project) => project.slug === slug) || null;
+    return null;
   }
 }
