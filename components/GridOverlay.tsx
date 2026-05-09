@@ -14,7 +14,7 @@ function OverlayLayer({
   opacity: number;
   showPlusMarkers: boolean;
 }) {
-  const positions = getGridLinePositions(undefined, columns);
+  const positions = getGridLinePositions([0, columns / 2, columns], columns);
 
   return (
     <div className={className}>
@@ -63,7 +63,7 @@ export function GridOverlay({
           columns={GRID_COLUMNS.mobile}
           opacity={opacity}
           showPlusMarkers={showPlusMarkers}
-          className="absolute inset-0 sm:hidden"
+          className="absolute inset-y-0 left-[var(--site-padding-inline)] right-[var(--site-padding-inline)] sm:hidden"
         />
         <OverlayLayer
           columns={GRID_COLUMNS.tablet}

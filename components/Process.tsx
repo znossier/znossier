@@ -13,6 +13,7 @@ const WRAPPER_HEIGHT_VH = 400;
 const PROCESS_CARD_SPAN = 8;
 const PROCESS_GAP_SPAN = 1;
 const PROCESS_SECTION_BUFFER_PX = 220;
+const PROCESS_MOBILE_BUFFER_PX = 160;
 
 const ProcessCard = memo(function ProcessCard({
   step,
@@ -32,7 +33,7 @@ const ProcessCard = memo(function ProcessCard({
     <article
       className={`editorial-panel surface-raised relative flex flex-col overflow-hidden border border-border/95 shadow-[0_18px_46px_rgba(0,0,0,0.08)] dark:bg-background dark:shadow-[0_18px_46px_rgba(0,0,0,0.3)] ${
         isScroll
-          ? 'h-[400px] w-[88vw] flex-shrink-0 p-5 sm:h-[440px] sm:w-[calc((100vw-3rem)/1.5)] sm:p-6 md:h-[480px] md:w-[calc((100vw-5rem)/2)] md:p-8 lg:w-[var(--process-card-width)] lg:max-w-none'
+          ? 'h-[min(28rem,calc(100svh-var(--chrome-top)-5rem))] min-h-[21rem] w-[calc(var(--site-grid-col-width)*5)] min-w-[17rem] flex-shrink-0 p-5 sm:h-[440px] sm:w-[calc(var(--site-grid-col-width)*4)] sm:min-w-0 sm:p-6 md:h-[480px] md:w-[calc(var(--site-grid-col-width)*3.5)] md:p-8 lg:w-[var(--process-card-width)] lg:max-w-none'
             : isVertical
               ? 'min-h-0 p-5 sm:p-6 md:p-8'
             : 'min-h-[220px] p-5 sm:p-6 md:min-h-[240px] md:p-8'
@@ -76,7 +77,7 @@ export function Process() {
   const [wrapperHeightPx, setWrapperHeightPx] = useState<number | null>(null);
 
   const { scrollYProgress } = useScroll(
-    hasMounted && !reduceMotion && isDesktop
+    hasMounted && !reduceMotion
       ? {
           target: wrapperRef,
           offset: ['start start', 'end end'],
@@ -90,17 +91,22 @@ export function Process() {
     [0, -Math.max(0, maxScroll)]
   );
 
-  const desktopTrackVars = {
+  const processTrackVars = {
     '--process-col-width':
       'calc(min(100vw - (2 * var(--site-padding-inline)), var(--site-max-width)) / var(--site-grid-columns-desktop))',
     '--process-card-width':
       `calc(var(--process-col-width) * ${PROCESS_CARD_SPAN})`,
     '--process-track-gap':
-      `calc(var(--process-col-width) * ${PROCESS_GAP_SPAN})`,
+      `calc(var(--site-grid-col-width) * 0.5)`,
+  } as CSSProperties;
+
+  const desktopTrackVars = {
+    ...processTrackVars,
+    '--process-track-gap': `calc(var(--process-col-width) * ${PROCESS_GAP_SPAN})`,
   } as CSSProperties;
 
   useEffect(() => {
-    if (reduceMotion || !isDesktop || !hasMounted) return;
+    if (reduceMotion || !hasMounted) return;
 
     const measure = () => {
       const track = trackRef.current;
@@ -110,7 +116,11 @@ export function Process() {
         const viewportWidth = viewport.offsetWidth;
         const nextMaxScroll = Math.max(0, trackWidth - viewportWidth);
         setMaxScroll(nextMaxScroll);
-        setWrapperHeightPx(window.innerHeight + nextMaxScroll + PROCESS_SECTION_BUFFER_PX);
+        setWrapperHeightPx(
+          window.innerHeight
+            + nextMaxScroll
+            + (isDesktop ? PROCESS_SECTION_BUFFER_PX : PROCESS_MOBILE_BUFFER_PX)
+        );
       }
     };
 
@@ -125,7 +135,7 @@ export function Process() {
     };
   }, [reduceMotion, isDesktop, hasMounted]);
 
-  if (reduceMotion || !isDesktop) {
+  if (reduceMotion) {
     return (
       <section
         id="process"
@@ -138,14 +148,13 @@ export function Process() {
             <SectionHeading id="process-heading" surfaceClassName="bg-section-accent dark:bg-background">My Process</SectionHeading>
           </div>
           <div
-            className="-mx-[var(--site-padding-inline)] [grid-column:1/span_6] overflow-x-auto px-[var(--site-padding-inline)] pb-2 [scrollbar-width:none] lg:col-span-full [&::-webkit-scrollbar]:hidden"
+            className="[grid-column:1/span_6] lg:col-span-full"
             aria-label="Process steps"
           >
-            <div className="flex w-max snap-x snap-mandatory gap-4 md:grid md:w-auto md:grid-cols-2 md:gap-6">
+            <div className="grid gap-4 md:grid-cols-2 md:gap-6">
               {mockProcessSteps.map((step, index) => (
                 <motion.div
                   key={step.id}
-                  className="w-[calc(var(--site-grid-col-width)*5)] max-w-[22rem] shrink-0 snap-start md:w-auto md:max-w-none"
                   initial={{ opacity: 0, y: 18 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
@@ -170,26 +179,26 @@ export function Process() {
       aria-labelledby="process-heading"
     >
       <SectionGridLines boundaries={HOME_SECTION_BOUNDARIES.process} />
-      <div className="sticky h-[calc(100vh-7rem)] w-full flex flex-col pb-32 md:pb-0" style={{ top: 112 }}>
+      <div className="sticky top-[var(--chrome-top)] flex h-[calc(100svh-var(--chrome-top))] w-full flex-col pb-[calc(var(--mobile-bottom-controls)+1.5rem)] lg:h-[calc(100vh-7rem)] lg:pb-0 lg:[top:112px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.5 }}
-          className="mx-auto w-full max-w-[var(--site-max-width)] flex-shrink-0 px-0 pt-6 pb-8 md:pb-10"
+          className="mx-auto w-full max-w-[var(--site-max-width)] flex-shrink-0 px-[var(--site-padding-inline)] pt-5 pb-3 md:pb-6 lg:px-0 lg:pt-6 lg:pb-10"
         >
           <SectionHeading id="process-heading" surfaceClassName="bg-section-accent dark:bg-background">My Process</SectionHeading>
         </motion.div>
         <div
           ref={viewportRef}
-          className="process-scroll-fade flex min-h-0 w-full flex-1 items-end overflow-hidden"
-          style={desktopTrackVars}
+          className="process-scroll-fade flex min-h-0 w-full flex-1 items-center overflow-hidden lg:items-end"
+          style={isDesktop ? desktopTrackVars : processTrackVars}
           aria-label="Process steps"
         >
           <motion.div
             ref={trackRef}
             style={{ x: translateX }}
-            className="site-track-pad flex w-max items-end pt-8 pb-6 lg:gap-[var(--process-track-gap)]"
+            className="site-track-pad flex w-max items-center gap-[var(--process-track-gap)] py-4 md:py-6 lg:items-end lg:gap-[var(--process-track-gap)] lg:pt-8 lg:pb-6"
             aria-hidden={false}
           >
             {mockProcessSteps.map((step) => (

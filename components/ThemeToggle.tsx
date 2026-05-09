@@ -70,11 +70,11 @@ export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVaria
     if (variant === 'fab') {
       return (
         <div
-          className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 h-11 w-11 rounded-full md:hidden"
+          className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 h-12 w-12 md:hidden"
           style={{
-            backgroundColor: '#171717',
-            border: '1px solid rgba(245, 242, 236, 0.1)',
-            boxShadow: '0 14px 32px rgba(0, 0, 0, 0.28)',
+            backgroundColor: '#0B0B0B',
+            border: '1px solid rgba(245, 242, 236, 0.32)',
+            boxShadow: '0 10px 18px rgba(0, 0, 0, 0.22)',
           }}
           aria-hidden
         />
@@ -124,30 +124,34 @@ export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVaria
         onClick={toggle}
         whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
         animate={{
-          backgroundColor: isDark ? '#171717' : LIGHT_FAB_BACKGROUND,
-          borderColor: isDark ? 'rgba(245, 242, 236, 0.1)' : 'rgba(17, 17, 17, 0.12)',
+          backgroundColor: isDark ? '#0B0B0B' : LIGHT_FAB_BACKGROUND,
+          borderColor: isDark ? 'rgba(245, 242, 236, 0.34)' : 'rgba(17, 17, 17, 0.34)',
           color: isDark ? '#F5F2EC' : '#111111',
           boxShadow: isDark
-            ? '0 14px 32px rgba(0, 0, 0, 0.3)'
-            : '0 14px 32px rgba(17, 17, 17, 0.08)',
+            ? '0 10px 18px rgba(0, 0, 0, 0.26), inset 0 0 0 1px rgba(245, 242, 236, 0.05)'
+            : '0 10px 18px rgba(17, 17, 17, 0.08), inset 0 0 0 1px rgba(17, 17, 17, 0.04)',
         }}
         transition={trackTransition}
-        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 flex h-11 w-11 items-center justify-center rounded-full border focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background md:hidden"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-40 flex h-12 w-12 items-center justify-center border focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background md:hidden"
         aria-label="Toggle theme"
       >
+        <span className="pointer-events-none absolute left-1 top-1 h-1.5 w-1.5 border-l border-t border-current opacity-55" aria-hidden />
+        <span className="pointer-events-none absolute right-1 top-1 h-1.5 w-1.5 border-r border-t border-current opacity-55" aria-hidden />
+        <span className="pointer-events-none absolute bottom-1 left-1 h-1.5 w-1.5 border-b border-l border-current opacity-55" aria-hidden />
+        <span className="pointer-events-none absolute bottom-1 right-1 h-1.5 w-1.5 border-b border-r border-current opacity-55" aria-hidden />
         {isDark ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            strokeWidth={2.35}
             stroke="currentColor"
             className="h-5 w-5"
             aria-hidden
           >
             <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              strokeLinecap="butt"
+              strokeLinejoin="miter"
               d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
             />
           </svg>
@@ -156,10 +160,10 @@ export function ThemeToggle({ variant = 'switch' }: { variant?: ThemeToggleVaria
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            strokeWidth={2.35}
             stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            strokeLinecap="butt"
+            strokeLinejoin="miter"
             className="h-5 w-5"
             aria-hidden
           >

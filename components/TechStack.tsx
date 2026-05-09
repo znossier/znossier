@@ -82,9 +82,7 @@ const LogoCard = memo(function LogoCard({ item, reduceMotion }: LogoCardProps) {
             className="flex w-full flex-col items-center transition-transform duration-200 ease-out md:group-hover:-translate-y-1.5"
           >
             {item.logo ? (
-              <div
-                className="relative flex aspect-square h-8 w-8 shrink-0 items-center justify-center sm:h-9 sm:w-9 md:h-11 md:w-11 lg:h-12 lg:w-12 max-h-full max-w-full"
-              >
+              <div className="relative flex aspect-square h-8 w-8 shrink-0 items-center justify-center sm:h-9 sm:w-9 md:h-11 md:w-11 lg:h-12 lg:w-12 max-h-full max-w-full">
                 <div
                   className="relative aspect-square shrink-0"
                   style={{
@@ -138,7 +136,7 @@ function MarqueeRow({ items, direction, reduceMotion }: MarqueeRowProps) {
 
   return (
     <div className="tech-stack-marquee-row relative overflow-hidden py-2 md:py-6">
-      <div className={`flex w-max flex-nowrap ps-[calc(var(--site-padding-inline)+var(--site-grid-col-width))] lg:ps-0 ${animationClass}`}>
+      <div className={`flex w-max flex-nowrap ps-[var(--site-padding-inline)] lg:ps-0 ${animationClass}`}>
         {duplicated.map((item, index) => (
           <LogoCard
             key={`${item.id}-${index}`}
@@ -171,7 +169,7 @@ export function TechStack() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5 }}
-            className="mb-10 [grid-column:1/span_5] md:mb-12 lg:col-span-full"
+            className="col-span-full mb-10 md:mb-12 lg:col-span-full"
           >
             <SectionHeading surfaceClassName="bg-section-accent dark:bg-background">Tech Stack</SectionHeading>
           </motion.div>

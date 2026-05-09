@@ -32,7 +32,7 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
   const cardContent = (
     <div className="relative h-full w-full">
       <FrameCorners className="project-card-corners text-foreground/70" placement="outside" />
-      <div className="editorial-panel surface-raised relative flex h-full w-full min-h-[27rem] flex-col overflow-visible px-4 py-4 dark:bg-background sm:min-h-[29rem] md:min-h-[32rem] md:px-5 md:py-5">
+      <div className="editorial-panel surface-raised relative flex h-full w-full min-h-[25rem] flex-col overflow-visible px-4 py-4 dark:bg-background sm:min-h-[29rem] md:min-h-[32rem] md:px-5 md:py-5">
         {imageAvailable && (
           <div className="project-preview-frame relative aspect-[4/3] border border-border/90">
 
@@ -73,19 +73,22 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
           </div>
         )}
 
-        <div className="mt-4 grid min-h-[4.75rem] grid-cols-[minmax(0,1fr)_auto] items-start gap-x-4 gap-y-3">
-          <div className="min-w-0">
+        <div className="mt-4 grid min-h-[4.75rem] grid-cols-6 items-start gap-x-3 gap-y-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-x-4">
+          <div className="min-w-0 [grid-column:1/span_4] sm:[grid-column:auto]">
             <h3 className="project-card-title text-[1.24rem] font-semibold leading-[0.98] tracking-[-0.04em] text-foreground sm:text-[1.42rem]">
               {project.title}
             </h3>
-            <p className="editorial-kicker mt-2 text-foreground/58">{categoriesLabel}</p>
           </div>
 
           {hasValidLink && (
-            <span className="project-card-open editorial-kicker mt-1 shrink-0 justify-self-end whitespace-nowrap text-right text-foreground/56">
+            <span className="project-card-open editorial-kicker mt-1 shrink-0 justify-self-end whitespace-nowrap text-right text-[0.62rem] tracking-[0.14em] text-foreground/56 [grid-column:5/span_2] sm:[grid-column:auto] sm:text-[0.72rem] sm:tracking-[0.22em]">
               {linkLabel}
             </span>
           )}
+
+          <p className="editorial-kicker min-w-0 text-foreground/58 [grid-column:1/span_6]">
+            {categoriesLabel}
+          </p>
         </div>
 
         {!imageAvailable && project.description && (
@@ -160,7 +163,7 @@ export function Works({ projects }: { projects: Project[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.45 }}
-              className="[grid-column:1/span_5] lg:col-span-full"
+              className="col-span-full lg:col-span-full"
             >
               <SectionHeading surfaceClassName="bg-section-accent dark:bg-background">Selected Works</SectionHeading>
             </motion.div>
@@ -170,7 +173,7 @@ export function Works({ projects }: { projects: Project[] }) {
             {visibleProjects.map((project, index) => (
               <div
                 key={project.id}
-                className={index % 2 === 0 ? '[grid-column:1/span_6] lg:[grid-column:1/span_11]' : '[grid-column:2/span_5] lg:[grid-column:14/span_11]'}
+                className={index % 2 === 0 ? '[grid-column:1/span_6] lg:[grid-column:1/span_11]' : '[grid-column:1/span_6] lg:[grid-column:14/span_11]'}
               >
                 <ProjectCard project={project} index={index} />
               </div>

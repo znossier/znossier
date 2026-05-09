@@ -33,10 +33,10 @@ const footerLinkClass =
   'text-sm font-mono uppercase tracking-[0.14em] sm:tracking-[0.18em] text-foreground/72 transition-colors duration-200 hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:hover:text-link';
 
 const footerTopCellClass =
-  'relative z-10 h-full border-x border-border/90 px-5 py-5 md:px-6 md:py-6';
+  'relative z-10 h-full border-x border-border/90 bg-footer px-5 py-5 dark:bg-background md:px-6 md:py-6 lg:bg-transparent lg:dark:bg-transparent';
 
 const footerPanelClass =
-  'grid-edge-frame relative z-10 isolate h-full border-x border-b border-border/90 px-5 py-5 md:px-6 md:py-6';
+  'grid-edge-frame relative z-10 isolate h-full border-x border-b border-border/90 bg-footer px-5 py-5 dark:bg-background md:px-6 md:py-6 lg:bg-transparent lg:dark:bg-transparent';
 
 export function Footer({ contact }: { contact: ContactContent }) {
   const pathname = usePathname();
@@ -61,7 +61,7 @@ export function Footer({ contact }: { contact: ContactContent }) {
             <div className="site-grid">
               <motion.div
                 variants={itemVariants}
-                className={`${footerTopCellClass} [grid-column:3/span_4] sm:[grid-column:3/span_6] lg:[grid-column:17/span_8]`}
+                className={`${footerTopCellClass} [grid-column:1/span_6] sm:[grid-column:1/span_8] lg:[grid-column:17/span_8]`}
               >
                 <button
                   type="button"
@@ -76,7 +76,7 @@ export function Footer({ contact }: { contact: ContactContent }) {
           </div>
 
           <div className="site-grid gap-y-0">
-            <motion.section variants={itemVariants} className={`${footerPanelClass} [grid-column:1/span_4] sm:[grid-column:1/span_4] lg:[grid-column:1/span_8]`}>
+            <motion.section variants={itemVariants} className={`${footerPanelClass} [grid-column:1/span_6] sm:[grid-column:1/span_8] lg:[grid-column:1/span_8]`}>
               <h3 className="mb-5 text-xs font-mono font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Navigation
               </h3>
@@ -114,7 +114,7 @@ export function Footer({ contact }: { contact: ContactContent }) {
               </nav>
             </motion.section>
 
-            <motion.section variants={itemVariants} className={`${footerPanelClass} [grid-column:2/span_5] sm:[grid-column:5/span_4] lg:[grid-column:9/span_8]`}>
+            <motion.section variants={itemVariants} className={`${footerPanelClass} [grid-column:1/span_6] sm:[grid-column:1/span_8] lg:[grid-column:9/span_8]`}>
               <h3 className="mb-5 text-xs font-mono font-semibold uppercase tracking-[0.24em] text-foreground/52">
                 Contact
               </h3>

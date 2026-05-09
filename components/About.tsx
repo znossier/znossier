@@ -58,27 +58,36 @@ const ExperienceGroupCard = memo(function ExperienceGroupCard({
     <div
       className="mb-0 border-b border-border/85 bg-transparent px-4 py-4 last:border-b-0 md:px-5"
     >
-      <div className="flex items-start gap-3">
+      <div className="mb-4 flex items-center gap-3">
         {group.logo ? (
           <CompanyLogo src={group.logo} alt={group.company} />
         ) : (
           <div className="h-9 w-9 flex-shrink-0" aria-hidden />
         )}
+        <div className="min-w-0">
+          <p className="text-[0.7rem] font-mono uppercase tracking-[0.2em] text-foreground/42">
+            Current Company
+          </p>
+          <h4 className="mt-1 text-base font-semibold leading-tight tracking-[-0.02em] text-foreground">
+            {group.company}
+          </h4>
+        </div>
+      </div>
 
-        <div className="min-w-0 flex-1 space-y-3.5">
-          {group.roles.map((role, roleIndex) => (
+      <div className="min-w-0 border-l border-border/80 pl-4">
+        {group.roles.map((role, roleIndex) => (
+          <div key={`${group.company}-${role.role}-${role.period}`} className="relative pb-4 last:pb-0">
+            <span className="absolute -left-[1.0625rem] top-1.5 h-2 w-2 border border-border bg-background dark:bg-section-accent" aria-hidden />
             <ExperienceGroupRoleRow
-              key={`${group.company}-${role.role}-${role.period}`}
               role={role}
               roleIndex={roleIndex}
               groupIndex={groupIndex}
               company={group.company}
               isExpanded={expandedKeys.has(`${groupIndex}-${roleIndex}`)}
               onToggle={() => onToggle(`${groupIndex}-${roleIndex}`)}
-              isLast={roleIndex === group.roles.length - 1}
             />
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -91,7 +100,6 @@ function ExperienceGroupRoleRow({
   company,
   isExpanded,
   onToggle,
-  isLast,
 }: {
   role: ExperienceRole;
   roleIndex: number;
@@ -99,7 +107,6 @@ function ExperienceGroupRoleRow({
   company: string;
   isExpanded: boolean;
   onToggle: () => void;
-  isLast: boolean;
 }) {
   const hasContent = (role.bullets && role.bullets.length > 0) || !!role.description;
 
@@ -107,10 +114,10 @@ function ExperienceGroupRoleRow({
     <>
       <div className="grid grid-cols-6 items-start gap-x-3">
         <div className="[grid-column:1/span_4] min-w-0">
-          <h4 className="mb-1 text-[0.97rem] font-semibold leading-tight tracking-[-0.02em] text-foreground transition-colors group-hover:text-link md:text-[1.04rem]">
+          <h5 className="mb-1 text-[0.97rem] font-semibold leading-tight tracking-[-0.02em] text-foreground transition-colors group-hover:text-link md:text-[1.04rem]">
             {role.role}
-          </h4>
-          <p className="text-sm text-foreground/70 capitalize">{company}</p>
+          </h5>
+          <p className="sr-only">{company}</p>
         </div>
         <div
           className="[grid-column:5/span_2] flex flex-col items-end gap-2.5 text-foreground/40"
@@ -122,46 +129,51 @@ function ExperienceGroupRoleRow({
       </div>
 
       {hasContent && (
-        <div
-          id={`experience-details-${groupIndex}-${roleIndex}`}
-          role="region"
-          aria-live="polite"
-          className="grid transition-[grid-template-rows] duration-[250ms] ease-out"
-          style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
-        >
-          <div className="min-h-0 overflow-hidden">
-            {role.bullets && role.bullets.length > 0 ? (
-              <ul className="pt-3 space-y-1.5 text-sm text-foreground/70 leading-relaxed">
-                {role.bullets.map((bullet) => (
-                  <li key={bullet} className="flex gap-2">
-                    <span className="mt-2 h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
-                    <span>{bullet}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              role.description && (
-                <p className="text-sm text-foreground/70 leading-relaxed pt-3">
-                  {role.description}
-                </p>
-              )
-            )}
-          </div>
-        </div>
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              id={`experience-details-${groupIndex}-${roleIndex}`}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+              role="region"
+              aria-live="polite"
+            >
+              {role.bullets && role.bullets.length > 0 ? (
+                <ul className="space-y-1.5 pt-3 text-sm leading-relaxed text-foreground/70">
+                  {role.bullets.map((bullet) => (
+                    <li key={bullet} className="flex gap-2">
+                      <span className="mt-2 h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                role.description && (
+                  <p className="pt-3 text-sm leading-relaxed text-foreground/70">
+                    {role.description}
+                  </p>
+                )
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
     </>
   );
 
   if (!hasContent) {
     return (
-      <div className={isLast ? '' : 'mb-4'} style={{ overflowAnchor: 'none' }}>
+      <div style={{ overflowAnchor: 'none' }}>
         {rowContent}
       </div>
     );
   }
 
   return (
-    <div className={isLast ? '' : 'mb-4'} style={{ overflowAnchor: 'none' }}>
+    <div style={{ overflowAnchor: 'none' }}>
       <button
         onClick={onToggle}
         className="w-full text-left group focus:outline-none"
@@ -314,13 +326,12 @@ export function About({ about }: { about: AboutContent }) {
             >
               <SectionHeading surfaceClassName="bg-background dark:bg-section-accent">About Me</SectionHeading>
             </motion.div>
-            {/* Image and description side by side */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.5 }}
-              className="editorial-panel grid grid-cols-6 items-start gap-x-3 gap-y-4 p-5 sm:gap-6 sm:p-6"
+              className="editorial-panel grid grid-cols-6 gap-x-3 gap-y-5 p-4 sm:gap-6 sm:p-6"
             >
               <motion.div
                 initial={{ opacity: 0, rotateX: 8, rotateY: -6 }}
@@ -328,23 +339,23 @@ export function About({ about }: { about: AboutContent }) {
                 whileHover={{ rotateX: 14, rotateY: -18, rotateZ: 1.4, scale: 1.03 }}
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.48, ease: [0.22, 0.61, 0.36, 1] }}
-                className="[grid-column:1/span_2] w-full self-stretch"
+                className="[grid-column:1/span_6] w-full sm:[grid-column:1/span_2] sm:self-stretch"
                 style={{ transformStyle: 'preserve-3d', perspective: '1200px' }}
               >
-                <div className="surface-chrome relative h-full min-h-44 w-full overflow-hidden border border-border/90 dark:bg-background/70">
+                <div className="surface-chrome relative h-44 w-full overflow-hidden border border-border/90 sm:h-full sm:min-h-44 dark:bg-background/70">
                   {about.image && (
                     <Image
                       src={about.image}
                       alt="Portrait of Zeina Nossier"
                       fill
                       className="object-cover"
-                      sizes="144px"
+                      sizes="(max-width: 639px) calc(100vw - 4rem), 144px"
                     />
                   )}
                 </div>
               </motion.div>
-              <div className="[grid-column:3/span_4] min-w-0 space-y-4 pt-0.5">
-                <h3 className="font-mono text-[1.05rem] font-bold uppercase leading-none tracking-[0.08em] text-foreground sm:text-[1.18rem]">
+              <div className="[grid-column:1/span_6] min-w-0 space-y-4 sm:[grid-column:3/span_4]">
+                <h3 className="font-mono text-[1.02rem] font-bold uppercase leading-tight tracking-[0.08em] text-foreground sm:text-[1.18rem]">
                   {about.name}
                 </h3>
                 <p className="text-sm leading-relaxed text-foreground/84">
@@ -352,7 +363,7 @@ export function About({ about }: { about: AboutContent }) {
                 </p>
                 <Button
                   onClick={() => smoothScrollTo('footer', 100)}
-                  className="min-h-10 w-full px-4 py-2 text-[0.68rem] tracking-[0.18em] sm:w-auto"
+                  className="min-h-10 w-auto px-4 py-2 text-[0.68rem] tracking-[0.18em]"
                   aria-label="Scroll to contact section"
                 >
                   Contact Me <span className="ms-1" aria-hidden>→</span>

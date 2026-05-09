@@ -133,12 +133,12 @@ const ServiceCard = memo(function ServiceCard({
     >
       <div className="editorial-panel surface-raised overflow-hidden shadow-[0_12px_28px_rgba(0,0,0,0.08)] dark:bg-background dark:shadow-[0_12px_28px_rgba(0,0,0,0.18)] md:h-[320px]">
         <div className="relative z-10 grid h-full grid-cols-6 gap-x-3 gap-y-4 p-5 text-left sm:p-6 md:grid-cols-[auto_1fr] md:gap-8 md:p-8">
-          <div className="editorial-kicker [grid-column:1/span_2] self-start text-foreground/58 md:[grid-column:auto]">
+          <div className="editorial-kicker [grid-column:1/span_1] self-start text-foreground/58 md:[grid-column:auto]">
             {service.number}
           </div>
-          <div className="grid h-full min-w-0 [grid-column:2/span_5] grid-cols-1 gap-6 md:[grid-column:auto] lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.58fr)] lg:items-center lg:gap-9">
-            <div className="flex h-full min-w-0 flex-col justify-between gap-5">
-              <h4 className="font-mono text-[1.42rem] font-bold uppercase leading-[0.98] tracking-[-0.035em] text-foreground sm:text-[1.55rem] md:text-[1.9rem]">
+          <div className="grid h-full min-w-0 [grid-column:2/span_5] grid-cols-1 gap-5 md:[grid-column:auto] lg:grid-cols-[minmax(0,1fr)_minmax(17rem,0.58fr)] lg:items-center lg:gap-9">
+            <div className="flex h-full min-w-0 flex-col justify-start gap-4 lg:justify-between lg:gap-5">
+              <h4 className="font-mono text-[1.34rem] font-bold uppercase leading-[0.98] tracking-[-0.035em] text-foreground sm:text-[1.55rem] md:text-[1.9rem]">
                 {service.title}
               </h4>
               <p className="max-w-xl text-sm leading-relaxed text-foreground/78 md:text-base">
@@ -147,7 +147,7 @@ const ServiceCard = memo(function ServiceCard({
             </div>
 
             {asciiArt ? (
-              <div className="ascii-art-shell hidden min-w-0 self-center lg:flex" aria-hidden>
+              <div className="ascii-art-shell flex min-h-[9rem] min-w-0 max-w-full self-start lg:self-center" aria-hidden>
                 <div className="ascii-art-header">
                   <span>{asciiLabel}</span>
                   <span>{service.number}</span>
@@ -180,7 +180,7 @@ export function Services({ services }: { services: Service[] }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-50px' }}
             transition={{ duration: 0.5 }}
-            className="[grid-column:1/span_5] lg:[grid-column:1/span_5]"
+            className="[grid-column:1/span_6] lg:[grid-column:1/span_5]"
           >
             <div
               className="relative z-10 bg-background/92 py-3 backdrop-blur-[2px] dark:bg-section-accent/94 dark:backdrop-blur-0 lg:sticky"

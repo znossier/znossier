@@ -31,32 +31,32 @@ export function getGridLinePositions(
 
 export const HOME_SECTION_BOUNDARIES = {
   works: {
-    mobile: [0, 1, 5, GRID_COLUMNS.mobile],
+    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
     tablet: [0, GRID_COLUMNS.tablet],
-    desktop: [0, 11, 13, GRID_COLUMNS.desktop],
+    desktop: [0, GRID_COLUMNS.desktop],
   },
   expertise: {
-    mobile: [0, 1, 2, GRID_COLUMNS.mobile],
+    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
     tablet: [0, GRID_COLUMNS.tablet],
     desktop: [0, 6, GRID_COLUMNS.desktop],
   },
   process: {
-    mobile: [0, 1, GRID_COLUMNS.mobile],
+    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
     tablet: [0, GRID_COLUMNS.tablet],
     desktop: [0, GRID_COLUMNS.desktop],
   },
   techStack: {
-    mobile: [0, 2, GRID_COLUMNS.mobile],
+    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
     tablet: [0, GRID_COLUMNS.tablet],
     desktop: [0, GRID_COLUMNS.desktop],
   },
   about: {
-    mobile: [0, 2, 4, GRID_COLUMNS.mobile],
+    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
     tablet: [0, GRID_COLUMNS.tablet],
     desktop: [0, 11, 13, GRID_COLUMNS.desktop],
   },
   footer: {
-    mobile: [0, 3, GRID_COLUMNS.mobile],
+    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
     tablet: [0, 4, GRID_COLUMNS.tablet],
     desktop: [0, 8, 16, GRID_COLUMNS.desktop],
   },

@@ -106,7 +106,7 @@ export function Hero({
             <div className="flex flex-wrap items-center gap-3 pt-1 sm:flex-nowrap sm:gap-4">
               <Button
                 onClick={() => smoothScrollTo('works', 96)}
-                className={`min-h-10 px-4 py-2 text-[0.68rem] tracking-[0.18em] ${
+                className={`min-h-11 px-4 py-2 text-[0.68rem] tracking-[0.18em] ${
                   isDark
                     ? 'border-white/30 text-white hover:border-link/65 hover:bg-link/14 hover:text-link focus-visible:ring-offset-transparent'
                     : 'border-link bg-link text-white hover:border-link hover:bg-link/88 hover:text-white'
@@ -115,7 +115,7 @@ export function Hero({
               >
                 View Work
               </Button>
-              <SocialLinks socialLinks={contact.socialLinks} inverted={isDark} className="origin-left shrink-0 scale-[0.84] sm:scale-90" />
+              <SocialLinks socialLinks={contact.socialLinks} inverted={isDark} className="shrink-0" />
             </div>
           </div>
         </motion.div>

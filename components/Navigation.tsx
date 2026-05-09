@@ -10,6 +10,24 @@ import { ThemeToggle } from './ThemeToggle';
 import { smoothScrollTo, smoothScrollToTop } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
+const mobileMenuVariants = {
+  closed: {
+    opacity: 0,
+    y: -8,
+    clipPath: 'inset(0 0 100% 0)',
+  },
+  open: {
+    opacity: 1,
+    y: 0,
+    clipPath: 'inset(0 0 0% 0)',
+  },
+};
+
+const mobileMenuTransition = {
+  duration: 0.28,
+  ease: [0.32, 0.72, 0, 1] as const,
+};
+
 export function Navigation() {
   const [activeSection, setActiveSection] = useState('');
   const [scrolled, setScrolled] = useState(false);
@@ -188,15 +206,39 @@ export function Navigation() {
                   aria-controls="mobile-menu"
                   aria-label="Toggle navigation menu"
                 >
-                  {mobileMenuOpen ? (
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  ) : (
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 7h16M4 12h16M4 17h16" />
-                    </svg>
-                  )}
+                  <AnimatePresence mode="wait" initial={false}>
+                    {mobileMenuOpen ? (
+                      <motion.svg
+                        key="close"
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        initial={{ opacity: 0, rotate: -16, scale: 0.92 }}
+                        animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                        exit={{ opacity: 0, rotate: 16, scale: 0.92 }}
+                        transition={{ duration: 0.16, ease: 'easeOut' }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M6 18L18 6M6 6l12 12" />
+                      </motion.svg>
+                    ) : (
+                      <motion.svg
+                        key="menu"
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        initial={{ opacity: 0, rotate: 16, scale: 0.92 }}
+                        animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                        exit={{ opacity: 0, rotate: -16, scale: 0.92 }}
+                        transition={{ duration: 0.16, ease: 'easeOut' }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 7h16M4 12h16M4 17h16" />
+                      </motion.svg>
+                    )}
+                  </AnimatePresence>
                 </button>
               </div>
             </div>
@@ -206,12 +248,13 @@ export function Navigation() {
             {mobileMenuOpen && (
               <motion.div
                 id="mobile-menu"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.24, ease: [0.32, 0.72, 0, 1] }}
+                initial="closed"
+                animate="open"
+                exit="closed"
+                variants={mobileMenuVariants}
+                transition={mobileMenuTransition}
                 className={cn(
-                  'max-h-[calc(100svh-var(--chrome-top))] overflow-y-auto border-t shadow-[0_20px_44px_rgba(0,0,0,0.16)] md:hidden',
+                  'origin-top transform-gpu will-change-[clip-path,transform,opacity] max-h-[calc(100svh-var(--chrome-top))] overflow-y-auto border-t shadow-[0_20px_44px_rgba(0,0,0,0.16)] md:hidden',
                   scrolled || mobileMenuOpen
                     ? 'border-border bg-[color:color-mix(in_srgb,var(--surface-chrome)_94%,white_6%)]'
                     : isDarkTheme
@@ -221,9 +264,8 @@ export function Navigation() {
                 role="menu"
               >
                 <div className="site-shell py-3 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
-                  <div className="flex items-center justify-between border-b border-border/70 pb-3">
+                  <div className="border-b border-border/70 pb-3">
                     <span className="editorial-kicker text-foreground/52">Menu</span>
-                    <ThemeToggle />
                   </div>
                   <div className="mt-3 flex flex-col gap-2">
                     {navigationItems.map((item) => {
