@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Button } from '@/components/Button';
 
 interface Props {
   children: ReactNode;
@@ -35,29 +36,27 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div
           role="alert"
-          className="min-h-[40vh] flex flex-col items-center justify-center gap-4 px-4 py-16 text-center bg-background text-foreground"
+          className="min-h-[40vh] flex flex-col items-center justify-center gap-4 px-4 py-16 text-center bg-canvas text-primary"
         >
-          <h2 className="text-xl font-semibold">Something went wrong</h2>
-          <p className="text-foreground/70 max-w-md">
-            We couldn’t load this part of the page. Try refreshing.
-          </p>
+          <h2 className="type-heading text-lg">Something went wrong</h2>
+          <p className="type-body max-w-md">We couldn’t load this part of the page. Try refreshing.</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <button
-              type="button"
+            <Button
               onClick={() => this.setState({ hasError: false, error: null })}
-              className="px-6 py-2.5 rounded-full border border-border bg-background text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors"
+              variant="secondary"
+              className="min-h-10 px-5"
             >
               Try again
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
               onClick={() => typeof window !== 'undefined' && window.location.reload()}
-              className="px-6 py-2.5 rounded-full border border-border bg-background text-foreground hover:bg-foreground/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors"
+              variant="secondary"
+              className="min-h-10 px-5"
             >
               Reload page
-            </button>
+            </Button>
           </div>
-          <Link href="/" className="text-link hover:underline text-sm">
+          <Link href="/" className="type-meta text-link hover:underline">
             Back to home
           </Link>
         </div>

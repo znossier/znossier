@@ -246,10 +246,51 @@ The portfolio website has been significantly improved through comprehensive QA t
 
 - **Build:** `npm run build` succeeds (Next.js 16, static + dynamic routes).
 - **Bug fix:** Mobile menu no longer closes immediately when opening (click-outside now ignores clicks inside the nav).
-- **Lint:** Addressed SmoothScroll `any` (Window type), unused vars (Footer, GridOverlay, Services, VinylPlayer). Remaining lint items are pre-existing (Sanity schemas, setState-in-effect patterns for hydration/reduced-motion).
+- **Lint:** Addressed SmoothScroll `any` (Window type), unused vars (Footer, GridOverlay, Services). Remaining lint items are pre-existing (Sanity schemas, setState-in-effect patterns for hydration/reduced-motion).
 - **SEO:** Viewport and themeColor added; sitemap/robots/OG/JSON-LD already in place.
 
 ---
 
-**Report Generated:** January 2025 · **Updated:** February 2025  
+## 11. Mobile Responsive Sign-Off (July 2025)
+
+Production mobile/responsive pass for the Figma workspace theme (Theme 2).
+
+### Device matrix
+
+| Viewport | Priority checks |
+|----------|-----------------|
+| 320×568 (iPhone SE) | No horizontal scroll; hero copy readable; footer safe area |
+| 390×844 (iPhone 14) | Process scroll-jack + progress; mobile nav; 44px touch targets |
+| 768×1024 (iPad) | 8-col full-width sections; hamburger until 1024px |
+| 1280+ | Fixed hero; 24-col layout; DesignRulers; alternating Works |
+
+### Changes verified
+
+- Unified breakpoints in `lib/breakpoints.ts`; nav inline links at `lg` (1024px).
+- Tablet sections use full-width spans below `lg` (no inset `span_6` on 8-col grid).
+- Layer 3 inspection gated on fine pointer (`useFinePointer`); hero inspect off on touch.
+- Process: scroll-jacking retained with step progress (`02 / 05`) and scroll hint.
+- Services: sticky card stack disabled below `lg`.
+- Tech Stack: static grid when `prefers-reduced-motion`.
+- Footer safe-area padding until `lg`; touch targets on footer links.
+- Project detail: mobile section jump nav below `lg`.
+- `viewport-fit=cover`; `body.mobile-menu-open` prevents background scroll.
+
+### Manual test checklist
+
+- [ ] Mobile menu open → anchor scroll → menu closes
+- [ ] Process full scroll shows progress updating
+- [ ] Works card tap navigates correctly
+- [ ] About experience expand/collapse
+- [ ] Project detail section jump links scroll to sections
+- [ ] No page-level horizontal overflow at 320px width
+
+### Automated
+
+- [ ] `npm run build` succeeds
+- [ ] `npm run lint` passes (or only pre-existing warnings)
+
+---
+
+**Report Generated:** January 2025 · **Updated:** February 2025 · **Mobile pass:** July 2025  
 **Status:** ✅ All Critical Issues Resolved

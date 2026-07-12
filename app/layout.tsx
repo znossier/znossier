@@ -3,13 +3,14 @@ import { Geist, Geist_Mono, Oswald } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
 
+export const FAVICON = "/favicon-B.png";
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#101214" },
-  ],
+  viewportFit: "cover",
+  themeColor: "#0a0a0a",
+  colorScheme: "dark",
 };
 
 const geistSans = Geist({
@@ -85,16 +86,8 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: "/favicon-light.svg", sizes: "any", type: "image/svg+xml", media: "(prefers-color-scheme: light)" },
-      { url: "/favicon-dark.svg", sizes: "any", type: "image/svg+xml", media: "(prefers-color-scheme: dark)" },
-      { url: "/favicon-light.svg", sizes: "any", type: "image/svg+xml" },
-    ],
-    apple: [
-      { url: "/favicon-light.svg", type: "image/svg+xml", media: "(prefers-color-scheme: light)" },
-      { url: "/favicon-dark.svg", type: "image/svg+xml", media: "(prefers-color-scheme: dark)" },
-      { url: "/favicon-light.svg", type: "image/svg+xml" },
-    ],
+    icon: [{ url: FAVICON, sizes: "64x64", type: "image/png" }],
+    apple: [{ url: FAVICON, sizes: "64x64", type: "image/png" }],
   },
   manifest: "/site.webmanifest",
   alternates: {
@@ -137,7 +130,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}
       >

@@ -8,20 +8,28 @@ import {
   type ExperienceRole,
 } from '@/lib/site-content';
 import { smoothScrollTo } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRef, useState, memo } from 'react';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { useState, memo, useRef } from 'react';
 import { Button } from '@/components/Button';
-import { SectionGridLines } from '@/components/SectionGridLines';
+import { Section } from '@/components/Section';
+import { SectionLayout } from '@/components/SectionLayout';
 import { SectionHeading } from '@/components/SectionHeading';
+import { SpacingGuide } from '@/components/SpacingGuide';
+import { WorkspaceFrame } from '@/components/WorkspaceFrame';
+import { Reveal } from '@/components/Reveal';
 import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
+import { gridSpans } from '@/lib/grid-spans';
+import { EASE_PRECISION, MOTION, REVEAL_VIEWPORT, transitionHover } from '@/lib/motion';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import Image from 'next/image';
 
 /** LinkedIn-style icon badge for company logos. Uses img to avoid Next.js Image cache serving wrong asset. */
 function CompanyLogo({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
   return (
     <div
-      className={`relative flex h-9 w-9 flex-shrink-0 overflow-hidden border border-border/85 bg-background/80 ${className}`}
+      className={`relative flex h-9 w-9 flex-shrink-0 overflow-hidden border border-subtle bg-panel/80 ${className}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={alt} className="h-full w-full object-cover" width={36} height={36} loading="lazy" />
@@ -34,7 +42,7 @@ function ExpandIcon({ isExpanded }: { isExpanded: boolean }) {
   return (
     <motion.span
       animate={{ rotate: isExpanded ? 45 : 0 }}
-      transition={{ duration: 0.25, ease: 'easeOut' }}
+      transition={transitionHover}
       className="inline-flex"
       aria-hidden
     >
@@ -65,27 +73,37 @@ const ExperienceGroupCard = memo(function ExperienceGroupCard({
           <div className="h-9 w-9 flex-shrink-0" aria-hidden />
         )}
         <div className="min-w-0">
-          <p className="text-[0.7rem] font-mono uppercase tracking-[0.2em] text-foreground/42">
+          <p className="type-meta">
             Current Company
           </p>
-          <h4 className="mt-1 text-base font-semibold leading-tight tracking-[-0.02em] text-foreground">
+          <h4 className="type-heading mt-1">
             {group.company}
           </h4>
         </div>
       </div>
 
-      <div className="min-w-0 border-l border-border/80 pl-4">
+      <div className="relative min-w-0">
+        {group.roles.length > 1 && (
+          <div
+            className="absolute left-[7px] top-[0.55rem] bottom-[0.55rem] w-px bg-border/75"
+            aria-hidden
+          />
+        )}
         {group.roles.map((role, roleIndex) => (
-          <div key={`${group.company}-${role.role}-${role.period}`} className="relative pb-4 last:pb-0">
-            <span className="absolute -left-[1.0625rem] top-1.5 h-2 w-2 border border-border bg-background dark:bg-section-accent" aria-hidden />
-            <ExperienceGroupRoleRow
-              role={role}
-              roleIndex={roleIndex}
-              groupIndex={groupIndex}
-              company={group.company}
-              isExpanded={expandedKeys.has(`${groupIndex}-${roleIndex}`)}
-              onToggle={() => onToggle(`${groupIndex}-${roleIndex}`)}
-            />
+          <div key={`${group.company}-${role.role}-${role.period}`} className="flex gap-4 pb-6 last:pb-0">
+            <div className="relative w-3.5 shrink-0" aria-hidden>
+              <span className="absolute left-1/2 top-[0.55rem] h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 border border-subtle bg-canvas" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <ExperienceGroupRoleRow
+                role={role}
+                roleIndex={roleIndex}
+                groupIndex={groupIndex}
+                company={group.company}
+                isExpanded={expandedKeys.has(`${groupIndex}-${roleIndex}`)}
+                onToggle={() => onToggle(`${groupIndex}-${roleIndex}`)}
+              />
+            </div>
           </div>
         ))}
       </div>
@@ -108,22 +126,22 @@ function ExperienceGroupRoleRow({
   isExpanded: boolean;
   onToggle: () => void;
 }) {
+  const reducedMotion = useReducedMotion();
   const hasContent = (role.bullets && role.bullets.length > 0) || !!role.description;
 
   const rowContent = (
     <>
-      <div className="grid grid-cols-6 items-start gap-x-3">
-        <div className="[grid-column:1/span_4] min-w-0">
-          <h5 className="mb-1 text-[0.97rem] font-semibold leading-tight tracking-[-0.02em] text-foreground transition-colors group-hover:text-link md:text-[1.04rem]">
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
+        <div className="min-w-0 flex-1 basis-[9rem]">
+          <h5 className="type-heading transition-colors group-hover:text-link">
             {role.role}
           </h5>
           <p className="sr-only">{company}</p>
         </div>
-        <div
-          className="[grid-column:5/span_2] flex flex-col items-end gap-2.5 text-foreground/40"
-          aria-hidden="true"
-        >
-          <span className="editorial-kicker max-w-[7.5rem] text-right text-[0.62rem] tracking-[0.14em] text-foreground/44 sm:max-w-none sm:text-[0.72rem] sm:tracking-[0.22em]">{role.period}</span>
+        <div className="flex shrink-0 items-center gap-2 text-faint">
+          <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap">
+            {role.period}
+          </span>
           {hasContent && <ExpandIcon isExpanded={isExpanded} />}
         </div>
       </div>
@@ -136,13 +154,13 @@ function ExperienceGroupRoleRow({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={reducedMotion ? { duration: 0 } : { duration: MOTION.duration.overlay, ease: EASE_PRECISION }}
               className="overflow-hidden"
               role="region"
               aria-live="polite"
             >
               {role.bullets && role.bullets.length > 0 ? (
-                <ul className="space-y-1.5 pt-3 text-sm leading-relaxed text-foreground/70">
+                <ul className="type-body space-y-1.5 pt-3">
                   {role.bullets.map((bullet) => (
                     <li key={bullet} className="flex gap-2">
                       <span className="mt-2 h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
@@ -152,7 +170,7 @@ function ExperienceGroupRoleRow({
                 </ul>
               ) : (
                 role.description && (
-                  <p className="pt-3 text-sm leading-relaxed text-foreground/70">
+                  <p className="type-body pt-3">
                     {role.description}
                   </p>
                 )
@@ -176,7 +194,7 @@ function ExperienceGroupRoleRow({
     <div style={{ overflowAnchor: 'none' }}>
       <button
         onClick={onToggle}
-        className="w-full text-left group focus:outline-none"
+        className="min-h-12 w-full text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-expanded={isExpanded}
         aria-controls={`experience-details-${groupIndex}-${roleIndex}`}
       >
@@ -197,25 +215,28 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
   isExpanded: boolean;
   onToggle: () => void;
 }) {
+  const reducedMotion = useReducedMotion();
+  const rowRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rowRef, REVEAL_VIEWPORT);
   const hasContent = (item.bullets && item.bullets.length > 0) || !!item.description;
+  const rowClassName = 'mb-0 border-b border-border/85 bg-transparent px-4 py-4 last:border-b-0 md:px-5';
 
   const rowContent = (
     <>
-      <div className="grid grid-cols-6 items-start gap-x-3">
-        <div className="[grid-column:1/span_4] flex min-w-0 items-start gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+        <div className="flex min-w-0 flex-1 basis-[12rem] items-start gap-3">
           {item.logo ? <CompanyLogo src={item.logo} alt={item.company} /> : <div className="w-10 flex-shrink-0" aria-hidden />}
           <div className="min-w-0">
-            <h4 className="mb-1 text-[0.97rem] font-semibold leading-tight tracking-[-0.02em] text-foreground transition-colors group-hover:text-link md:text-[1.04rem]">
+            <h4 className="type-heading transition-colors group-hover:text-link">
               {item.role}
             </h4>
-            <p className="text-sm text-foreground/70">{item.company}</p>
+            <p className="type-body mt-0.5">{item.company}</p>
           </div>
         </div>
-        <div
-          className="[grid-column:5/span_2] flex flex-col items-end gap-2.5 text-foreground/40"
-          aria-hidden="true"
-        >
-          <span className="editorial-kicker max-w-[7.5rem] text-right text-[0.62rem] tracking-[0.14em] text-foreground/44 sm:max-w-none sm:text-[0.72rem] sm:tracking-[0.22em]">{item.period}</span>
+        <div className="flex shrink-0 items-center gap-2 text-faint max-sm:pl-[3.25rem]">
+          <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap">
+            {item.period}
+          </span>
           {hasContent && <ExpandIcon isExpanded={isExpanded} />}
         </div>
       </div>
@@ -228,13 +249,13 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={reducedMotion ? { duration: 0 } : { duration: MOTION.duration.overlay, ease: EASE_PRECISION }}
               className="overflow-hidden"
               role="region"
               aria-live="polite"
             >
               {item.bullets && item.bullets.length > 0 ? (
-                <ul className="pt-3 pl-[52px] space-y-1.5 text-sm text-foreground/70 leading-relaxed">
+                <ul className="type-body space-y-1.5 pt-3 pl-[52px]">
                   {item.bullets.map((bullet) => (
                     <li key={bullet} className="flex gap-2">
                       <span className="mt-2 h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
@@ -244,7 +265,7 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
                 </ul>
               ) : (
                 item.description && (
-                  <p className="text-sm text-foreground/70 leading-relaxed pt-3 pl-[52px]">
+                  <p className="type-body pt-3 pl-[52px]">
                     {item.description}
                   </p>
                 )
@@ -256,31 +277,47 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
     </>
   );
 
-  if (!hasContent) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.3, delay: index * 0.05 }}
-        className="mb-0 border-b border-border/85 bg-transparent px-4 py-4 last:border-b-0 md:px-5"
-      >
-        {rowContent}
-      </motion.div>
+  if (reducedMotion) {
+    const staticRow = (
+      <div className={rowClassName}>
+        {!hasContent ? (
+          rowContent
+        ) : (
+          <button
+            onClick={onToggle}
+            className="min-h-12 w-full text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            aria-expanded={isExpanded}
+            aria-controls={`experience-details-single-${index}`}
+          >
+            {rowContent}
+          </button>
+        )}
+      </div>
     );
+    return staticRow;
+  }
+
+  const motionProps = {
+    ref: rowRef,
+    initial: { opacity: 0, y: 10 },
+    animate: inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 },
+    transition: {
+      duration: MOTION.duration.reveal,
+      delay: index * MOTION.duration.stagger,
+      ease: EASE_PRECISION,
+    },
+    className: rowClassName,
+  } as const;
+
+  if (!hasContent) {
+    return <motion.div {...motionProps}>{rowContent}</motion.div>;
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      className="mb-0 border-b border-border/85 bg-transparent px-4 py-4 last:border-b-0 md:px-5"
-    >
+    <motion.div {...motionProps}>
       <button
         onClick={onToggle}
-        className="w-full text-left group focus:outline-none"
+        className="min-h-12 w-full text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-expanded={isExpanded}
         aria-controls={`experience-details-single-${index}`}
       >
@@ -291,7 +328,6 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
 });
 
 export function About({ about }: { about: AboutContent }) {
-  const sectionRef = useRef<HTMLElement>(null);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
   const toggleItem = (key: string) => {
@@ -309,103 +345,87 @@ export function About({ about }: { about: AboutContent }) {
   const experienceEntries = about.experience;
 
   return (
-    <section
-      ref={sectionRef}
-      id="about"
-      className="relative z-20 min-h-screen border-t border-border/90 bg-background py-[var(--mobile-section-padding)] md:py-20 lg:py-24 dark:bg-section-accent"
-    >
-      <SectionGridLines boundaries={HOME_SECTION_BOUNDARIES.about} />
-      <div className="relative z-10 mx-auto h-full w-full max-w-[var(--site-max-width)] px-[var(--site-padding-inline)] lg:px-0">
-        <div className="site-section-grid min-h-0">
-          <div className="[grid-column:1/span_6] flex flex-col gap-6 lg:[grid-column:1/span_11] lg:sticky lg:self-start lg:gap-8 lg:[top:128px]">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5 }}
-            >
-              <SectionHeading surfaceClassName="bg-background dark:bg-section-accent">About Me</SectionHeading>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5 }}
-              className="editorial-panel grid grid-cols-6 gap-x-3 gap-y-5 p-4 sm:gap-6 sm:p-6"
-            >
-              <motion.div
-                initial={{ opacity: 0, rotateX: 8, rotateY: -6 }}
-                whileInView={{ opacity: 1, rotateX: 0, rotateY: 0 }}
-                whileHover={{ rotateX: 14, rotateY: -18, rotateZ: 1.4, scale: 1.03 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.48, ease: [0.22, 0.61, 0.36, 1] }}
-                className="[grid-column:1/span_6] w-full sm:[grid-column:1/span_2] sm:self-stretch"
-                style={{ transformStyle: 'preserve-3d', perspective: '1200px' }}
+    <Section id="about" variant="subtle" className="lg:min-h-screen">
+      <SectionLayout boundaries={HOME_SECTION_BOUNDARIES.about}>
+        <SpacingGuide
+          showGaps
+          showGutters
+          showLabels
+          sectionBoundaries={HOME_SECTION_BOUNDARIES.about}
+          className="site-section-grid min-h-0"
+        >
+          <div className={cn('flex flex-col gap-6 lg:sticky lg:self-start lg:gap-8 lg:[top:calc(var(--chrome-top)+1rem)]', gridSpans.about.intro)}>
+            <Reveal>
+              <SectionHeading kicker="05 — Profile" surfaceClassName="section-heading-sticky">About Me</SectionHeading>
+            </Reveal>
+            <Reveal delay={0.06}>
+              <WorkspaceFrame
+                inspectMode="hover"
+                showSpacing
+                showPadding
+                panelClassName="grid grid-cols-6 gap-x-3 gap-y-5 p-4 sm:gap-6 sm:p-6"
               >
-                <div className="surface-chrome relative h-44 w-full overflow-hidden border border-border/90 sm:h-full sm:min-h-44 dark:bg-background/70">
-                  {about.image && (
-                    <Image
-                      src={about.image}
-                      alt="Portrait of Zeina Nossier"
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 639px) calc(100vw - 4rem), 144px"
-                    />
-                  )}
+                <div className="[grid-column:1/span_6] w-full sm:[grid-column:1/span_2] sm:self-stretch">
+                  <WorkspaceFrame
+                    inspectMode="hover"
+                    variant="bare"
+                    panelClassName="surface-raised relative h-44 w-full overflow-hidden border border-subtle sm:h-full sm:min-h-44"
+                  >
+                    {about.image && (
+                      <Image
+                        src={about.image}
+                        alt="Portrait of Zeina Nossier"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 639px) calc(100vw - 4rem), 144px"
+                      />
+                    )}
+                  </WorkspaceFrame>
                 </div>
-              </motion.div>
-              <div className="[grid-column:1/span_6] min-w-0 space-y-4 sm:[grid-column:3/span_4]">
-                <h3 className="font-mono text-[1.02rem] font-bold uppercase leading-tight tracking-[0.08em] text-foreground sm:text-[1.18rem]">
-                  {about.name}
-                </h3>
-                <p className="text-sm leading-relaxed text-foreground/84">
-                  {about.bioShort ?? about.bio}
-                </p>
-                <Button
-                  onClick={() => smoothScrollTo('footer', 100)}
-                  className="min-h-10 w-auto px-4 py-2 text-[0.68rem] tracking-[0.18em]"
-                  aria-label="Scroll to contact section"
-                >
-                  Contact Me <span className="ms-1" aria-hidden>→</span>
-                </Button>
-              </div>
-            </motion.div>
+                <div className="[grid-column:1/span_6] min-w-0 space-y-4 sm:[grid-column:3/span_4]">
+                  <h3 className="type-title-sm">{about.name}</h3>
+                  <p className="type-body">{about.bioShort ?? about.bio}</p>
+                  <Button
+                    onClick={() => smoothScrollTo('footer')}
+                    variant="primary"
+                    aria-label="Scroll to contact section"
+                  >
+                    Contact Me <span className="ms-1" aria-hidden>→</span>
+                  </Button>
+                </div>
+              </WorkspaceFrame>
+            </Reveal>
           </div>
 
-          {/* Right Column - Experiences */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
-            className="[grid-column:1/span_6] editorial-panel surface-raised space-y-0 p-0 dark:bg-section-accent lg:[grid-column:14/span_11]"
-          >
-            {experienceEntries.map((entry, index) => {
-              if (isExperienceGroup(entry)) {
+          <Reveal delay={0.1} className={gridSpans.about.experience}>
+            <WorkspaceFrame inspectMode="hover" panelClassName="space-y-0 p-0">
+              {experienceEntries.map((entry, index) => {
+                if (isExperienceGroup(entry)) {
+                  return (
+                    <ExperienceGroupCard
+                      key={`group-${entry.company}`}
+                      group={entry}
+                      groupIndex={index}
+                      expandedKeys={expandedKeys}
+                      onToggle={toggleItem}
+                    />
+                  );
+                }
+                const expandedKey = `s-${index}`;
                 return (
-                  <ExperienceGroupCard
-                    key={`group-${entry.company}`}
-                    group={entry}
-                    groupIndex={index}
-                    expandedKeys={expandedKeys}
-                    onToggle={toggleItem}
+                  <ExperienceSingleItem
+                    key={`single-${entry.role}-${entry.period}`}
+                    item={entry}
+                    index={index}
+                    isExpanded={expandedKeys.has(expandedKey)}
+                    onToggle={() => toggleItem(expandedKey)}
                   />
                 );
-              }
-              const expandedKey = `s-${index}`;
-              return (
-                <ExperienceSingleItem
-                  key={`single-${entry.role}-${entry.period}`}
-                  item={entry}
-                  index={index}
-                  isExpanded={expandedKeys.has(expandedKey)}
-                  onToggle={() => toggleItem(expandedKey)}
-                />
-              );
-            })}
-          </motion.div>
-        </div>
-      </div>
-    </section>
+              })}
+            </WorkspaceFrame>
+          </Reveal>
+        </SpacingGuide>
+      </SectionLayout>
+    </Section>
   );
 }

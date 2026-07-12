@@ -87,7 +87,7 @@ export interface TechStackItem {
   logo: string; // SVG path or image URL
   category?: string;
   url?: string;
-  /** When true, logo is shown black in light mode and white in dark mode */
+  /** When true, logo is inverted to white on dark backgrounds */
   monochrome?: boolean;
   /** Optional class for logo wrapper (e.g. brand color filter) */
   logoClassName?: string;
@@ -421,6 +421,7 @@ export const navigationItems = [
   { label: 'Works', href: '#works' },
   { label: 'Expertise', href: '#expertise' },
   { label: 'Process', href: '#process' },
+  { label: 'Stack', href: '#tech-stack' },
   { label: 'About', href: '#about' },
 ];
 

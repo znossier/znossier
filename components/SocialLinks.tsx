@@ -1,12 +1,7 @@
 'use client';
 
 import type { ContactContent } from '@/lib/site-content';
-
-const socialButtonClass =
-  'flex h-11 w-11 items-center justify-center rounded-none border border-foreground/18 bg-white/38 text-foreground/84 shadow-[inset_0_1px_0_rgba(255,255,255,0.38)] backdrop-blur-[3px] hover:border-foreground hover:bg-foreground hover:text-background transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:hover:border-link/55 dark:hover:bg-link/10 dark:hover:text-link';
-
-const socialButtonClassInverted =
-  'flex h-11 w-11 items-center justify-center rounded-none border border-white/28 bg-black/12 text-white/90 backdrop-blur-[3px] hover:border-link/60 hover:bg-link/12 hover:text-link transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-transparent';
+import { cn } from '@/lib/utils';
 
 export function SocialLinks({
   socialLinks,
@@ -17,7 +12,11 @@ export function SocialLinks({
   className?: string;
   inverted?: boolean;
 }) {
-  const btnClass = inverted ? socialButtonClassInverted : socialButtonClass;
+  const btnClass = cn(
+    'flat-control inline-flex h-11 w-11 focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2',
+    inverted ? 'flat-control-inverted focus-visible:ring-offset-transparent' : 'focus-visible:ring-offset-background'
+  );
+
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
       {socialLinks.map((social) => (

@@ -72,10 +72,6 @@ sanity deploy
 
 The site will automatically use Sanity data when configured, otherwise it falls back to mock data.
 
-### Spotify (vinyl player)
-
-To enable the vinyl player and optional artist lookup, see **[docs/SPOTIFY_APP_SETUP.md](docs/SPOTIFY_APP_SETUP.md)** for environment variables and setup.
-
 ## Project Structure
 
 ```
@@ -87,8 +83,6 @@ znossier/
 │   ├── sitemap.ts         # Sitemap
 │   ├── robots.ts          # Robots.txt
 │   └── api/               # API routes
-│       ├── spotify/       # Spotify token, playlist, track
-│       ├── spotify-track/ # Track artist lookup (with fallbacks)
 │       └── sanity/        # Sanity CMS
 ├── components/            # React components
 │   ├── Navigation.tsx     # Header navigation
@@ -100,27 +94,21 @@ znossier/
 │   ├── TechStack.tsx      # Tech stack
 │   ├── Footer.tsx         # Footer (includes contact)
 │   ├── ThemeToggle.tsx    # Theme toggle
-│   ├── VinylPlayer.tsx    # Spotify vinyl player
-│   ├── VinylPlayerWrapper.tsx
 │   ├── ProjectDetailPage.tsx
 │   └── ...
 ├── hooks/                 # React hooks
-│   ├── useSpotifyPlayer.ts
-│   └── useSpotifyTrackInfo.ts
 ├── lib/                   # Utilities & data
 │   ├── mock-data.ts       # Mock data
 │   ├── sanity.ts          # Sanity client
 │   ├── sanity-queries.ts  # Sanity queries
 │   ├── theme.tsx          # Theme provider
 │   ├── utils.ts           # Helper functions
-│   ├── spotify.ts         # Spotify API client
 │   └── ...
 ├── sanity/                # Sanity schemas
 │   └── schemas/
 └── docs/                  # Setup & deployment docs
     ├── DEPLOYMENT.md
     ├── VERCEL_SETUP.md
-    ├── SPOTIFY_APP_SETUP.md
     └── ...
 ```
 

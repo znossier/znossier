@@ -2,51 +2,76 @@
 
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
+import { Inspectable } from '@/components/Inspectable';
 import { cn } from '@/lib/utils';
+import { EASE_PRECISION } from '@/lib/motion';
 
 interface ButtonProps {
   children: ReactNode;
   onClick?: () => void;
   href?: string;
   className?: string;
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'accent' | 'inverted';
+  inspectable?: boolean;
+  showSpacing?: boolean;
   'aria-label'?: string;
 }
 
 const variantClasses = {
-  primary:
-    'border border-current/42 text-foreground hover:border-foreground hover:bg-foreground hover:text-background dark:hover:border-link/55 dark:hover:bg-link/12 dark:hover:text-link',
-  secondary:
-    'border border-border bg-[var(--surface-elevated)] text-foreground hover:border-foreground hover:bg-foreground hover:text-background transition-all duration-200 dark:hover:border-link/40 dark:hover:bg-link/12 dark:hover:text-link',
+  primary: 'flat-control inline-flex',
+  secondary: 'flat-control inline-flex bg-panel',
+  accent: 'flat-control flat-control-accent inline-flex',
+  inverted: 'flat-control flat-control-inverted inline-flex focus-visible:ring-offset-transparent',
 };
 
-export function Button({ children, onClick, href, className, variant = 'primary', 'aria-label': ariaLabel }: ButtonProps) {
-  const baseClasses = cn(
-    'inline-flex min-h-12 items-center justify-center px-5 py-3 text-center text-[0.78rem] font-mono font-medium uppercase tracking-[0.22em] rounded-none bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all duration-200',
-    variantClasses[variant]
+function ButtonInner({
+  children,
+  onClick,
+  href,
+  className,
+  variant = 'primary',
+  'aria-label': ariaLabel,
+}: ButtonProps) {
+  const classes = cn(
+    'type-label inline-flex min-h-12 items-center justify-center px-5 py-3 text-center transition-[border-color,background-color,box-shadow] duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    variantClasses[variant],
+    className
   );
 
-  const content = (
-    <motion.div
-      whileHover={{ y: -1 }}
-      whileTap={{ scale: 0.985 }}
-      className={cn(baseClasses, className)}
-    >
-      {children}
-    </motion.div>
-  );
+  const motionProps = {
+    whileTap: { scale: 0.99 },
+    transition: { duration: 0.15, ease: EASE_PRECISION },
+    className: classes,
+    'aria-label': ariaLabel,
+  };
 
   if (href) {
     return (
-      <a href={href} className="inline-block" aria-label={ariaLabel}>
-        {content}
-      </a>
+      <motion.a href={href} {...motionProps}>
+        {children}
+      </motion.a>
     );
   }
 
   return (
-    <button type="button" onClick={onClick} className="inline-block" aria-label={ariaLabel}>
-      {content}
-    </button>
+    <motion.button type="button" onClick={onClick} {...motionProps}>
+      {children}
+    </motion.button>
   );
+}
+
+export function Button({
+  inspectable = false,
+  showSpacing = true,
+  ...props
+}: ButtonProps) {
+  if (inspectable) {
+    return (
+      <Inspectable showSpacing={showSpacing} showDimensions persistent={false}>
+        <ButtonInner {...props} />
+      </Inspectable>
+    );
+  }
+
+  return <ButtonInner {...props} />;
 }

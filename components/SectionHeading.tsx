@@ -5,29 +5,38 @@ export function SectionHeading({
   id,
   children,
   title,
+  kicker,
   className,
+  surfaceClassName,
 }: {
   id?: string;
   children?: ReactNode;
   title?: ReactNode;
+  /** Mono layer label above the title — e.g. "01 — Projects" */
+  kicker?: ReactNode;
   className?: string;
   surfaceClassName?: string;
 }) {
   const label = children ?? title;
 
   return (
-    <div className={cn('relative flex min-w-0 items-center gap-4 overflow-hidden md:gap-5', className)}>
-      <div className="relative z-10 shrink-0">
-        <div className="relative flex items-center gap-4 pe-4 md:gap-5 md:pe-5">
-          <span className="shrink-0 font-mono text-[1.05rem] font-bold leading-none text-link md:text-[1.15rem]" aria-hidden>
+    <div className={cn('section-heading', className)}>
+      <div className={cn('section-heading-label', surfaceClassName)}>
+        {kicker ? (
+          <p className="section-heading-kicker type-meta" aria-hidden>
+            {kicker}
+          </p>
+        ) : null}
+        <div className="section-heading-title-row">
+          <span className="section-heading-slash" aria-hidden>
             /
           </span>
-          <h2 id={id} className="editorial-kicker shrink-0 text-foreground/68">
+          <h2 id={id} className="type-section">
             {label}
           </h2>
         </div>
       </div>
-      <div className="editorial-rule relative z-10 min-w-0 flex-1" aria-hidden />
+      <div className="section-heading-track" aria-hidden />
     </div>
   );
 }
