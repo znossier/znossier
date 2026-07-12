@@ -292,5 +292,46 @@ Production mobile/responsive pass for the Figma workspace theme (Theme 2).
 
 ---
 
-**Report Generated:** January 2025 · **Updated:** February 2025 · **Mobile pass:** July 2025  
+## 12. Layout Fix & Cohesion Pass (July 2026)
+
+Post–Theme 2 layout audit fixes on `main` before shipping to production.
+
+### Fixes applied
+
+- **Grid overlay:** Removed ruler inset from `.grid-overlay-home`; overlay lines align with `.site-shell` content. Opacity reduced to `1.0`.
+- **Hero:** Scroll hint moved to cols 1–8 below copy (no portrait overlap). `z-index: 5` on `.hero-section.section`. Mobile bottom padding uses `--mobile-bottom-controls`.
+- **Services:** Card stack height/offset aligned to 320px / 16px; section padding normalized.
+- **Footer:** Removed split border from Navigation column; footer kickers added.
+- **Tech Stack:** Marquee rows use `overflow-y-visible` for hover labels; static grid full-bleed parity.
+- **Process:** Consistent track gap formula across breakpoints.
+- **About:** Sticky limited to heading; experience date row uses CSS grid (no `pl-[3.25rem]` hack).
+- **Navigation:** Mobile menu scrim (`bg-background/60`) when open.
+- **Polish:** Services first card uses `Reveal flashGuides`.
+
+### Desktop `lg+` checklist
+
+- [x] Ruler 0 aligns with shell left edge; guides pass through card edges
+- [x] Scroll hint sits under copy, not on portrait
+- [x] Works gutter guides at cols 11 and 13
+- [x] Footer three columns + back-to-top aligned
+- [x] Services card stack overlaps cleanly
+- [x] Tech Stack hover labels fully visible
+- [x] No horizontal page overflow
+
+### Mobile checklist
+
+- [x] Hero copy readable over portrait backdrop
+- [x] Process scroll + step counter
+- [x] Mobile menu scrim + close behavior
+- [x] Footer safe area on iOS
+- [x] 320px width: no overflow
+
+### Automated
+
+- [x] `rm -rf .next && npm run build -- --webpack` succeeds
+- [x] `npm run lint` — 5 pre-existing errors (setState-in-effect, refs-during-render); no new issues from layout pass
+
+---
+
+**Report Generated:** January 2025 · **Updated:** February 2025 · **Mobile pass:** July 2025 · **Layout fix:** July 2026  
 **Status:** ✅ All Critical Issues Resolved

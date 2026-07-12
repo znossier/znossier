@@ -310,6 +310,7 @@ body.mobile-menu-open {
 }
 
 .hero-section.section {
+  z-index: 5;
   border-top: 0;
   padding-block: 0;
 }
@@ -1950,13 +1951,6 @@ button:hover {
 
 .grid-overlay-home {
   inset: 0;
-}
-
-@media (min-width: 1024px) {
-  .grid-overlay-home {
-    top: calc(var(--chrome-top) + var(--ruler-size));
-    left: var(--ruler-size);
-  }
 }
 
 .ruler-track {

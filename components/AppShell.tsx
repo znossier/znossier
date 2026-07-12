@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <SmoothScroll>
         <DesignRulers />
         {isHomeRoute ? (
-          <GridOverlay opacity={1.15} showPlusMarkers showAlignmentGuides />
+          <GridOverlay opacity={1} showPlusMarkers showAlignmentGuides />
         ) : null}
         <Cursor />
         {children}

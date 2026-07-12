@@ -7,7 +7,7 @@ export const gridSpans = {
   hero: {
     copy: 'col-span-full sm:[grid-column:1/span_4] lg:[grid-column:1/span_8]',
     portrait: 'col-span-full lg:[grid-column:11/span_14]',
-    scrollHint: 'col-span-full lg:[grid-column:17/span_8] lg:justify-self-end lg:self-end',
+    scrollHint: 'col-span-full lg:row-start-2 lg:[grid-column:1/span_8] lg:justify-self-start lg:self-end',
   },
   works: {
     heading: 'col-span-full',

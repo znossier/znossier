@@ -223,17 +223,15 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
 
   const rowContent = (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-        <div className="flex min-w-0 flex-1 basis-[12rem] items-start gap-3">
-          {item.logo ? <CompanyLogo src={item.logo} alt={item.company} /> : <div className="w-10 flex-shrink-0" aria-hidden />}
-          <div className="min-w-0">
-            <h4 className="type-heading transition-colors group-hover:text-link">
-              {item.role}
-            </h4>
-            <p className="type-body mt-0.5">{item.company}</p>
-          </div>
+      <div className="grid grid-cols-[2.5rem_1fr] items-start gap-x-3 gap-y-2 sm:grid-cols-[2.5rem_1fr_auto]">
+        {item.logo ? <CompanyLogo src={item.logo} alt={item.company} /> : <div className="w-10 flex-shrink-0" aria-hidden />}
+        <div className="min-w-0">
+          <h4 className="type-heading transition-colors group-hover:text-link">
+            {item.role}
+          </h4>
+          <p className="type-body mt-0.5">{item.company}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-2 text-faint max-sm:pl-[3.25rem]">
+        <div className="col-start-2 flex shrink-0 items-center gap-2 text-faint sm:col-start-3 sm:row-start-1">
           <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap">
             {item.period}
           </span>
@@ -354,9 +352,11 @@ export function About({ about }: { about: AboutContent }) {
           sectionBoundaries={HOME_SECTION_BOUNDARIES.about}
           className="site-section-grid min-h-0"
         >
-          <div className={cn('flex flex-col gap-6 lg:sticky lg:self-start lg:gap-8 lg:[top:calc(var(--chrome-top)+1rem)]', gridSpans.about.intro)}>
+          <div className={cn('flex flex-col gap-6 lg:gap-8', gridSpans.about.intro)}>
             <Reveal>
-              <SectionHeading kicker="05 — Profile" surfaceClassName="section-heading-sticky">About Me</SectionHeading>
+              <div className="section-heading-sticky lg:sticky lg:self-start lg:[top:calc(var(--chrome-top)+1rem)]">
+                <SectionHeading kicker="05 — Profile" surfaceClassName="section-heading-sticky">About Me</SectionHeading>
+              </div>
             </Reveal>
             <Reveal delay={0.06}>
               <WorkspaceFrame

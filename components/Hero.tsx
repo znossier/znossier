@@ -95,7 +95,7 @@ export function Hero({
       ref={heroRef}
       id="home"
       className={cn(
-        'hero-section section relative inset-x-0 top-0 z-[5] flex min-h-[100svh] items-center overflow-x-hidden pb-24 pt-[calc(var(--chrome-top)+1.25rem)] sm:pt-[calc(var(--chrome-top)+1.75rem)] md:pb-16 lg:fixed lg:min-h-screen lg:overflow-visible lg:pb-10 lg:pt-[calc(var(--chrome-top)+1rem)] xl:pb-16',
+        'hero-section section relative inset-x-0 top-0 flex min-h-[100svh] items-center overflow-x-hidden pb-[calc(var(--mobile-bottom-controls)+1.5rem)] pt-[calc(var(--chrome-top)+1.25rem)] sm:pt-[calc(var(--chrome-top)+1.75rem)] md:pb-16 lg:fixed lg:min-h-screen lg:overflow-visible lg:pb-10 lg:pt-[calc(var(--chrome-top)+1rem)] xl:pb-16',
         showSectionPeek && scrollPeeking && 'section--inspecting'
       )}
     >
@@ -126,9 +126,9 @@ export function Hero({
             showGutters
             showLabels={finePointer || scrollPeeking}
             sectionBoundaries={HOME_SECTION_BOUNDARIES.hero}
-            className="site-grid min-h-[calc(100svh-var(--chrome-top)-7rem)] w-full items-end pb-2 sm:items-center lg:min-h-[calc(100vh-8rem)] lg:items-center lg:pb-0"
+            className="site-grid min-h-[calc(100svh-var(--chrome-top)-7rem)] w-full items-end pb-2 sm:items-center lg:min-h-[calc(100vh-8rem)] lg:grid-rows-[1fr_auto] lg:items-center lg:pb-0"
           >
-            <Reveal className={cn('hero-copy-shell relative overflow-visible', gridSpans.hero.copy)}>
+            <Reveal className={cn('hero-copy-shell relative overflow-visible lg:row-start-1', gridSpans.hero.copy)}>
               <WorkspaceFrame
                 inspectMode="always"
                 frameLabel="hero · intro"
@@ -170,7 +170,7 @@ export function Hero({
             </Reveal>
 
             {about.image && (
-              <Reveal delay={0.12} className={cn('relative hidden lg:block lg:self-center', gridSpans.hero.portrait)}>
+              <Reveal delay={0.12} className={cn('relative hidden lg:row-span-2 lg:block lg:self-center', gridSpans.hero.portrait)}>
                 <div className="hero-portrait-glow pointer-events-none absolute -inset-x-8 -inset-y-6 -z-10" aria-hidden />
                 <HeroPortraitFrame
                   image={about.image}
@@ -187,7 +187,7 @@ export function Hero({
                 smoothScrollTo('works');
               }}
               className={cn(
-                'scroll-hint type-meta hidden items-center justify-end gap-2 self-end text-right transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-transparent lg:inline-flex',
+                'scroll-hint type-meta hidden items-center justify-start gap-2 self-end text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-transparent lg:inline-flex',
                 gridSpans.hero.scrollHint
               )}
               aria-label="Scroll to works section"

@@ -50,7 +50,8 @@ export function Footer({ contact }: { contact: ContactContent }) {
             </button>
           </div>
 
-          <section className={cn(footerCellClass, 'footer-cell--split', gridSpans.footer.nav)}>
+          <section className={cn(footerCellClass, gridSpans.footer.nav)}>
+            <p className="section-heading-kicker type-meta mb-2" aria-hidden>Footer</p>
             <h3 className="type-meta mb-5">Navigation</h3>
             <nav aria-label="Footer navigation">
               <ul className="flex flex-col gap-3">
@@ -87,6 +88,7 @@ export function Footer({ contact }: { contact: ContactContent }) {
           </section>
 
           <section className={cn(footerCellClass, 'footer-cell--split', gridSpans.footer.contact)}>
+            <p className="section-heading-kicker type-meta mb-2" aria-hidden>Footer</p>
             <h3 className="type-meta mb-5">Contact</h3>
             <div className="flex flex-col gap-3">
               <a
@@ -110,6 +112,7 @@ export function Footer({ contact }: { contact: ContactContent }) {
           </section>
 
           <section className={cn(footerCellClass, 'footer-cell--split', gridSpans.footer.connect)}>
+            <p className="section-heading-kicker type-meta mb-2" aria-hidden>Footer</p>
             <h3 className="type-meta mb-5">Connect</h3>
             <ul className="flex flex-col gap-3">
               {contact.socialLinks.map((social) => (

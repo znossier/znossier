@@ -129,13 +129,10 @@ export function Process() {
     '--process-card-width':
       `calc(var(--process-col-width) * ${PROCESS_CARD_SPAN})`,
     '--process-track-gap':
-      `calc(var(--site-grid-col-width) * 0.5)`,
+      `calc(var(--process-col-width) * ${PROCESS_GAP_SPAN})`,
   } as CSSProperties;
 
-  const desktopTrackVars = {
-    ...processTrackVars,
-    '--process-track-gap': `calc(var(--process-col-width) * ${PROCESS_GAP_SPAN})`,
-  } as CSSProperties;
+  const desktopTrackVars = processTrackVars;
 
   useEffect(() => {
     if (reduceMotion || !hasMounted) return;

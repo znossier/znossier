@@ -145,6 +145,22 @@ export function Navigation() {
         Skip to main content
       </a>
 
+      <AnimatePresence initial={false}>
+        {mobileMenuOpen && (
+          <motion.button
+            type="button"
+            key="mobile-menu-scrim"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-background/60 lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close navigation menu"
+          />
+        )}
+      </AnimatePresence>
+
       <nav ref={navRef} aria-label="Main navigation" className="fixed inset-x-0 top-[var(--ribbon-height)] z-50">
         <div className={navShellClass}>
           <div className="site-shell">

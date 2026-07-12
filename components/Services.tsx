@@ -15,8 +15,8 @@ import { memo, useRef } from 'react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const NAV_OFFSET = 'calc(var(--chrome-top) + 1rem)';
-const CARD_STACK_OFFSET_PX = 14;
-const DESKTOP_CARD_HEIGHT_PX = 348;
+const CARD_STACK_OFFSET_PX = 16;
+const DESKTOP_CARD_HEIGHT_PX = 320;
 
 const ServiceCard = memo(function ServiceCard({
   service,
@@ -74,7 +74,6 @@ export function Services({ services }: { services: Service[] }) {
     <Section
       id="expertise"
       variant="canvas"
-      className="md:pt-28 md:pb-20 lg:pt-32 lg:pb-24"
     >
       <SectionLayout boundaries={HOME_SECTION_BOUNDARIES.expertise}>
         <SpacingGuide
@@ -98,7 +97,7 @@ export function Services({ services }: { services: Service[] }) {
             style={isDesktop ? { minHeight: `${services.length * DESKTOP_CARD_HEIGHT_PX}px` } : undefined}
           >
             {services.map((service, index) => (
-              <Reveal key={service.id} delay={index * 0.08}>
+              <Reveal key={service.id} delay={index * 0.08} flashGuides={index === 0}>
                 <ServiceCard service={service} index={index} />
               </Reveal>
             ))}

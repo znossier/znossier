@@ -91,7 +91,7 @@ function MarqueeRow({ items, direction, reduceMotion }: MarqueeRowProps) {
     reduceMotion ? '' : direction === 'left' ? 'animate-marquee-left' : 'animate-marquee-right';
 
   return (
-    <div className="tech-stack-marquee-row relative overflow-hidden py-2 md:py-6">
+    <div className="tech-stack-marquee-row relative overflow-x-hidden overflow-y-visible py-2 md:py-6">
       <div className={`flex w-max flex-nowrap ps-[var(--site-padding-inline)] ${animationClass}`}>
         {duplicated.map((item, index) => (
           <LogoCard
@@ -107,12 +107,14 @@ function MarqueeRow({ items, direction, reduceMotion }: MarqueeRowProps) {
 
 function StaticTechGrid({ reduceMotion }: { reduceMotion: boolean }) {
   return (
-    <div className="site-grid gap-3 md:gap-4">
+    <div className="-mx-[var(--site-padding-inline)]">
+      <div className="site-grid gap-3 px-[var(--site-padding-inline)] md:gap-4">
       {mockTechStack.map((item) => (
         <div key={item.id} className="col-span-3 sm:col-span-2 lg:col-span-3">
           <LogoCard item={item} reduceMotion={reduceMotion} />
         </div>
       ))}
+      </div>
     </div>
   );
 }
