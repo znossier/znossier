@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Oswald } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
 
-export const FAVICON = "/favicon-B.png";
+const FAVICON = "/favicon-B.png";
 
 export const viewport: Viewport = {
   width: "device-width",

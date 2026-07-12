@@ -59,6 +59,10 @@
   --canvas-grid-dot: var(--workspace-grid-dot-color);
   --cursor-badge-bg: color-mix(in srgb, var(--background) 88%, transparent);
   --cursor-badge-border: color-mix(in srgb, var(--foreground) 55%, transparent);
+  --cursor-reticle-color: var(--utility-cyan);
+  --cursor-reticle-opacity: 0.82;
+  --cursor-trail-opacity: 0.26;
+  --cursor-ring-color: color-mix(in srgb, var(--utility-cyan) 32%, transparent);
   --media-placeholder-bg: color-mix(in srgb, var(--foreground) 5%, transparent);
   --site-max-width: 88rem;
   --layout-shell-max: var(--site-max-width);
@@ -1401,7 +1405,215 @@ body.mobile-menu-open {
   border-top-color: color-mix(in srgb, var(--utility-cyan) 62%, var(--border-subtle) 38%);
 }
 
-/* Custom cursor follows mouse - default cursor remains visible */
+/* Custom workspace cursor — fine pointer only (see Cursor.tsx) */
+html.custom-cursor-active,
+html.custom-cursor-active * {
+  cursor: none !important;
+}
+
+html.custom-cursor-active input,
+html.custom-cursor-active textarea,
+html.custom-cursor-active select,
+html.custom-cursor-active [contenteditable='true'] {
+  cursor: text !important;
+}
+
+.cursor-trail-host {
+  transform: translate(-50%, -50%);
+}
+
+.cursor-trail {
+  display: block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: var(--cursor-reticle-color);
+  opacity: var(--cursor-trail-opacity);
+}
+
+.cursor-root {
+  transform: translate(-50%, -50%);
+}
+
+.cursor-reticle {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  transform-origin: center center;
+}
+
+.cursor-reticle-arm {
+  position: absolute;
+  background-color: var(--cursor-reticle-color);
+  opacity: var(--cursor-reticle-opacity);
+  pointer-events: none;
+}
+
+.cursor-reticle-arm--horizontal {
+  top: 50%;
+  left: 0;
+  width: 11px;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.cursor-reticle-arm--vertical {
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 11px;
+  transform: translateX(-50%);
+}
+
+.cursor-reticle-corner {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  opacity: calc(var(--cursor-reticle-opacity) * 0.72);
+  pointer-events: none;
+}
+
+.cursor-reticle-corner::before,
+.cursor-reticle-corner::after {
+  content: '';
+  position: absolute;
+  background-color: var(--cursor-reticle-color);
+}
+
+.cursor-reticle-corner--tl {
+  top: 0;
+  left: 0;
+}
+
+.cursor-reticle-corner--tl::before {
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 1px;
+}
+
+.cursor-reticle-corner--tl::after {
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 3px;
+}
+
+.cursor-reticle-corner--tr {
+  top: 0;
+  right: 0;
+}
+
+.cursor-reticle-corner--tr::before {
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 1px;
+}
+
+.cursor-reticle-corner--tr::after {
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 3px;
+}
+
+.cursor-reticle-corner--bl {
+  bottom: 0;
+  left: 0;
+}
+
+.cursor-reticle-corner--bl::before {
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  height: 1px;
+}
+
+.cursor-reticle-corner--bl::after {
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  height: 3px;
+}
+
+.cursor-reticle-corner--br {
+  bottom: 0;
+  right: 0;
+}
+
+.cursor-reticle-corner--br::before {
+  bottom: 0;
+  right: 0;
+  width: 3px;
+  height: 1px;
+}
+
+.cursor-reticle-corner--br::after {
+  bottom: 0;
+  right: 0;
+  width: 1px;
+  height: 3px;
+}
+
+.cursor-reticle[data-blend-rulers] .cursor-reticle-arm {
+  opacity: 0.28;
+}
+
+.cursor-reticle[data-blend-rulers] .cursor-reticle-corner {
+  opacity: 0.38;
+}
+
+.cursor-hover-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--cursor-ring-color);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.cursor-readout {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  padding: 1px 4px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  border: 1px solid var(--cursor-badge-border);
+  background-color: var(--cursor-badge-bg);
+  pointer-events: none;
+}
+
+.cursor-readout[data-variant='dimension'] {
+  color: var(--utility-magenta);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.cursor-readout[data-variant='action'] {
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-trail {
+    display: none;
+  }
+
+  .cursor-reticle,
+  .cursor-hover-ring,
+  .cursor-readout {
+    transition: none !important;
+  }
+}
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

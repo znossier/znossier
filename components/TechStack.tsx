@@ -141,9 +141,11 @@ export function TechStack() {
 
           <div className="col-span-full">
             {reduceMotion ? (
-              <StaticTechGrid reduceMotion={reduceMotion} />
+              <div className="tech-stack-bleed mt-6 md:mt-8">
+                <StaticTechGrid reduceMotion={reduceMotion} />
+              </div>
             ) : (
-              <div className="-mx-[var(--site-padding-inline)]">
+              <div className="tech-stack-bleed -mx-[var(--site-padding-inline)] mt-6 md:mt-8">
                 <MarqueeRow items={row1} direction="left" reduceMotion={reduceMotion} />
                 <MarqueeRow items={row2} direction="right" reduceMotion={reduceMotion} />
               </div>

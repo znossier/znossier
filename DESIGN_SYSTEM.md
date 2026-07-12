@@ -261,14 +261,16 @@ The homepage should read as **one Figma canvas**, not independent blocks patched
 
 ### Interaction language
 
-| Surface | Hover / peek | Cursor badge |
-|---------|--------------|--------------|
-| Project cards | Cyan frame + title/link shift | `ACCESS` |
-| `WorkspaceFrame` panels | Selection outline + dimensions | `INSPECT` |
-| Buttons / flat controls | Cyan border wash | `INTERACT` |
-| Nav / footer links | Ink lift + cyan underline | `NAVIGATE` |
+| Surface | Hover / peek | Cursor feedback |
+|---------|--------------|-----------------|
+| Project cards | Cyan frame + title/link shift | Magenta dimensions + ring |
+| `WorkspaceFrame` panels | Selection outline + dimensions | Magenta dimensions + ring |
+| Buttons / flat controls | Cyan border wash | Action label (`INTERACT`) + ring |
+| Nav / footer links | Ink lift + cyan underline | Action label (`NAVIGATE`) + ring |
 | Section gutters | Cyan fills + pixel labels (hover or scroll peek) | — |
-| Rulers (`lg+` home) | Crosshair + live coordinates synced to shell origin | — |
+| Rulers (`lg+` home) | Crosshair + live coordinates synced to shell origin | Reticle fades to blend with ruler crosshair |
+
+**Custom cursor** (`Cursor.tsx`, fine pointer only): 11px cyan reticle (crosshair + corner brackets), optional 3px trail dot, micro scale on click. `prefers-reduced-motion` disables trail and spring lag. Native cursor hidden via `html.custom-cursor-active`; text fields keep `cursor: text`.
 
 ### Motion tuning
 
