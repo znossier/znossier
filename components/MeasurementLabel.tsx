@@ -30,12 +30,16 @@ export function MeasurementLabel({
   className,
   style,
 }: MeasurementLabelProps) {
+  const display = String(value);
+  const hasPxUnit = /\dpx/i.test(display);
+
   return (
     <motion.span
       aria-hidden
       className={cn(
         'measurement-text pointer-events-none select-none whitespace-nowrap',
         variant === 'tooltip' ? cn('measurement-tooltip', colorClass[color]) : 'measurement-label',
+        hasPxUnit && 'measurement-text--unit',
         className
       )}
       style={style}
@@ -43,7 +47,7 @@ export function MeasurementLabel({
       animate={{ opacity: visible ? labelOpacity : 0, y: visible ? 0 : 4 }}
       transition={transitionOverlay}
     >
-      {value}
+      {display}
     </motion.span>
   );
 }

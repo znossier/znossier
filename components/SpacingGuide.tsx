@@ -2,32 +2,29 @@
 
 import { memo, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import {
-  measureSpacingRects,
-  type GridGutter,
-  type SpacingRect,
-} from '@/lib/spacing-metrics';
-import { useGridGutters } from '@/hooks/useGridGutters';
+import { measureSpacingRects, type SpacingRect } from '@/lib/spacing-metrics';
 import { useFinePointer } from '@/hooks/useFinePointer';
 import { useInspectionPeek } from '@/components/InspectionPeekContext';
 import { SpacingFill, SpacingLabelOnly } from '@/components/SpacingFill';
-import type { ResponsiveGridBoundaries } from '@/lib/grid';
 
 export type SpacingGuideProps = {
   /** Magenta padding inset zones */
   showPadding?: boolean;
   /** Magenta gaps between flex/grid children */
   showGaps?: boolean;
-  /** Cyan alignment gutters between grid columns */
-  showGutters?: boolean;
-  /** Numeric labels inside gap/gutter zones */
+  /** Numeric labels inside gap zones */
   showLabels?: boolean;
-  /** Colored fill zones (padding/gap/gutter). Labels can render without fills. */
+  /** Colored fill zones (padding/gap). Labels can render without fills. */
   showFills?: boolean;
-  /** Explicit grid column gutters */
-  gutters?: GridGutter[];
-  /** Responsive section boundaries → auto gutters on desktop splits */
-  sectionBoundaries?: ResponsiveGridBoundaries;
+  /**
+   * Gate for whether the magenta fills are actually shown, on top of the
+   * pointer/peek-based measurement gate. Defaults to `true` (always show once
+   * measured) — pass the owning frame's own hover/active state to make the
+   * highlight hover-triggered instead of persistent.
+   */
+  active?: boolean;
+  /** Skip scale-in animation — use for always-on inspect (Hero) */
+  instantFills?: boolean;
   className?: string;
   children: React.ReactNode;
 };
@@ -36,18 +33,18 @@ const SpacingOverlay = memo(function SpacingOverlay({
   rects,
   showPadding,
   showGaps,
-  showGutters,
   showLabels,
   showFills,
   visible,
+  instantFills,
 }: {
   rects: SpacingRect[];
   showPadding: boolean;
   showGaps: boolean;
-  showGutters: boolean;
   showLabels: boolean;
   showFills: boolean;
   visible: boolean;
+  instantFills?: boolean;
 }) {
   return (
     <div
@@ -61,7 +58,7 @@ const SpacingOverlay = memo(function SpacingOverlay({
       {rects.map((rect, index) => {
         if (rect.kind === 'padding' && !showPadding) return null;
         if (rect.kind === 'gap' && !showGaps) return null;
-        if (rect.kind === 'gutter' && !showGutters) return null;
+        if (rect.kind === 'gutter') return null;
         if (!showFills && !showLabels) return null;
 
         const key = `${rect.kind}-${rect.side ?? rect.axis}-${Math.round(rect.x)}-${Math.round(rect.y)}-${index}`;
@@ -70,44 +67,45 @@ const SpacingOverlay = memo(function SpacingOverlay({
           return showLabels ? <SpacingLabelOnly key={key} rect={rect} /> : null;
         }
 
-        return <SpacingFill key={key} rect={rect} showLabel={showLabels} />;
+        return (
+          <SpacingFill
+            key={key}
+            rect={rect}
+            showLabel={showLabels}
+            instant={instantFills}
+          />
+        );
       })}
     </div>
   );
 });
 
-/** Figma-style spacing — magenta padding/gaps, cyan grid gutters */
+/** Figma-style spacing — magenta padding/gaps */
 export function SpacingGuide({
   showPadding = true,
   showGaps = true,
-  showGutters = false,
   showLabels = true,
   showFills = true,
-  gutters,
-  sectionBoundaries,
+  active = true,
+  instantFills = false,
   className,
   children,
 }: SpacingGuideProps) {
   const ref = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const [rects, setRects] = useState<SpacingRect[]>([]);
-  const boundaryGutters = useGridGutters(sectionBoundaries);
-  const activeGutters = gutters ?? boundaryGutters;
   const finePointer = useFinePointer();
   const sectionPeeking = useInspectionPeek();
   const measureEnabled = (finePointer || sectionPeeking) && (showFills || showLabels);
 
   useEffect(() => {
-    if (!measureEnabled) {
-      setRects([]);
-      return;
-    }
+    if (!measureEnabled) return;
 
     const container = ref.current;
     if (!container) return;
 
     const measureNow = () => {
-      setRects(measureSpacingRects(container, showGutters ? activeGutters : []));
+      setRects(measureSpacingRects(container, []));
     };
 
     const scheduleMeasure = () => {
@@ -123,8 +121,8 @@ export function SpacingGuide({
     const resizeObserver = new ResizeObserver(scheduleMeasure);
     resizeObserver.observe(container);
 
-    Array.from(container.children)
-      .filter((child): child is HTMLElement => child instanceof HTMLElement && child.dataset.spacingOverlay !== 'true')
+    Array.from(container.querySelectorAll<HTMLElement>('*'))
+      .filter((child) => child.dataset.spacingOverlay !== 'true')
       .forEach((child) => resizeObserver.observe(child));
 
     window.addEventListener('resize', scheduleMeasure);
@@ -136,9 +134,9 @@ export function SpacingGuide({
       resizeObserver.disconnect();
       window.removeEventListener('resize', scheduleMeasure);
     };
-  }, [activeGutters, showGutters, measureEnabled, showPadding, showGaps, showLabels, showFills]);
+  }, [measureEnabled, showPadding, showGaps, showLabels, showFills]);
 
-  const overlayVisible = measureEnabled && rects.length > 0;
+  const overlayVisible = measureEnabled && active && rects.length > 0;
 
   return (
     <div ref={ref} className={cn('spacing-guide relative', className)}>
@@ -148,10 +146,10 @@ export function SpacingGuide({
           rects={rects}
           showPadding={showPadding}
           showGaps={showGaps}
-          showGutters={showGutters}
           showLabels={showLabels}
           showFills={showFills}
           visible={overlayVisible}
+          instantFills={instantFills}
         />
       )}
     </div>

@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: [],
+      disallow: ['/studio', '/api/'],
     },
     sitemap: 'https://znossier.com/sitemap.xml',
   };

@@ -17,6 +17,10 @@ export const MOTION = {
     draw: 0.5,
     /** Stagger delay between siblings */
     stagger: 0.05,
+    /** Panel/menu open-close transitions */
+    menu: 0.28,
+    /** Custom cursor reticle + readout — must feel instantaneous */
+    cursor: 0.12,
   },
   ease: EASE_PRECISION,
 } as const;

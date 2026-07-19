@@ -5,6 +5,7 @@ export function SectionHeading({
   id,
   children,
   title,
+  /** @deprecated Use title for single-line headings e.g. "01 - Projects" */
   kicker,
   className,
   surfaceClassName,
@@ -12,31 +13,19 @@ export function SectionHeading({
   id?: string;
   children?: ReactNode;
   title?: ReactNode;
-  /** Mono layer label above the title — e.g. "01 — Projects" */
   kicker?: ReactNode;
   className?: string;
   surfaceClassName?: string;
 }) {
-  const label = children ?? title;
+  const label = title ?? children ?? kicker;
 
   return (
     <div className={cn('section-heading', className)}>
       <div className={cn('section-heading-label', surfaceClassName)}>
-        {kicker ? (
-          <p className="section-heading-kicker type-meta" aria-hidden>
-            {kicker}
-          </p>
-        ) : null}
-        <div className="section-heading-title-row">
-          <span className="section-heading-slash" aria-hidden>
-            /
-          </span>
-          <h2 id={id} className="type-section">
-            {label}
-          </h2>
-        </div>
+        <h2 id={id} className="type-section section-heading-title">
+          {label}
+        </h2>
       </div>
-      <div className="section-heading-track" aria-hidden />
     </div>
   );
 }

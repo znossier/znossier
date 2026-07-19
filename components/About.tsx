@@ -7,25 +7,25 @@ import {
   type ExperienceItem,
   type ExperienceRole,
 } from '@/lib/site-content';
-import { smoothScrollTo } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { smoothScrollTo, cn } from '@/lib/utils';
 import { Plus } from 'lucide-react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useState, memo, useRef } from 'react';
 import { Button } from '@/components/Button';
+import { WorkspaceFrame } from '@/components/WorkspaceFrame';
 import { Section } from '@/components/Section';
+import { SectionStickyShell } from '@/components/SectionStickyShell';
 import { SectionLayout } from '@/components/SectionLayout';
 import { SectionHeading } from '@/components/SectionHeading';
-import { SpacingGuide } from '@/components/SpacingGuide';
-import { WorkspaceFrame } from '@/components/WorkspaceFrame';
 import { Reveal } from '@/components/Reveal';
-import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
-import { gridSpans } from '@/lib/grid-spans';
+import { GridCell } from '@/components/GridCell';
+import { layoutClass } from '@/lib/grid-layout';
 import { EASE_PRECISION, MOTION, REVEAL_VIEWPORT, transitionHover } from '@/lib/motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { mediaQueries } from '@/lib/breakpoints';
 import Image from 'next/image';
 
-/** LinkedIn-style icon badge for company logos. Uses img to avoid Next.js Image cache serving wrong asset. */
 function CompanyLogo({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
   return (
     <div
@@ -37,7 +37,6 @@ function CompanyLogo({ src, alt, className = '' }: { src: string; alt: string; c
   );
 }
 
-/** Plus icon that rotates 45° to become X when expanded */
 function ExpandIcon({ isExpanded }: { isExpanded: boolean }) {
   return (
     <motion.span
@@ -63,49 +62,46 @@ const ExperienceGroupCard = memo(function ExperienceGroupCard({
   onToggle: (key: string) => void;
 }) {
   return (
-    <div
-      className="mb-0 border-b border-border/85 bg-transparent px-4 py-4 last:border-b-0 md:px-5"
-    >
-      <div className="mb-4 flex items-center gap-3">
+    <div className="site-cell-pad mb-0 border-b border-border/85 bg-transparent last:border-b-0">
+      <div className="mb-4 flex items-center gap-4">
         {group.logo ? (
           <CompanyLogo src={group.logo} alt={group.company} />
         ) : (
           <div className="h-9 w-9 flex-shrink-0" aria-hidden />
         )}
         <div className="min-w-0">
-          <p className="type-meta">
-            Current Company
-          </p>
-          <h4 className="type-heading mt-1">
-            {group.company}
-          </h4>
+          <p className="type-meta">Current Company</p>
+          <h4 className="type-heading mt-1">{group.company}</h4>
         </div>
       </div>
 
-      <div className="relative min-w-0">
-        {group.roles.length > 1 && (
-          <div
-            className="absolute left-[7px] top-[0.55rem] bottom-[0.55rem] w-px bg-border/75"
-            aria-hidden
-          />
-        )}
-        {group.roles.map((role, roleIndex) => (
-          <div key={`${group.company}-${role.role}-${role.period}`} className="flex gap-4 pb-6 last:pb-0">
-            <div className="relative w-3.5 shrink-0" aria-hidden>
-              <span className="absolute left-1/2 top-[0.55rem] h-[7px] w-[7px] -translate-x-1/2 -translate-y-1/2 border border-subtle bg-canvas" />
+      <div className="experience-timeline min-w-0">
+        {group.roles.map((role, roleIndex) => {
+          const isFirst = roleIndex === 0;
+          const isLast = roleIndex === group.roles.length - 1;
+
+          return (
+            <div
+              key={`${group.company}-${role.role}-${role.period}`}
+              className={cn('experience-timeline-item', isFirst && 'experience-timeline-item--first')}
+            >
+              <div className="experience-timeline-rail" aria-hidden>
+                <span className="experience-timeline-node" />
+                {!isLast ? <span className="experience-timeline-line experience-timeline-line--after" /> : null}
+              </div>
+              <div className="experience-timeline-content">
+                <ExperienceGroupRoleRow
+                  role={role}
+                  roleIndex={roleIndex}
+                  groupIndex={groupIndex}
+                  company={group.company}
+                  isExpanded={expandedKeys.has(`${groupIndex}-${roleIndex}`)}
+                  onToggle={() => onToggle(`${groupIndex}-${roleIndex}`)}
+                />
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <ExperienceGroupRoleRow
-                role={role}
-                roleIndex={roleIndex}
-                groupIndex={groupIndex}
-                company={group.company}
-                isExpanded={expandedKeys.has(`${groupIndex}-${roleIndex}`)}
-                onToggle={() => onToggle(`${groupIndex}-${roleIndex}`)}
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -133,15 +129,11 @@ function ExperienceGroupRoleRow({
     <>
       <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
         <div className="min-w-0 flex-1 basis-[9rem]">
-          <h5 className="type-heading transition-colors group-hover:text-link">
-            {role.role}
-          </h5>
+          <h5 className="type-heading">{role.role}</h5>
           <p className="sr-only">{company}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-2 text-faint">
-          <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap">
-            {role.period}
-          </span>
+        <div className="flex shrink-0 items-center gap-2 text-muted">
+          <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap text-muted">{role.period}</span>
           {hasContent && <ExpandIcon isExpanded={isExpanded} />}
         </div>
       </div>
@@ -169,11 +161,7 @@ function ExperienceGroupRoleRow({
                   ))}
                 </ul>
               ) : (
-                role.description && (
-                  <p className="type-body pt-3">
-                    {role.description}
-                  </p>
-                )
+                role.description && <p className="type-body pt-3">{role.description}</p>
               )}
             </motion.div>
           )}
@@ -183,11 +171,7 @@ function ExperienceGroupRoleRow({
   );
 
   if (!hasContent) {
-    return (
-      <div style={{ overflowAnchor: 'none' }}>
-        {rowContent}
-      </div>
-    );
+    return <div style={{ overflowAnchor: 'none' }}>{rowContent}</div>;
   }
 
   return (
@@ -219,22 +203,18 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
   const rowRef = useRef<HTMLDivElement>(null);
   const inView = useInView(rowRef, REVEAL_VIEWPORT);
   const hasContent = (item.bullets && item.bullets.length > 0) || !!item.description;
-  const rowClassName = 'mb-0 border-b border-border/85 bg-transparent px-4 py-4 last:border-b-0 md:px-5';
+  const rowClassName = 'site-cell-pad mb-0 border-b border-border/85 bg-transparent last:border-b-0';
 
   const rowContent = (
     <>
-      <div className="grid grid-cols-[2.5rem_1fr] items-start gap-x-3 gap-y-2 sm:grid-cols-[2.5rem_1fr_auto]">
-        {item.logo ? <CompanyLogo src={item.logo} alt={item.company} /> : <div className="w-10 flex-shrink-0" aria-hidden />}
+      <div className="grid grid-cols-[calc(var(--grid-unit)*2)_1fr] items-start gap-x-[var(--grid-unit)] gap-y-[var(--grid-unit)] sm:grid-cols-[calc(var(--grid-unit)*2)_1fr_auto]">
+        {item.logo ? <CompanyLogo src={item.logo} alt={item.company} /> : <div className="w-[calc(var(--grid-unit)*2)] flex-shrink-0" aria-hidden />}
         <div className="min-w-0">
-          <h4 className="type-heading transition-colors group-hover:text-link">
-            {item.role}
-          </h4>
-          <p className="type-body mt-0.5">{item.company}</p>
+          <h4 className="type-heading">{item.role}</h4>
+          <p className="type-body mt-0">{item.company}</p>
         </div>
-        <div className="col-start-2 flex shrink-0 items-center gap-2 text-faint sm:col-start-3 sm:row-start-1">
-          <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap">
-            {item.period}
-          </span>
+        <div className="col-start-2 flex shrink-0 items-center gap-[var(--grid-unit)] text-muted sm:col-start-3 sm:row-start-1">
+          <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap text-muted">{item.period}</span>
           {hasContent && <ExpandIcon isExpanded={isExpanded} />}
         </div>
       </div>
@@ -253,20 +233,16 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
               aria-live="polite"
             >
               {item.bullets && item.bullets.length > 0 ? (
-                <ul className="type-body space-y-1.5 pt-3 pl-[52px]">
+                <ul className="type-body space-y-[var(--grid-unit)] pt-[var(--grid-unit)] pl-[calc(var(--grid-unit)*3)]">
                   {item.bullets.map((bullet) => (
-                    <li key={bullet} className="flex gap-2">
-                      <span className="mt-2 h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
+                    <li key={bullet} className="flex gap-[var(--grid-unit)]">
+                      <span className="mt-[calc(var(--grid-unit)/2)] h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
                       <span>{bullet}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                item.description && (
-                  <p className="type-body pt-3 pl-[52px]">
-                    {item.description}
-                  </p>
-                )
+                item.description && <p className="type-body pt-[var(--grid-unit)] pl-[calc(var(--grid-unit)*3)]">{item.description}</p>
               )}
             </motion.div>
           )}
@@ -276,7 +252,7 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
   );
 
   if (reducedMotion) {
-    const staticRow = (
+    return (
       <div className={rowClassName}>
         {!hasContent ? (
           rowContent
@@ -292,7 +268,6 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
         )}
       </div>
     );
-    return staticRow;
   }
 
   const motionProps = {
@@ -341,91 +316,118 @@ export function About({ about }: { about: AboutContent }) {
   };
 
   const experienceEntries = about.experience;
+  const isDesktop = useMediaQuery(mediaQueries.lg);
+
+  const panel = (
+    <div className="site-section-grid min-h-0 gap-y-[calc(var(--grid-unit)*2)]">
+      <GridCell
+        section="about"
+        cell="intro"
+        className="flex flex-col gap-[calc(var(--grid-unit)*2)] lg:self-start"
+      >
+        <Reveal delay={0.06}>
+          <WorkspaceFrame
+            inspectMode="hover"
+            inspectDepth="full"
+            frameLabel="ABOUT-ME"
+            showMeasurementLines
+            measurementPlacement="outside"
+            variant="figma"
+            panelClassName="grid grid-cols-6 gap-[var(--grid-unit)] p-[var(--grid-unit)]"
+            className="overflow-visible"
+          >
+            <div className="[grid-column:1/span_6] w-full sm:[grid-column:1/span_2] sm:self-stretch">
+              <div className="relative h-[calc(var(--grid-unit)*8)] w-full overflow-hidden sm:h-full sm:min-h-[calc(var(--grid-unit)*8)]">
+                {about.image && (
+                  <Image
+                    src={about.image}
+                    alt="Portrait of Zeina Nossier"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 639px) calc(100vw - 48px), 192px"
+                  />
+                )}
+              </div>
+            </div>
+            <div className="[grid-column:1/span_6] min-w-0 space-y-[var(--grid-unit)] sm:[grid-column:3/span_4]">
+              <h3 className="type-title">{about.name}</h3>
+              <p className="type-body text-secondary">{about.bioShort ?? about.bio}</p>
+              <Button
+                onClick={() => smoothScrollTo('footer')}
+                variant="primary"
+                aria-label="Scroll to contact section"
+              >
+                Contact Me <span className="ms-1" aria-hidden>→</span>
+              </Button>
+            </div>
+          </WorkspaceFrame>
+        </Reveal>
+      </GridCell>
+
+      <Reveal delay={0.1} className={layoutClass('about', 'experience')}>
+        <WorkspaceFrame
+          inspectMode="hover"
+          inspectDepth="full"
+          frameLabel="Experience"
+          showMeasurementLines
+          measurementPlacement="outside"
+          variant="figma"
+          panelClassName="overflow-hidden"
+          className="overflow-visible"
+        >
+          {experienceEntries.map((entry, index) => {
+            if (isExperienceGroup(entry)) {
+              return (
+                <ExperienceGroupCard
+                  key={`group-${entry.company}`}
+                  group={entry}
+                  groupIndex={index}
+                  expandedKeys={expandedKeys}
+                  onToggle={toggleItem}
+                />
+              );
+            }
+            const expandedKey = `s-${index}`;
+            return (
+              <ExperienceSingleItem
+                key={`single-${entry.role}-${entry.period}`}
+                item={entry}
+                index={index}
+                isExpanded={expandedKeys.has(expandedKey)}
+                onToggle={() => toggleItem(expandedKey)}
+              />
+            );
+          })}
+        </WorkspaceFrame>
+      </Reveal>
+    </div>
+  );
+
+  if (!isDesktop) {
+    return (
+      <Section id="about" variant="canvas" inspectOnEnter>
+        <SectionLayout sectionId="about">
+          <div className="section-figma-stack">
+            <Reveal>
+              <SectionHeading title="05 - About Me" />
+            </Reveal>
+            <div className="section-figma-panel">{panel}</div>
+          </div>
+        </SectionLayout>
+      </Section>
+    );
+  }
 
   return (
-    <Section id="about" variant="subtle" className="lg:min-h-screen">
-      <SectionLayout boundaries={HOME_SECTION_BOUNDARIES.about}>
-        <SpacingGuide
-          showGaps
-          showGutters
-          showLabels
-          sectionBoundaries={HOME_SECTION_BOUNDARIES.about}
-          className="site-section-grid min-h-0"
-        >
-          <div className={cn('flex flex-col gap-6 lg:gap-8', gridSpans.about.intro)}>
-            <Reveal>
-              <div className="section-heading-sticky lg:sticky lg:self-start lg:[top:calc(var(--chrome-top)+1rem)]">
-                <SectionHeading kicker="05 — Profile" surfaceClassName="section-heading-sticky">About Me</SectionHeading>
-              </div>
-            </Reveal>
-            <Reveal delay={0.06}>
-              <WorkspaceFrame
-                inspectMode="hover"
-                showSpacing
-                showPadding
-                panelClassName="grid grid-cols-6 gap-x-3 gap-y-5 p-4 sm:gap-6 sm:p-6"
-              >
-                <div className="[grid-column:1/span_6] w-full sm:[grid-column:1/span_2] sm:self-stretch">
-                  <WorkspaceFrame
-                    inspectMode="hover"
-                    variant="bare"
-                    panelClassName="surface-raised relative h-44 w-full overflow-hidden border border-subtle sm:h-full sm:min-h-44"
-                  >
-                    {about.image && (
-                      <Image
-                        src={about.image}
-                        alt="Portrait of Zeina Nossier"
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 639px) calc(100vw - 4rem), 144px"
-                      />
-                    )}
-                  </WorkspaceFrame>
-                </div>
-                <div className="[grid-column:1/span_6] min-w-0 space-y-4 sm:[grid-column:3/span_4]">
-                  <h3 className="type-title-sm">{about.name}</h3>
-                  <p className="type-body">{about.bioShort ?? about.bio}</p>
-                  <Button
-                    onClick={() => smoothScrollTo('footer')}
-                    variant="primary"
-                    aria-label="Scroll to contact section"
-                  >
-                    Contact Me <span className="ms-1" aria-hidden>→</span>
-                  </Button>
-                </div>
-              </WorkspaceFrame>
-            </Reveal>
-          </div>
-
-          <Reveal delay={0.1} className={gridSpans.about.experience}>
-            <WorkspaceFrame inspectMode="hover" panelClassName="space-y-0 p-0">
-              {experienceEntries.map((entry, index) => {
-                if (isExperienceGroup(entry)) {
-                  return (
-                    <ExperienceGroupCard
-                      key={`group-${entry.company}`}
-                      group={entry}
-                      groupIndex={index}
-                      expandedKeys={expandedKeys}
-                      onToggle={toggleItem}
-                    />
-                  );
-                }
-                const expandedKey = `s-${index}`;
-                return (
-                  <ExperienceSingleItem
-                    key={`single-${entry.role}-${entry.period}`}
-                    item={entry}
-                    index={index}
-                    isExpanded={expandedKeys.has(expandedKey)}
-                    onToggle={() => toggleItem(expandedKey)}
-                  />
-                );
-              })}
-            </WorkspaceFrame>
-          </Reveal>
-        </SpacingGuide>
-      </SectionLayout>
+    <Section id="about" variant="canvas" inspectOnEnter className="section--sticky-lock py-0">
+      <SectionStickyShell
+        sectionId="about"
+        title="05 - About Me"
+        panelClassName="section-sticky-panel--scroll"
+        panelLabel="About me"
+      >
+        {panel}
+      </SectionStickyShell>
     </Section>
   );
 }

@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Inspectable } from '@/components/Inspectable';
 import { cn } from '@/lib/utils';
-import { EASE_PRECISION } from '@/lib/motion';
+import { EASE_PRECISION, MOTION } from '@/lib/motion';
 
 interface ButtonProps {
   children: ReactNode;
@@ -19,7 +19,7 @@ interface ButtonProps {
 
 const variantClasses = {
   primary: 'flat-control inline-flex',
-  secondary: 'flat-control inline-flex bg-panel',
+  secondary: 'flat-control inline-flex',
   accent: 'flat-control flat-control-accent inline-flex',
   inverted: 'flat-control flat-control-inverted inline-flex focus-visible:ring-offset-transparent',
 };
@@ -33,14 +33,13 @@ function ButtonInner({
   'aria-label': ariaLabel,
 }: ButtonProps) {
   const classes = cn(
-    'type-label inline-flex min-h-12 items-center justify-center px-5 py-3 text-center transition-[border-color,background-color,box-shadow] duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    'inline-flex min-h-12 items-center justify-center px-4 py-3 text-center transition-[border-color,background-color,color] duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     variantClasses[variant],
     className
   );
 
   const motionProps = {
-    whileTap: { scale: 0.99 },
-    transition: { duration: 0.15, ease: EASE_PRECISION },
+    transition: { duration: MOTION.duration.hover, ease: EASE_PRECISION },
     className: classes,
     'aria-label': ariaLabel,
   };

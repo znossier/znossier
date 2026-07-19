@@ -11,10 +11,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Footer } from './Footer';
 import { Reveal } from './Reveal';
-import { SectionGridLines } from './SectionGridLines';
 import { SectionHeading } from './SectionHeading';
 import { WorkspaceFrame } from './WorkspaceFrame';
-import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
 import { cn } from '@/lib/utils';
 
 const STICKY_TOP = 'calc(var(--chrome-top) + 1rem)';
@@ -28,7 +26,7 @@ function DetailNav() {
   return (
     <nav
       aria-label="Project navigation"
-      className="detail-nav-shell fixed inset-x-0 top-[var(--ribbon-height)] z-50"
+      className="detail-nav-shell fixed inset-x-0 top-0 z-50"
       style={{ height: 'var(--detail-nav-height)' }}
     >
       <div className="site-shell h-full">
@@ -87,7 +85,7 @@ function MetaItem({ label, value }: { label: string; value?: string }) {
 
   return (
     <div className="min-w-0">
-      <p className="type-meta text-faint">{label}</p>
+      <p className="type-meta text-muted">{label}</p>
       <p className="type-body mt-1 break-words lg:text-right">{value}</p>
     </div>
   );
@@ -248,7 +246,6 @@ export function ProjectDetailPage({
         className="section section--canvas relative min-h-screen text-primary"
         style={{ paddingTop: PAGE_TOP_PADDING }}
       >
-        <SectionGridLines boundaries={HOME_SECTION_BOUNDARIES.detail} />
         <section className="relative z-10 w-full">
           <div className="site-shell pb-14 md:pb-24">
             <div className="site-grid gap-y-8 md:gap-y-10">

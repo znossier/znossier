@@ -10,10 +10,16 @@ const HANDLE =
 export function SelectionOutline({
   visible = true,
   showAnchor = false,
+  showCorners = true,
+  hideTopLeftCorner = false,
   className,
 }: {
   visible?: boolean;
   showAnchor?: boolean;
+  /** When false, render border only (section-level frames). */
+  showCorners?: boolean;
+  /** Hide the top-left handle when a frame tab occupies that corner */
+  hideTopLeftCorner?: boolean;
   className?: string;
 }) {
   return (
@@ -25,10 +31,18 @@ export function SelectionOutline({
       transition={transitionOverlay}
     >
       <div className="absolute inset-0 border border-[var(--utility-cyan)] opacity-90" />
-      <span className={cn(HANDLE, 'left-0 top-0 -translate-x-1/2 -translate-y-1/2')} />
-      <span className={cn(HANDLE, 'right-0 top-0 translate-x-1/2 -translate-y-1/2')} />
-      <span className={cn(HANDLE, 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2')} />
-      <span className={cn(HANDLE, 'bottom-0 right-0 translate-x-1/2 translate-y-1/2')} />
+      {showCorners && !hideTopLeftCorner && (
+        <span className={cn(HANDLE, 'left-0 top-0 -translate-x-1/2 -translate-y-1/2')} />
+      )}
+      {showCorners && (
+        <span className={cn(HANDLE, 'right-0 top-0 translate-x-1/2 -translate-y-1/2')} />
+      )}
+      {showCorners && (
+        <span className={cn(HANDLE, 'bottom-0 left-0 -translate-x-1/2 translate-y-1/2')} />
+      )}
+      {showCorners && (
+        <span className={cn(HANDLE, 'bottom-0 right-0 translate-x-1/2 translate-y-1/2')} />
+      )}
       {showAnchor && (
         <span className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--utility-cyan)] opacity-80" />
       )}

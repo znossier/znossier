@@ -61,11 +61,21 @@ export interface Project {
   detailPageEnabled?: boolean;
 }
 
+export type ServiceVisual =
+  | { type: 'image'; src: string; alt: string }
+  | { type: 'component-spec' }
+  | { type: 'type-scale' }
+  | { type: 'tool-grid'; labels: string[] }
+  | { type: 'layout-grid' }
+  | { type: 'commerce' }
+  | { type: 'flow' };
+
 export interface Service {
   id: string;
   title: string;
   description: string;
   number: string;
+  visual?: ServiceVisual;
 }
 
 export interface ProcessStep {
@@ -225,6 +235,7 @@ export const mockServices: Service[] = [
     description:
       'End-to-end product design grounded in user research, problem definition, and iterative testing. I turn insights into clear, usable experiences that balance user needs, business goals, and technical constraints.',
     number: '01',
+    visual: { type: 'flow' },
   },
   {
     id: 'ui-design-systems',
@@ -232,6 +243,7 @@ export const mockServices: Service[] = [
     description:
       'Creating intuitive interfaces, component libraries, and scalable design systems that keep products consistent and easy to build.',
     number: '02',
+    visual: { type: 'component-spec' },
   },
   {
     id: 'ecommerce-web',
@@ -239,6 +251,7 @@ export const mockServices: Service[] = [
     description:
       'Designing high-converting websites and e-commerce experiences (Shopify and custom builds) with a strong focus on usability, performance, and conversion.',
     number: '03',
+    visual: { type: 'commerce' },
   },
   {
     id: 'visual-brand-design',
@@ -246,6 +259,7 @@ export const mockServices: Service[] = [
     description:
       'Supporting products with strong visual identity, layout, and brand consistency across digital touchpoints.',
     number: '04',
+    visual: { type: 'layout-grid' },
   },
 ];
 
@@ -317,9 +331,9 @@ export function isExperienceGroup(entry: ExperienceEntry): entry is ExperienceGr
 
 export const mockAbout = {
   name: 'Zeina Nossier',
-  title: 'UI/UX & Product Designer',
+  title: 'Product designer',
   bio: "Product Designer working on complex apps and internal systems where clarity and structure make or break the experience. I’m big on bringing order to messy workflows and turning them into intuitive, usable products while keeping user needs and business goals aligned. Recently, I’ve been exploring AI-driven building and front-end development to get closer to how things are built—not just how they look.",
-  tagline: 'UI/UX & Product Designer based in Cairo, EG.',
+  tagline: 'Product designer based in Cairo, EG.',
   bioShort: "Product Designer focused on complex apps and internal systems—bringing order to messy workflows and aligning user needs with business goals. Exploring AI and front-end to get closer to how things are built.",
   heroHeadline: 'Product design that turns complexity into clarity.',
   heroSubhead: 'Zeina Nossier',

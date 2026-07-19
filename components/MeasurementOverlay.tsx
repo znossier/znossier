@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { EASE_PRECISION, MOTION } from '@/lib/motion';
-import { MeasurementLabel } from '@/components/MeasurementLabel';
 
 export type MeasurementOverlayProps = {
   direction: 'horizontal' | 'vertical';
@@ -17,7 +16,17 @@ export type MeasurementOverlayProps = {
   style?: React.CSSProperties;
 };
 
-const CAP = 5;
+/** Normalize overlay values to Figma-style `312px` (never bare numbers). */
+export function formatMeasurementPx(value: string | number): string {
+  const raw = String(value).trim();
+  if (!raw) return raw;
+  if (/^\d+(\.\d+)?px$/i.test(raw)) {
+    return `${Math.round(parseFloat(raw))}px`;
+  }
+  const match = raw.match(/^(\d+(?:\.\d+)?)/);
+  if (!match) return raw;
+  return `${Math.round(parseFloat(match[1]))}px`;
+}
 
 function DimensionEndCaps({
   direction,
@@ -26,56 +35,35 @@ function DimensionEndCaps({
   direction: 'horizontal' | 'vertical';
   color: string;
 }) {
-  const capStyle = { backgroundColor: color };
-
   if (direction === 'horizontal') {
     return (
       <>
-        <span
-          className="absolute left-0 top-1/2 w-px -translate-y-1/2"
-          style={{ ...capStyle, height: CAP }}
-          aria-hidden
-        />
-        <span
-          className="absolute right-0 top-1/2 w-px -translate-y-1/2"
-          style={{ ...capStyle, height: CAP }}
-          aria-hidden
-        />
+        <span className="measurement-cap measurement-cap--h-start" style={{ color }} aria-hidden />
+        <span className="measurement-cap measurement-cap--h-end" style={{ color }} aria-hidden />
       </>
     );
   }
 
   return (
     <>
-      <span
-        className="absolute left-1/2 top-0 h-px -translate-x-1/2"
-        style={{ ...capStyle, width: CAP }}
-        aria-hidden
-      />
-      <span
-        className="absolute bottom-0 left-1/2 h-px -translate-x-1/2"
-        style={{ ...capStyle, width: CAP }}
-        aria-hidden
-      />
+      <span className="measurement-cap measurement-cap--v-start" style={{ color }} aria-hidden />
+      <span className="measurement-cap measurement-cap--v-end" style={{ color }} aria-hidden />
     </>
   );
 }
 
-function labelPositionStyle(
+function labelPositionClass(
   direction: 'horizontal' | 'vertical',
   placement: 'outside-start' | 'outside-end'
-): React.CSSProperties {
+): string {
   if (direction === 'horizontal') {
-    if (placement === 'outside-start') {
-      return { left: '50%', bottom: 'calc(100% + 4px)', transform: 'translateX(-50%)' };
-    }
-    return { left: '50%', top: 'calc(100% + 4px)', transform: 'translateX(-50%)' };
+    return placement === 'outside-start'
+      ? 'measurement-ruler-label--h-start'
+      : 'measurement-ruler-label--h-end';
   }
-
-  if (placement === 'outside-start') {
-    return { right: 'calc(100% + 5px)', top: '50%', transform: 'translateY(-50%)' };
-  }
-  return { left: 'calc(100% + 5px)', top: '50%', transform: 'translateY(-50%)' };
+  return placement === 'outside-start'
+    ? 'measurement-ruler-label--v-start'
+    : 'measurement-ruler-label--v-end';
 }
 
 export function MeasurementOverlay({
@@ -96,18 +84,27 @@ export function MeasurementOverlay({
         ? 'outside-start'
         : 'outside-end'
       : labelPlacement;
+  const displayValue = formatMeasurementPx(value);
 
   return (
     <motion.div
       aria-hidden
-      className={cn('measurement-overlay pointer-events-none z-[6]', className)}
+      className={cn(
+        'measurement-overlay pointer-events-none z-[6]',
+        isHorizontal ? 'measurement-overlay--horizontal' : 'measurement-overlay--vertical',
+        className
+      )}
       style={style}
       initial={false}
       animate={{ opacity: visible ? 1 : 0 }}
       transition={{ duration: MOTION.duration.fade, ease: EASE_PRECISION }}
     >
-      <div className={cn('relative', isHorizontal ? 'h-4 w-full' : 'h-full w-4')}>
+      <div className={cn('measurement-ruler', isHorizontal ? 'measurement-ruler--h' : 'measurement-ruler--v')}>
         <motion.div
+          className={cn(
+            'measurement-ruler-line',
+            isHorizontal ? 'measurement-ruler-line--h' : 'measurement-ruler-line--v'
+          )}
           style={{
             backgroundColor: lineColor,
             ...(isHorizontal ? { originX: 0.5 } : { originY: 0.5 }),
@@ -115,28 +112,27 @@ export function MeasurementOverlay({
           initial={false}
           animate={
             isHorizontal
-              ? { scaleX: visible ? 1 : 0, opacity: visible ? 0.7 : 0 }
-              : { scaleY: visible ? 1 : 0, opacity: visible ? 0.7 : 0 }
+              ? { scaleX: visible ? 1 : 0, opacity: visible ? 1 : 0 }
+              : { scaleY: visible ? 1 : 0, opacity: visible ? 1 : 0 }
           }
           transition={{ duration: MOTION.duration.draw, ease: EASE_PRECISION }}
-          className={
-            isHorizontal
-              ? 'absolute left-0 right-0 top-1/2 h-px -translate-y-1/2'
-              : 'absolute bottom-0 left-1/2 top-0 w-px -translate-x-1/2'
-          }
         />
 
         <DimensionEndCaps direction={direction} color={lineColor} />
 
-        {showLabel && value && (
-          <MeasurementLabel
-            value={value}
-            color={color}
-            variant="tooltip"
-            visible={visible}
-            className="absolute"
-            style={labelPositionStyle(direction, resolvedPlacement)}
-          />
+        {showLabel && displayValue && (
+          <motion.span
+            className={cn(
+              'measurement-ruler-label',
+              color === 'magenta' && 'measurement-ruler-label--magenta',
+              labelPositionClass(direction, resolvedPlacement)
+            )}
+            initial={false}
+            animate={{ opacity: visible ? 1 : 0 }}
+            transition={{ duration: MOTION.duration.fade, ease: EASE_PRECISION }}
+          >
+            {displayValue}
+          </motion.span>
         )}
       </div>
     </motion.div>

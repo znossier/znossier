@@ -1,4 +1,5 @@
 import { client } from './sanity';
+import { mockProjects as rawMockProjects, type Project as MockProject } from './mock-data';
 
 export type ProjectLinkMode = 'internal' | 'external';
 
@@ -346,6 +347,33 @@ function normalizeProject(project: RawSanityProject): Project | null {
   };
 }
 
+function fromMockProject(mock: MockProject): Project {
+  return {
+    id: mock.id,
+    slug: mock.id,
+    title: mock.title,
+    description: mock.description,
+    emoji: mock.emoji,
+    categories: mock.categories,
+    image: mock.image,
+    coverImage: mock.coverImage,
+    video: mock.video,
+    featured: mock.featured,
+    date: mock.date,
+    client: mock.client,
+    role: mock.role,
+    service: mock.service,
+    linkMode: 'external',
+    externalUrl: sanitizeProjectUrl(mock.link),
+    published: false,
+  };
+}
+
+/** Local fallback used only when Sanity is unreachable or has no featured projects yet. */
+const mockFeaturedProjects: Project[] = rawMockProjects
+  .filter((project) => project.featured)
+  .map(fromMockProject);
+
 export function getProjectHref(project: Project) {
   if (project.linkMode === 'external') {
     return project.externalUrl;
@@ -356,7 +384,7 @@ export function getProjectHref(project: Project) {
 
 export async function getFeaturedProjects(): Promise<Project[]> {
   if (!client) {
-    return [];
+    return mockFeaturedProjects;
   }
 
   try {
@@ -370,10 +398,10 @@ export async function getFeaturedProjects(): Promise<Project[]> {
       .map(normalizeProject)
       .filter((project): project is Project => Boolean(project));
 
-    return normalized;
+    return normalized.length > 0 ? normalized : mockFeaturedProjects;
   } catch (error) {
     console.error('Error fetching featured projects from Sanity:', error);
-    return [];
+    return mockFeaturedProjects;
   }
 }
 

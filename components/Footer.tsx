@@ -2,70 +2,73 @@
 
 import { Section } from '@/components/Section';
 import { SectionLayout } from '@/components/SectionLayout';
-import { SpacingGuide } from '@/components/SpacingGuide';
-import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
-import { gridSpans } from '@/lib/grid-spans';
+import { GridCell } from '@/components/GridCell';
 import { navigationItems } from '@/lib/mock-data';
 import type { ContactContent } from '@/lib/site-content';
 import { smoothScrollTo, smoothScrollToTop, cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+/** Figma footer Nav Link — 14px mono semibold, dotted underline on hover */
 const footerLinkClass =
-  'type-label inline-flex min-h-11 items-center py-2 text-secondary transition-colors duration-200 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background';
-
-const footerCellClass = 'footer-cell col-span-full';
+  'footer-link relative z-[1] inline-flex min-h-[var(--grid-unit)] items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 export function Footer({ contact }: { contact: ContactContent }) {
   const pathname = usePathname();
   const isHome = pathname === '/';
 
-  const handleNavClick = (sectionId: string) => {
-    smoothScrollTo(sectionId);
-  };
-
   return (
-    <Section
-      id="footer"
-      variant="footer"
-      className="pb-[var(--mobile-bottom-controls)] lg:pb-0"
-      inspectOnEnter
-    >
-      <SectionLayout boundaries={HOME_SECTION_BOUNDARIES.footer}>
-        <SpacingGuide
-          showGaps
-          showGutters
-          showLabels
-          sectionBoundaries={HOME_SECTION_BOUNDARIES.footer}
-          className="site-section-grid footer-grid"
-        >
-          <div className={cn(footerCellClass, 'footer-cell--utility', gridSpans.footer.utility)}>
+    <Section id="footer" variant="footer" className="footer-section py-0">
+      <SectionLayout sectionId="footer">
+        <div className="site-section-grid footer-grid">
+          <GridCell
+            section="footer"
+            cell="utilitySpacerLeft"
+            className="footer-cell footer-cell--spacer"
+            aria-hidden
+          >
+            {null}
+          </GridCell>
+
+          <GridCell
+            section="footer"
+            cell="utilitySpacerRight"
+            className="footer-cell footer-cell--spacer"
+            aria-hidden
+          >
+            {null}
+          </GridCell>
+
+          <GridCell section="footer" cell="utility" className="footer-cell footer-cell--utility">
             <button
               type="button"
               onClick={smoothScrollToTop}
-              className={`${footerLinkClass} inline-flex w-full items-center justify-between gap-3`}
+              data-cursor="navigate"
+              className={cn(footerLinkClass, 'footer-link--stretch w-full justify-between gap-[var(--grid-unit)]')}
             >
               <span>Back to top</span>
-              <span aria-hidden>↑</span>
+              <span aria-hidden className="footer-figma-arrow">
+                ↑
+              </span>
             </button>
-          </div>
+          </GridCell>
 
-          <section className={cn(footerCellClass, gridSpans.footer.nav)}>
-            <p className="section-heading-kicker type-meta mb-2" aria-hidden>Footer</p>
-            <h3 className="type-meta mb-5">Navigation</h3>
+          <GridCell section="footer" cell="nav" className="footer-cell" as="section">
+            <h3 className="footer-figma-heading">Navigation</h3>
             <nav aria-label="Footer navigation">
-              <ul className="flex flex-col gap-3">
+              <ul className="footer-figma-stack">
                 {navigationItems.map((item) => {
-                  const sectionId = item.href.substring(1);
+                  const sectionId = item.href.replace(/^#/, '');
 
                   if (isHome) {
                     return (
                       <li key={item.href}>
                         <a
-                          href={item.href}
+                          href={`#${sectionId}`}
+                          data-cursor="navigate"
                           onClick={(event) => {
                             event.preventDefault();
-                            handleNavClick(sectionId);
+                            smoothScrollTo(sectionId);
                           }}
                           className={footerLinkClass}
                         >
@@ -77,7 +80,11 @@ export function Footer({ contact }: { contact: ContactContent }) {
 
                   return (
                     <li key={item.href}>
-                      <Link href={`/${item.href}`} className={footerLinkClass}>
+                      <Link
+                        href={{ pathname: '/', hash: sectionId }}
+                        data-cursor="navigate"
+                        className={footerLinkClass}
+                      >
                         {item.label}
                       </Link>
                     </li>
@@ -85,42 +92,46 @@ export function Footer({ contact }: { contact: ContactContent }) {
                 })}
               </ul>
             </nav>
-          </section>
+          </GridCell>
 
-          <section className={cn(footerCellClass, 'footer-cell--split', gridSpans.footer.contact)}>
-            <p className="section-heading-kicker type-meta mb-2" aria-hidden>Footer</p>
-            <h3 className="type-meta mb-5">Contact</h3>
-            <div className="flex flex-col gap-3">
-              <a
-                href={`mailto:${contact.email}`}
-                className="type-label break-words text-secondary transition-colors duration-200 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                aria-label={`Email: ${contact.email}`}
-              >
-                {contact.email}
-              </a>
-              {contact.phone ? (
+          <GridCell section="footer" cell="contact" className="footer-cell" as="section">
+            <h3 className="footer-figma-heading">Contact</h3>
+            <ul className="footer-figma-stack">
+              <li>
                 <a
-                  href={`tel:${contact.phone}`}
-                  className="type-label break-words text-secondary transition-colors duration-200 hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  aria-label={`Phone: ${contact.phone}`}
+                  href={`mailto:${contact.email}`}
+                  data-cursor="link"
+                  className={cn(footerLinkClass, 'max-w-full')}
+                  aria-label={`Email: ${contact.email}`}
                 >
-                  {contact.phone}
+                  <span className="footer-link-email">{contact.email}</span>
                 </a>
+              </li>
+              {contact.phone ? (
+                <li>
+                  <a
+                    href={`tel:${contact.phone}`}
+                    data-cursor="link"
+                    className={cn(footerLinkClass, 'max-w-full')}
+                    aria-label={`Phone: ${contact.phone}`}
+                  >
+                    {contact.phone}
+                  </a>
+                </li>
               ) : null}
-              {contact.address ? <p className="type-body break-words">{contact.address}</p> : null}
-            </div>
-          </section>
+            </ul>
+          </GridCell>
 
-          <section className={cn(footerCellClass, 'footer-cell--split', gridSpans.footer.connect)}>
-            <p className="section-heading-kicker type-meta mb-2" aria-hidden>Footer</p>
-            <h3 className="type-meta mb-5">Connect</h3>
-            <ul className="flex flex-col gap-3">
+          <GridCell section="footer" cell="connect" className="footer-cell" as="section">
+            <h3 className="footer-figma-heading">Connect</h3>
+            <ul className="footer-figma-stack">
               {contact.socialLinks.map((social) => (
                 <li key={social.platform}>
                   <a
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-cursor="link"
                     className={footerLinkClass}
                     aria-label={social.platform}
                   >
@@ -129,8 +140,8 @@ export function Footer({ contact }: { contact: ContactContent }) {
                 </li>
               ))}
             </ul>
-          </section>
-        </SpacingGuide>
+          </GridCell>
+        </div>
       </SectionLayout>
     </Section>
   );

@@ -4,14 +4,12 @@ import { motion, useInView, type HTMLMotionProps } from 'framer-motion';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { EASE_PRECISION, MOTION, REVEAL_VIEWPORT } from '@/lib/motion';
-import { SmartGuides } from '@/components/SmartGuides';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 type RevealDirection = 'up' | 'left' | 'right';
 
 type RevealProps = HTMLMotionProps<'div'> & {
   children: ReactNode;
-  flashGuides?: boolean;
   delay?: number;
   direction?: RevealDirection;
 };
@@ -19,11 +17,11 @@ type RevealProps = HTMLMotionProps<'div'> & {
 function getInitial(direction: RevealDirection) {
   switch (direction) {
     case 'left':
-      return { opacity: 0, x: -16, y: 0 };
+      return { opacity: 0, x: -24, y: 0 };
     case 'right':
-      return { opacity: 0, x: 16, y: 0 };
+      return { opacity: 0, x: 24, y: 0 };
     default:
-      return { opacity: 0, x: 0, y: 14 };
+      return { opacity: 0, x: 0, y: 24 };
   }
 }
 
@@ -40,7 +38,6 @@ function isNodeInViewport(node: HTMLElement) {
 export function Reveal({
   children,
   className,
-  flashGuides = false,
   delay = 0,
   direction = 'up',
   ...props
@@ -49,12 +46,14 @@ export function Reveal({
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, REVEAL_VIEWPORT);
   const [mountRevealed, setMountRevealed] = useState(false);
-  const [guidesVisible, setGuidesVisible] = useState(false);
 
   useEffect(() => {
     if (reducedMotion || mountRevealed) return;
     const node = ref.current;
+    // One-time DOM measurement: reveal immediately if already in view on mount,
+    // since useInView only fires on a subsequent scroll-triggered intersection change.
     if (node && isNodeInViewport(node)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMountRevealed(true);
     }
   }, [reducedMotion, mountRevealed]);
@@ -72,15 +71,8 @@ export function Reveal({
       initial={getInitial(direction)}
       animate={visible ? getVisibleState() : getInitial(direction)}
       transition={{ duration: MOTION.duration.reveal, ease: EASE_PRECISION, delay }}
-      onAnimationComplete={() => {
-        if (flashGuides && visible) {
-          setGuidesVisible(true);
-          window.setTimeout(() => setGuidesVisible(false), 380);
-        }
-      }}
       {...props}
     >
-      {flashGuides && <SmartGuides visible={guidesVisible} type="center" />}
       {children}
     </motion.div>
   );

@@ -73,7 +73,8 @@ vercel domains add znossier.com
 - [ ] SSL certificate active (automatic via Vercel)
 - [ ] Site accessible at znossier.com
 - [ ] HTTPS working correctly
-- [ ] All site features working (navigation, theme toggle, etc.)
+- [ ] All site features working (navigation, smooth scroll, section anchors, footer links)
+- [ ] Sanity env vars set on Vercel if live Works should not use mocks (`NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET`)
 
 ## Troubleshooting
 

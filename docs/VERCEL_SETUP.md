@@ -25,7 +25,12 @@ Vercel will auto-detect Next.js. Verify these settings:
 - **Install Command**: `npm install` ✅
 - **Root Directory**: `./` (leave as default)
 
-**Environment Variables**: None needed (Sanity CMS not configured)
+**Environment Variables:** Optional Sanity CMS — set on Vercel for live projects:
+
+- `NEXT_PUBLIC_SANITY_PROJECT_ID`
+- `NEXT_PUBLIC_SANITY_DATASET`
+
+Without these, Works falls back to mock data / placeholders.
 
 ### 3. Deploy
 
@@ -73,11 +78,11 @@ Once DNS propagates:
 - ✅ Visit `znossier.com` - should load your site
 - ✅ Check HTTPS is working (SSL certificate active)
 - ✅ Test all features:
-  - Navigation
-  - Theme toggle (light/dark mode)
+  - Navigation (dark-only; no theme toggle)
   - Smooth scrolling
   - Responsive design
   - All sections loading correctly
+  - Footer links clickable
 
 ## Automatic Deployments
 

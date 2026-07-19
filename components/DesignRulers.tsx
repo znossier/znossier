@@ -7,28 +7,35 @@ import { MeasurementLabel } from '@/components/MeasurementLabel';
 import { useHasMounted } from '@/hooks/useHasMounted';
 import { useRulerInteraction, type RulerTargetBounds } from '@/hooks/useRulerInteraction';
 import { useScrollOffset, useShellInlineStart } from '@/hooks/useScrollOffset';
+import {
+  WORKSPACE_GRID_DOT_SIZE,
+  WORKSPACE_GRID_LINE_SIZE,
+  snapToGrid,
+} from '@/lib/grid-snap';
 import { EASE_PRECISION, MOTION } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 
-const TICK_INTERVAL = 8;
-const LABEL_INTERVAL = 128;
+const TICK_INTERVAL = WORKSPACE_GRID_DOT_SIZE;
+const LABEL_INTERVAL = WORKSPACE_GRID_LINE_SIZE * 8;
 const RULER_LENGTH = 4000;
 
 function RulerTicks({
   orientation,
   scrollOffset,
   originOffset,
+  length: lengthProp,
 }: {
   orientation: 'horizontal' | 'vertical';
   scrollOffset: number;
   originOffset: number;
+  length?: number;
 }) {
   const isHorizontal = orientation === 'horizontal';
-  const length = isHorizontal ? RULER_LENGTH : 3000;
+  const length = lengthProp ?? (isHorizontal ? RULER_LENGTH : 3000);
   const ticks: React.ReactNode[] = [];
 
   for (let i = 0; i <= length; i += TICK_INTERVAL) {
-    const isMajor = i % 64 === 0;
+    const isMajor = i % (WORKSPACE_GRID_LINE_SIZE * 2) === 0;
     const documentPosition = originOffset + i;
     const hasLabel = i % LABEL_INTERVAL === 0;
 
@@ -92,6 +99,22 @@ function RulerTicks({
       {ticks}
     </div>
   );
+}
+
+function toHorizontalRulerTarget(target: RulerTargetBounds, rulerSize: number): RulerTargetBounds {
+  return {
+    ...target,
+    left: target.left - rulerSize,
+    right: target.right - rulerSize,
+  };
+}
+
+function toVerticalRulerTarget(target: RulerTargetBounds, verticalOrigin: number): RulerTargetBounds {
+  return {
+    ...target,
+    top: target.top - verticalOrigin,
+    bottom: target.bottom - verticalOrigin,
+  };
 }
 
 function RulerEdgeMarkers({
@@ -238,9 +261,11 @@ function RulerCursorReadout({
 function SectionBandMarkers({
   scrollOffset,
   bands,
+  verticalOrigin,
 }: {
   scrollOffset: number;
   bands: Array<{ id: string; top: number }>;
+  verticalOrigin: number;
 }) {
   return (
     <div
@@ -252,7 +277,7 @@ function SectionBandMarkers({
         <div
           key={band.id}
           className="ruler-section-band absolute"
-          style={{ top: band.top, left: 0, width: 'var(--ruler-size)' }}
+          style={{ top: band.top - verticalOrigin, left: 0, width: 'var(--ruler-size)' }}
           title={band.id}
         />
       ))}
@@ -348,38 +373,81 @@ export function DesignRulers() {
   const isHome = pathname === '/';
   const { x: scrollX, y: scrollY } = useScrollOffset();
   const shellInlineStart = useShellInlineStart();
+  const [hasNavChrome, setHasNavChrome] = useState(true);
   const [verticalOrigin, setVerticalOrigin] = useState(0);
-  const [rulerSize, setRulerSize] = useState(14);
-  const [verticalTrackTop, setVerticalTrackTop] = useState(14);
+  const [rulerSize, setRulerSize] = useState(WORKSPACE_GRID_LINE_SIZE);
+  const [verticalTrackTop, setVerticalTrackTop] = useState(WORKSPACE_GRID_LINE_SIZE);
+  const [verticalRulerLength, setVerticalRulerLength] = useState(4000);
+
+  useEffect(() => {
+    const checkNav = () => {
+      const present = !!document.querySelector(
+        '.editorial-nav-shell, .detail-nav-shell'
+      );
+      setHasNavChrome(present);
+      if (present) {
+        document.documentElement.removeAttribute('data-chrome');
+      } else {
+        document.documentElement.setAttribute('data-chrome', 'bare');
+      }
+    };
+
+    checkNav();
+    const mo = new MutationObserver(checkNav);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => {
+      mo.disconnect();
+      document.documentElement.removeAttribute('data-chrome');
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const measure = () => {
       const root = document.documentElement;
-      const chromeTop = parseFloat(getComputedStyle(root).getPropertyValue('--chrome-top')) || 0;
       const measuredRulerSize =
-        parseFloat(getComputedStyle(root).getPropertyValue('--ruler-size')) || 14;
+        parseFloat(getComputedStyle(root).getPropertyValue('--ruler-size')) ||
+        WORKSPACE_GRID_LINE_SIZE;
+      const bare = root.getAttribute('data-chrome') === 'bare';
+      /* With nav: --chrome-top includes horizontal ruler at lg+. Without nav: flush to top. */
+      const chromeTop = bare
+        ? measuredRulerSize
+        : parseFloat(getComputedStyle(root).getPropertyValue('--chrome-top')) || 0;
       setRulerSize(measuredRulerSize);
-      setVerticalOrigin(chromeTop + measuredRulerSize);
-      setVerticalTrackTop(chromeTop + measuredRulerSize);
+      setVerticalOrigin(snapToGrid(chromeTop));
+      setVerticalTrackTop(snapToGrid(chromeTop));
+      setVerticalRulerLength(Math.max(document.documentElement.scrollHeight, 4000));
     };
 
     measure();
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, []);
+    const ro = new ResizeObserver(measure);
+    ro.observe(document.documentElement);
+    return () => {
+      window.removeEventListener('resize', measure);
+      ro.disconnect();
+    };
+  }, [hasNavChrome, pathname]);
+
+  const showRulers = mounted && (isHome || !hasNavChrome);
 
   const { cursor, coords, target, sectionBands, interactive, reducedMotion } = useRulerInteraction({
-    enabled: mounted && isHome,
+    enabled: showRulers && isHome,
     shellInlineStart,
     verticalOrigin,
   });
 
-  if (!mounted || !isHome) return null;
+  if (!showRulers) return null;
 
-  const showCrosshair = interactive && cursor !== null;
-  const showCursorReadout = showCrosshair && coords !== null;
-  const docCursorX = coords !== null ? shellInlineStart + coords.x : 0;
-  const docCursorY = coords !== null ? verticalOrigin + coords.y : 0;
+  const showCrosshair = false;
+  const showCursorReadout = interactive && coords !== null;
+  const horizontalRulerOrigin = Math.max(0, snapToGrid(shellInlineStart - rulerSize));
+  const horizontalCursorPosition =
+    coords !== null ? snapToGrid(coords.x + horizontalRulerOrigin) : 0;
+  const verticalCursorPosition = coords?.y ?? 0;
+  const horizontalTop = hasNavChrome
+    ? 'calc(var(--chrome-top) - var(--ruler-size))'
+    : 0;
+  const verticalTop = hasNavChrome ? 'var(--chrome-top)' : 'var(--ruler-size)';
 
   return (
     <motion.div
@@ -403,7 +471,7 @@ export function DesignRulers() {
       <div
         className="ruler-origin absolute border-b border-r border-[var(--utility-cyan)]"
         style={{
-          top: 'var(--chrome-top)',
+          top: horizontalTop,
           left: 0,
           width: 'var(--ruler-size)',
           height: 'var(--ruler-size)',
@@ -413,7 +481,7 @@ export function DesignRulers() {
       <div
         className="ruler-track ruler-track-horizontal ruler-track--horizontal absolute overflow-hidden border-b border-[var(--utility-cyan)]"
         style={{
-          top: 'var(--chrome-top)',
+          top: horizontalTop,
           left: 'var(--ruler-size)',
           right: 0,
           height: 'var(--ruler-size)',
@@ -422,20 +490,20 @@ export function DesignRulers() {
         <RulerTicks
           orientation="horizontal"
           scrollOffset={scrollX}
-          originOffset={shellInlineStart}
+          originOffset={horizontalRulerOrigin}
         />
         {target && (
           <RulerEdgeMarkers
             orientation="horizontal"
             scrollOffset={scrollX}
-            target={target}
+            target={toHorizontalRulerTarget(target, rulerSize)}
           />
         )}
         {showCursorReadout && coords && (
           <RulerCursorReadout
             orientation="horizontal"
             scrollOffset={scrollX}
-            documentPosition={docCursorX}
+            documentPosition={horizontalCursorPosition}
             label={coords.x}
             visible={showCursorReadout}
           />
@@ -445,26 +513,31 @@ export function DesignRulers() {
       <div
         className="ruler-track ruler-track-vertical ruler-track--vertical absolute overflow-hidden border-r border-[var(--utility-cyan)]"
         style={{
-          top: 'calc(var(--chrome-top) + var(--ruler-size))',
+          top: verticalTop,
           left: 0,
           width: 'var(--ruler-size)',
           bottom: 0,
         }}
       >
-        <RulerTicks orientation="vertical" scrollOffset={scrollY} originOffset={verticalOrigin} />
-        <SectionBandMarkers scrollOffset={scrollY} bands={sectionBands} />
+        <RulerTicks
+          orientation="vertical"
+          scrollOffset={scrollY}
+          originOffset={verticalOrigin}
+          length={verticalRulerLength}
+        />
+        <SectionBandMarkers scrollOffset={scrollY} bands={sectionBands} verticalOrigin={verticalOrigin} />
         {target && (
           <RulerEdgeMarkers
             orientation="vertical"
             scrollOffset={scrollY}
-            target={target}
+            target={toVerticalRulerTarget(target, verticalOrigin)}
           />
         )}
         {showCursorReadout && coords && (
           <RulerCursorReadout
             orientation="vertical"
             scrollOffset={scrollY}
-            documentPosition={docCursorY}
+            documentPosition={verticalCursorPosition}
             label={coords.y}
             visible={showCursorReadout}
           />

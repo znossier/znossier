@@ -1,17 +1,15 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { BootLoader } from '@/components/BootLoader';
 import { Cursor } from '@/components/Cursor';
 import { DesignRulers } from '@/components/DesignRulers';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { GridOverlay } from '@/components/GridOverlay';
 import { SmoothScroll } from '@/components/SmoothScroll';
-import { UnderConstructionRibbon } from '@/components/UnderConstructionRibbon';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isStudioRoute = pathname?.startsWith('/studio');
-  const isHomeRoute = pathname === '/';
 
   if (isStudioRoute) {
     return <>{children}</>;
@@ -19,12 +17,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ErrorBoundary>
-      <UnderConstructionRibbon />
+      <BootLoader />
       <SmoothScroll>
+        <div className="canvas-grid-overlay" aria-hidden />
         <DesignRulers />
-        {isHomeRoute ? (
-          <GridOverlay opacity={1} showPlusMarkers showAlignmentGuides />
-        ) : null}
         <Cursor />
         {children}
       </SmoothScroll>

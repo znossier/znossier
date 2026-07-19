@@ -9,8 +9,8 @@ type PanelProps = ComponentPropsWithoutRef<'div'> & {
 
 const paddingClass = {
   none: '',
-  sm: 'p-4 sm:p-5',
-  md: 'p-4 sm:p-6 md:p-8',
+  sm: 'site-cell-pad',
+  md: 'site-cell-pad',
 };
 
 export function Panel({

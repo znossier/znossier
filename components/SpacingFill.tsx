@@ -14,17 +14,24 @@ function fillClass(kind: SpacingRect['kind']) {
 export function SpacingFill({
   rect,
   showLabel = true,
+  instant = false,
   className,
 }: {
   rect: SpacingRect;
   showLabel?: boolean;
+  instant?: boolean;
   className?: string;
 }) {
   const { reveal, side } = getSpacingFillReveal(rect);
 
   return (
     <div
-      className={cn('spacing-fill-animate absolute', fillClass(rect.kind), className)}
+      className={cn(
+        'spacing-fill-animate absolute',
+        fillClass(rect.kind),
+        instant && 'spacing-fill-animate--instant',
+        className
+      )}
       data-reveal={reveal}
       data-side={side}
       style={{

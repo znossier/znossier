@@ -3,21 +3,21 @@
 import { ProjectCardLinkLabel } from '@/components/ProjectCardLinkLabel';
 import { Button } from '@/components/Button';
 import { Section } from '@/components/Section';
+import { SectionStickyShell } from '@/components/SectionStickyShell';
 import { SectionHeading } from '@/components/SectionHeading';
 import { SectionLayout } from '@/components/SectionLayout';
 import { WorkspaceFrame } from '@/components/WorkspaceFrame';
-import { HOME_SECTION_BOUNDARIES } from '@/lib/grid';
-import { gridSpans } from '@/lib/grid-spans';
 import { getProjectHref, type Project } from '@/lib/projects';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Reveal } from '@/components/Reveal';
-import { SpacingGuide } from '@/components/SpacingGuide';
 import { memo, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { EASE_PRECISION, MOTION, REVEAL_VIEWPORT, transitionHover } from '@/lib/motion';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { mediaQueries } from '@/lib/breakpoints';
+import { cn } from '@/lib/utils';
 
 const ProjectCard = memo(function ProjectCard({ project, index }: { project: Project; index: number }) {
   const ref = useRef<HTMLElement>(null);
@@ -36,17 +36,25 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
   const imageAvailable = !!previewImage && !imageError;
   const categoriesLabel = project.categories.join(' / ');
   const showPreviewCopy = isHovered || !supportsHover;
+  const frameLabel = `PROJECT-${String(index + 1).padStart(2, '0')}`;
 
   const cardContent = (
     <WorkspaceFrame
       inspectMode="hover"
+      inspectDepth="full"
+      frameLabel={frameLabel}
+      showRestingLabel
+      showMeasurementLines
       showSpacing
       showPadding
-      panelClassName="relative flex h-full w-full min-h-[25rem] flex-col px-4 py-4 sm:min-h-[29rem] md:min-h-[32rem] md:px-5 md:py-5"
-      className="relative h-full w-full"
+      showGaps
+      measurementPlacement="outside"
+      variant="figma"
+      panelClassName="site-cell-pad relative flex h-full w-full min-h-0 flex-col gap-[var(--grid-unit)]"
+      className="card-lift relative h-full w-full overflow-visible"
     >
       {imageAvailable && (
-        <div className="project-preview-frame relative aspect-[4/3] border border-subtle">
+        <div className="project-preview-frame relative overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
             <motion.div
               className="absolute inset-0"
@@ -83,7 +91,7 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
                   }
             }
             transition={transitionHover}
-            className="project-preview-overlay pointer-events-none absolute inset-0 flex items-end p-4 sm:p-5"
+            className="project-preview-overlay pointer-events-none absolute inset-0 z-10 flex items-end p-[var(--grid-unit)]"
             aria-hidden="true"
           >
             <p className="project-preview-copy type-body-lg line-clamp-4 max-w-[28rem] sm:line-clamp-none">
@@ -93,16 +101,16 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
         </div>
       )}
 
-      <div className="mt-4 flex flex-col gap-2">
-        <div className="flex items-start justify-between gap-x-4">
+      <div className="flex shrink-0 flex-col gap-[var(--grid-unit)]">
+        <div className="flex h-6 items-center justify-between gap-x-[var(--grid-unit)]">
           <h3 className="project-card-title type-title min-w-0 flex-1">{project.title}</h3>
           {hasValidLink && <ProjectCardLinkLabel variant={linkVariant} />}
         </div>
-        <p className="type-label min-w-0">{categoriesLabel}</p>
+        <p className="type-meta min-w-0">{categoriesLabel}</p>
       </div>
 
       {!imageAvailable && project.description && (
-        <p className="type-body mt-5 line-clamp-5">{project.description}</p>
+        <p className="type-body line-clamp-5">{project.description}</p>
       )}
     </WorkspaceFrame>
   );
@@ -155,52 +163,73 @@ const LOAD_MORE_COUNT = 4;
 
 export function Works({ projects }: { projects: Project[] }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const isDesktop = useMediaQuery(mediaQueries.lg);
 
   const visibleProjects = projects.slice(0, visibleCount);
   const hasMore = visibleCount < projects.length;
 
+  const panel = (
+    <div className="grid grid-cols-1 gap-[calc(var(--grid-unit)*3)] lg:grid-cols-2">
+      {visibleProjects.length === 0 && (
+        <div className="flex min-h-[calc(var(--grid-unit)*16)] flex-col items-start justify-center gap-[var(--grid-unit)] border border-dashed border-[var(--figma-panel-border)] p-[calc(var(--grid-unit)*2)] lg:col-span-2">
+          <span className="type-label">No projects yet</span>
+          <p className="type-body-lg max-w-md text-secondary">
+            New case studies are being prepared — check back soon.
+          </p>
+        </div>
+      )}
+
+      {visibleProjects.map((project, index) => (
+        <div key={project.id} className="min-w-0">
+          <ProjectCard project={project} index={index} />
+        </div>
+      ))}
+
+      {hasMore && (
+        <div className={cn('flex justify-center lg:col-span-2')}>
+          <Button
+            onClick={() =>
+              setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, projects.length))
+            }
+            variant="secondary"
+            className="min-h-12 min-w-[calc(var(--grid-unit)*7)]"
+            aria-label={`Show ${Math.min(LOAD_MORE_COUNT, projects.length - visibleCount)} more projects`}
+          >
+            View More
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+
+  if (!isDesktop) {
+    return (
+      <Section id="works" variant="canvas" inspectOnEnter>
+        <SectionLayout sectionId="works">
+          <div className="section-figma-stack col-span-full">
+            <Reveal>
+              <SectionHeading title="01 - Selected works" />
+            </Reveal>
+            <div className="section-figma-panel">{panel}</div>
+          </div>
+        </SectionLayout>
+      </Section>
+    );
+  }
+
   return (
     <>
-      <div className="hidden h-screen lg:block" aria-hidden="true" />
-      <Section id="works" variant="subtle">
-        <SectionLayout boundaries={HOME_SECTION_BOUNDARIES.works}>
-          <SpacingGuide
-            showGaps
-            showGutters
-            showLabels
-            sectionBoundaries={HOME_SECTION_BOUNDARIES.works}
-            className="site-section-grid auto-rows-fr"
-          >
-            <Reveal flashGuides className={gridSpans.works.heading}>
-              <SectionHeading kicker="01 — Projects" surfaceClassName="section-heading-sticky">
-                Selected Works
-              </SectionHeading>
-            </Reveal>
-
-            {visibleProjects.map((project, index) => (
-              <div
-                key={project.id}
-                className={index % 2 === 0 ? gridSpans.works.cardLeft : gridSpans.works.cardRight}
-              >
-                <ProjectCard project={project} index={index} />
-              </div>
-            ))}
-
-            {hasMore && (
-              <div className={gridSpans.works.loadMore}>
-                <Button
-                  onClick={() => setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, projects.length))}
-                  variant="secondary"
-                  inspectable
-                  className="w-full"
-                  aria-label={`Show ${Math.min(LOAD_MORE_COUNT, projects.length - visibleCount)} more projects`}
-                >
-                  Show More
-                </Button>
-              </div>
-            )}
-          </SpacingGuide>
-        </SectionLayout>
+      {/* Reserves scroll room for the fixed hero — without this, Works covers the hero at scroll 0 */}
+      <div className="h-screen" aria-hidden="true" />
+      <Section id="works" variant="canvas" inspectOnEnter className="section--sticky-lock py-0">
+        <SectionStickyShell
+          sectionId="works"
+          title="01 - Selected works"
+          panelClassName="section-sticky-panel--scroll"
+          panelLabel="Selected works"
+        >
+          {panel}
+        </SectionStickyShell>
       </Section>
     </>
   );

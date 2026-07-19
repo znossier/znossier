@@ -26,6 +26,8 @@ export function useScrollPeek(
 
   useEffect(() => {
     if (!enabled || reducedMotion) {
+      // Reset any stale "peeking" state left over from before this became disabled.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPeeking(false);
       return;
     }

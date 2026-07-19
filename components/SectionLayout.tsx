@@ -1,21 +1,16 @@
+'use client';
+
 import type { ReactNode } from 'react';
-import { SectionGridLines } from '@/components/SectionGridLines';
-import type { ResponsiveGridBoundaries } from '@/lib/grid';
 import { cn } from '@/lib/utils';
 
+/** Site shell rail for section content. `sectionId` kept for call-site clarity. */
 export function SectionLayout({
-  boundaries,
   children,
   className,
 }: {
-  boundaries?: ResponsiveGridBoundaries;
+  sectionId?: string;
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <>
-      {boundaries ? <SectionGridLines boundaries={boundaries} /> : null}
-      <div className={cn('site-shell relative z-10', className)}>{children}</div>
-    </>
-  );
+  return <div className={cn('site-shell z-10', className)}>{children}</div>;
 }

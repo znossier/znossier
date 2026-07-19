@@ -9,74 +9,23 @@ export type SpacingRect = {
   side?: 'top' | 'right' | 'bottom' | 'left';
 };
 
-export type SpacingLabelMode = 'inline' | 'tooltip' | 'hidden';
-export type SpacingLabelPlacement = 'center' | 'above' | 'below' | 'left' | 'right';
+export type SpacingLabelMode = 'inline' | 'hidden';
 
 const LABEL_MIN_SIZE = 8;
-const LABEL_MIN_DIMENSION = 10;
-const INLINE_MIN_WIDTH = 28;
-const INLINE_MIN_HEIGHT = 18;
-const GAP_INLINE_MIN_ALONG = 12;
+const LABEL_MIN_ALONG = 20;
+const LABEL_MIN_CROSS = 14;
 
-export function getSpacingLabelMode(rect: SpacingRect): SpacingLabelMode {
-  if (rect.size < LABEL_MIN_SIZE) {
-    return 'hidden';
-  }
+function zoneFitsLabel(rect: SpacingRect): boolean {
+  if (rect.size < LABEL_MIN_SIZE) return false;
 
-  if (rect.kind === 'gutter') {
-    const along = rect.width;
-    const cross = rect.height;
-    if (along >= 8 && cross >= LABEL_MIN_DIMENSION) {
-      return 'inline';
-    }
-    if (along >= LABEL_MIN_SIZE && cross >= LABEL_MIN_DIMENSION) {
-      return 'tooltip';
-    }
-    return 'hidden';
-  }
+  const along = rect.axis === 'horizontal' ? rect.width : rect.height;
+  const cross = rect.axis === 'horizontal' ? rect.height : rect.width;
 
-  if (rect.kind === 'gap') {
-    const along = rect.axis === 'horizontal' ? rect.width : rect.height;
-    const cross = rect.axis === 'horizontal' ? rect.height : rect.width;
-    if (along >= GAP_INLINE_MIN_ALONG && cross >= LABEL_MIN_DIMENSION) {
-      return 'inline';
-    }
-    if (along >= LABEL_MIN_SIZE && cross >= LABEL_MIN_DIMENSION) {
-      return 'tooltip';
-    }
-    return 'hidden';
-  }
-
-  if (rect.width < LABEL_MIN_DIMENSION || rect.height < LABEL_MIN_DIMENSION) {
-    return 'hidden';
-  }
-
-  if (rect.width >= INLINE_MIN_WIDTH && rect.height >= INLINE_MIN_HEIGHT) {
-    return 'inline';
-  }
-
-  return 'tooltip';
+  return along >= LABEL_MIN_ALONG && cross >= LABEL_MIN_CROSS;
 }
 
-export function getSpacingLabelPlacement(rect: SpacingRect): SpacingLabelPlacement {
-  if (rect.kind === 'gap') {
-    return 'center';
-  }
-
-  if (getSpacingLabelMode(rect) === 'inline') return 'center';
-
-  if (rect.kind === 'padding') {
-    if (rect.side === 'top') return 'above';
-    if (rect.side === 'bottom') return 'below';
-    if (rect.side === 'left') return 'left';
-    if (rect.side === 'right') return 'right';
-  }
-
-  if (rect.axis === 'horizontal') {
-    return rect.height >= rect.width ? 'right' : 'above';
-  }
-
-  return rect.width >= rect.height ? 'below' : 'right';
+export function getSpacingLabelMode(rect: SpacingRect): SpacingLabelMode {
+  return zoneFitsLabel(rect) ? 'inline' : 'hidden';
 }
 
 export type GridGutter = {
@@ -208,6 +157,53 @@ function groupIntoRows(boxes: ChildBox[], threshold = 8): ChildBox[][] {
   return rows;
 }
 
+function offsetGapRects(
+  rects: SpacingRect[],
+  element: HTMLElement,
+  root: HTMLElement
+): SpacingRect[] {
+  const elementRect = element.getBoundingClientRect();
+  const rootRect = root.getBoundingClientRect();
+  const dx = elementRect.left - rootRect.left;
+  const dy = elementRect.top - rootRect.top;
+
+  return rects.map((rect) => ({
+    ...rect,
+    x: rect.x + dx,
+    y: rect.y + dy,
+  }));
+}
+
+function measureNestedLayoutGaps(container: HTMLElement): SpacingRect[] {
+  const gaps: SpacingRect[] = [];
+  const elements = container.querySelectorAll<HTMLElement>('*');
+
+  for (const element of elements) {
+    if (element.dataset.spacingOverlay === 'true') continue;
+
+    const styles = window.getComputedStyle(element);
+    if (styles.display.includes('flex')) {
+      gaps.push(
+        ...offsetGapRects(
+          measureFlexGaps(element, element.getBoundingClientRect(), styles),
+          element,
+          container
+        )
+      );
+    } else if (styles.display === 'grid' || styles.display === 'inline-grid') {
+      gaps.push(
+        ...offsetGapRects(
+          measureGridGaps(element, element.getBoundingClientRect()),
+          element,
+          container
+        )
+      );
+    }
+  }
+
+  return gaps;
+}
+
 function measureGridGaps(container: HTMLElement, containerRect: DOMRect): SpacingRect[] {
   const boxes = getChildBoxes(container, containerRect);
   if (boxes.length < 2) return [];
@@ -269,12 +265,14 @@ function measurePaddingRects(
     });
   }
 
-  if (paddingRight > 0) {
+  const innerHeight = Math.max(0, height - paddingTop - paddingBottom);
+
+  if (paddingRight > 0 && innerHeight > 0) {
     rects.push({
       x: width - paddingRight,
-      y: 0,
+      y: paddingTop,
       width: paddingRight,
-      height,
+      height: innerHeight,
       kind: 'padding',
       size: paddingRight,
       axis: 'horizontal',
@@ -295,12 +293,12 @@ function measurePaddingRects(
     });
   }
 
-  if (paddingLeft > 0) {
+  if (paddingLeft > 0 && innerHeight > 0) {
     rects.push({
       x: 0,
-      y: 0,
+      y: paddingTop,
       width: paddingLeft,
-      height,
+      height: innerHeight,
       kind: 'padding',
       size: paddingLeft,
       axis: 'horizontal',
@@ -353,14 +351,15 @@ export function measureSpacingRects(
   container: HTMLElement,
   gutters: GridGutter[] = []
 ): SpacingRect[] {
-  const containerRect = container.getBoundingClientRect();
   const styles = window.getComputedStyle(container);
   const metrics = measureElement(container);
   const display = styles.display;
+  const width = container.clientWidth;
+  const height = container.clientHeight;
 
   const rects = measurePaddingRects(
-    containerRect.width,
-    containerRect.height,
+    width,
+    height,
     metrics.paddingTop,
     metrics.paddingRight,
     metrics.paddingBottom,
@@ -368,12 +367,13 @@ export function measureSpacingRects(
   );
 
   if (display.includes('flex')) {
-    rects.push(...measureFlexGaps(container, containerRect, styles));
+    rects.push(...measureFlexGaps(container, container.getBoundingClientRect(), styles));
   } else if (display === 'grid' || display === 'inline-grid') {
-    rects.push(...measureGridGaps(container, containerRect));
+    rects.push(...measureGridGaps(container, container.getBoundingClientRect()));
   }
 
-  rects.push(...measureGridGutterRects(containerRect.width, containerRect.height, gutters));
+  rects.push(...measureNestedLayoutGaps(container));
+  rects.push(...measureGridGutterRects(width, height, gutters));
 
   return rects;
 }

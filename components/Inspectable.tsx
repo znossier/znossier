@@ -6,7 +6,6 @@ import { MeasurementOverlay } from '@/components/MeasurementOverlay';
 import { MeasurementLabel } from '@/components/MeasurementLabel';
 import { SelectionOutline } from '@/components/SelectionOutline';
 import { SpacingFill } from '@/components/SpacingFill';
-import { SpacingZoneLabel } from '@/components/SpacingZoneLabel';
 import { useElementMetrics } from '@/hooks/useElementMetrics';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { measureSpacingRects, type SpacingRect } from '@/lib/spacing-metrics';
@@ -100,7 +99,7 @@ export function Inspectable({
             className="absolute -right-6 bottom-0 top-0"
           />
           <MeasurementLabel
-            value={`${metrics.width} × ${metrics.height}`}
+            value={`${metrics.width}px × ${metrics.height}px`}
             color="cyan"
             variant="tooltip"
             visible={!reducedMotion || showFull}

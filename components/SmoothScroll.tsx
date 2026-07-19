@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Lenis from 'lenis';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 declare global {
   interface Window {
@@ -10,7 +11,11 @@ declare global {
 }
 
 export function SmoothScroll({ children }: { children: React.ReactNode }) {
+  const reducedMotion = useReducedMotion();
+
   useEffect(() => {
+    if (reducedMotion) return;
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -24,6 +29,10 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
 
     if (typeof window !== 'undefined') {
       window.lenis = lenis;
+      // BootLoader may lock before Lenis exists — honor boot lock on init
+      if (document.documentElement.classList.contains('boot-locked')) {
+        lenis.stop();
+      }
     }
 
     function raf(time: number) {
@@ -39,7 +48,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
         delete window.lenis;
       }
     };
-  }, []);
+  }, [reducedMotion]);
 
   return <>{children}</>;
 }

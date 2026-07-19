@@ -2,24 +2,25 @@
 
 Personal portfolio site — designed and developed by Zeina Nossier.
 
-A modern portfolio website built with Next.js, TypeScript, Tailwind CSS, and Sanity CMS. Live at [znossier.com](https://znossier.com).
+A modern, dark-only portfolio website built with Next.js, TypeScript, Tailwind CSS, and Sanity CMS, styled after a Figma design-canvas workspace (rulers, grid overlay, inspect frames, custom cursor). Live at [znossier.com](https://znossier.com).
 
 ## Features
 
-- 🌓 Light/Dark mode toggle
-- 📱 Fully responsive design
-- 🎯 Smooth scroll navigation
-- 🚀 Optimized performance with Next.js
-- 📝 CMS-driven content (Sanity)
+- 🎨 Figma-workspace visual identity (grid rulers, inspect frames, contextual cursor)
+- 📱 Fully responsive design with a dedicated mobile "present mode" (chrome hidden, content-first)
+- 🎯 Smooth scroll navigation (Lenis, auto-disabled under `prefers-reduced-motion`)
+- 🚀 Optimized performance with Next.js (dynamic imports, skeleton loading states)
+- 📝 CMS-driven content (Sanity), with local mock-data fallback if Sanity is unreachable
+- ♿ Accessibility-hardened: focus trap/restore on mobile nav, AA-contrast text tokens, reduced-motion support throughout
 
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Font**: Geist
-- **CMS**: Sanity (optional)
-- **Theme**: next-themes
+- **Styling**: Tailwind CSS v4
+- **Animation**: Framer Motion, Lenis (smooth scroll)
+- **Font**: Geist, Geist Mono, Oswald
+- **CMS**: Sanity (optional — falls back to mock data when not configured)
 
 ## Getting Started
 
@@ -47,7 +48,7 @@ npm run dev
 
 ### Sanity CMS
 
-The site works with mock data by default. To use Sanity CMS:
+The site is designed to be CMS-driven via Sanity. Without a configured Sanity project, content-heavy sections (About, Services, Contact) fall back to local mock data in `lib/mock-data.ts`, and the Works section falls back to a small set of local placeholder projects so the layout is never empty. To use Sanity CMS:
 
 1. Create a Sanity project at [sanity.io](https://sanity.io)
 2. Get your project ID and dataset name
@@ -70,38 +71,44 @@ sanity init
 sanity deploy
 ```
 
-The site will automatically use Sanity data when configured, otherwise it falls back to mock data.
+The site automatically uses Sanity data when configured (env vars present and reachable), otherwise it falls back to local mock data.
 
 ## Project Structure
 
 ```
 znossier/
 ├── app/                    # Next.js App Router
-│   ├── layout.tsx         # Root layout with theme provider
-│   ├── page.tsx           # Main page
+│   ├── layout.tsx         # Root layout, metadata, favicon/OG wiring
+│   ├── page.tsx           # Main page (dynamic-imports below-the-fold sections)
+│   ├── not-found.tsx      # On-brand 404 page
+│   ├── error.tsx          # On-brand route error boundary
 │   ├── works/[slug]/      # Project detail pages
 │   ├── sitemap.ts         # Sitemap
-│   ├── robots.ts          # Robots.txt
+│   ├── robots.ts          # Robots.txt (disallows /studio, /api)
+│   ├── icon.png / apple-icon.png  # File-convention favicons
 │   └── api/               # API routes
 │       └── sanity/        # Sanity CMS
 ├── components/            # React components
-│   ├── Navigation.tsx     # Header navigation
+│   ├── AppShell.tsx       # Cursor, rulers, grid overlay, smooth scroll wiring
+│   ├── Navigation.tsx     # Header navigation (desktop tabs + mobile menu)
 │   ├── Hero.tsx           # Hero section
 │   ├── About.tsx          # About section
 │   ├── Works.tsx          # Projects section
 │   ├── Services.tsx       # Services section
 │   ├── Process.tsx        # Process section
-│   ├── TechStack.tsx      # Tech stack
+│   ├── TechStack.tsx      # Tech stack marquee
 │   ├── Footer.tsx         # Footer (includes contact)
-│   ├── ThemeToggle.tsx    # Theme toggle
+│   ├── SectionSkeleton.tsx # Loading-state skeletons for dynamic sections
+│   ├── WorkspaceFrame.tsx # Figma-style inspect frame (core visual primitive)
 │   ├── ProjectDetailPage.tsx
 │   └── ...
 ├── hooks/                 # React hooks
 ├── lib/                   # Utilities & data
-│   ├── mock-data.ts       # Mock data
+│   ├── mock-data.ts       # Mock data (About/Services/Contact/TechStack fallback)
+│   ├── projects.ts        # Sanity project fetching + local fallback projects
+│   ├── site-content.ts    # Sanity content fetching (About/Services/Contact)
 │   ├── sanity.ts          # Sanity client
-│   ├── sanity-queries.ts  # Sanity queries
-│   ├── theme.tsx          # Theme provider
+│   ├── motion.ts          # Shared Framer Motion duration/easing tokens
 │   ├── utils.ts           # Helper functions
 │   └── ...
 ├── sanity/                # Sanity schemas
@@ -109,22 +116,23 @@ znossier/
 └── docs/                  # Setup & deployment docs
     ├── DEPLOYMENT.md
     ├── VERCEL_SETUP.md
+    ├── QA_REPORT.md
     └── ...
 ```
 
 ## Customization
 
-### Colors
+### Colors & Theme
 
-Edit `app/globals.css` to change the color scheme:
-- Light mode background: `#FAFAFA`
-- Dark mode background: `#1A1A1A`
-- Accent color: `#6B7987`
-- Link color: `#3E99F3`
+The site is dark-only by design (no light mode / theme toggle). Edit the CSS custom properties in `app/globals.css` (`:root`) to change the palette:
+- Background: `--background` (`#0a0a0a`)
+- Foreground/text: `--foreground` (`#f0ece4`)
+- Accent (cyan): `--utility-cyan` (`#58bfe8`)
+- Utility/debug (magenta, spacing-guide only): `--utility-magenta`
 
 ### Content
 
-Update content in `lib/mock-data.ts` or through Sanity CMS.
+Update content in `lib/mock-data.ts` (fallback data), or through Sanity CMS via the schemas in `sanity/schemas/`.
 
 ## Deployment
 

@@ -1,8 +1,6 @@
-export const GRID_COLUMNS = {
-  mobile: 6,
-  tablet: 8,
-  desktop: 24,
-} as const;
+import { deriveBoundaries } from '@/lib/grid-layout';
+
+export { GRID_COLUMNS, type GridBreakpoint } from '@/lib/grid-layout';
 
 /** Mirrors layout CSS custom properties in app/globals.css */
 export const LAYOUT = {
@@ -10,12 +8,13 @@ export const LAYOUT = {
   paddingInline: 'var(--site-padding-inline)',
   inlineStart: 'var(--layout-inline-start)',
   rulerSize: 'var(--ruler-size)',
-  sectionPaddingInline: 'var(--section-padding-inline)',
+  sectionPaddingInline: 'var(--cell-padding-inline)',
+  gridUnit: 'var(--grid-unit)',
 } as const;
 
-export type GridBreakpoint = keyof typeof GRID_COLUMNS;
-
-export type ResponsiveGridBoundaries = Partial<Record<GridBreakpoint, number[]>>;
+export type ResponsiveGridBoundaries = Partial<
+  Record<import('@/lib/grid-layout').GridBreakpoint, number[]>
+>;
 
 function normalizeBoundaries(boundaries: number[] | undefined, totalColumns: number) {
   const safeBoundaries = boundaries?.length
@@ -38,45 +37,8 @@ export function getGridLinePositions(
   return normalizeBoundaries(boundaries, totalColumns);
 }
 
-export const HOME_SECTION_BOUNDARIES = {
-  hero: {
-    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
-    tablet: [0, GRID_COLUMNS.tablet / 2, GRID_COLUMNS.tablet],
-    desktop: [0, 8, 11, GRID_COLUMNS.desktop],
-  },
-  works: {
-    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
-    tablet: [0, GRID_COLUMNS.tablet],
-    desktop: [0, 11, 13, GRID_COLUMNS.desktop],
-  },
-  expertise: {
-    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
-    tablet: [0, GRID_COLUMNS.tablet],
-    desktop: [0, 6, GRID_COLUMNS.desktop],
-  },
-  process: {
-    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
-    tablet: [0, GRID_COLUMNS.tablet],
-    desktop: [0, GRID_COLUMNS.desktop],
-  },
-  techStack: {
-    mobile: [0, GRID_COLUMNS.mobile],
-    tablet: [0, GRID_COLUMNS.tablet],
-    desktop: [0, GRID_COLUMNS.desktop],
-  },
-  about: {
-    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
-    tablet: [0, GRID_COLUMNS.tablet],
-    desktop: [0, 11, 13, GRID_COLUMNS.desktop],
-  },
-  footer: {
-    mobile: [0, GRID_COLUMNS.mobile / 2, GRID_COLUMNS.mobile],
-    tablet: [0, 4, GRID_COLUMNS.tablet],
-    desktop: [0, 8, 16, GRID_COLUMNS.desktop],
-  },
-  detail: {
-    mobile: [0, GRID_COLUMNS.mobile],
-    tablet: [0, GRID_COLUMNS.tablet],
-    desktop: [0, 8, 16, GRID_COLUMNS.desktop],
-  },
-} satisfies Record<string, ResponsiveGridBoundaries>;
+/** Derived from HOME_LAYOUTS — do not edit by hand. */
+export const HOME_SECTION_BOUNDARIES = deriveBoundaries() satisfies Record<
+  string,
+  ResponsiveGridBoundaries
+>;

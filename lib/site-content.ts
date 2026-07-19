@@ -1,11 +1,14 @@
 import { client } from './sanity';
-import { mockAbout, mockContact, mockServices } from './mock-data';
+import { mockAbout, mockContact, mockServices, type ServiceVisual } from './mock-data';
+
+export type { ServiceVisual };
 
 export interface Service {
   id: string;
   title: string;
   description: string;
   number: string;
+  visual?: ServiceVisual;
 }
 
 export interface ExperienceRole {
@@ -203,7 +206,8 @@ function normalizeAbout(raw: RawAbout): AboutContent | null {
     heroHeadline: raw.heroHeadline?.trim() || undefined,
     heroSubhead: raw.heroSubhead?.trim() || undefined,
     heroSupport: raw.heroSupport?.trim() || undefined,
-    image: raw.image || undefined,
+    // Keep local hero photo when Sanity about exists but has no image asset
+    image: raw.image || mockAbout.image || undefined,
     experience:
       raw.experience
         ?.map(normalizeExperienceEntry)

@@ -6,43 +6,29 @@
 export const themeContract = {
   /** Layer 1: always visible, subtle — never block content */
   workspaceAlways: [
-    'body dot grid',
-    'DesignRulers + GridOverlay (home, full viewport)',
-    'SectionGridLines per section',
-    'section--canvas / section--footer square grid',
-    'section--subtle dot grid',
-    'panel dot grid (.workspace-grid-dots-fill)',
-    'section ambient lighting (::after radial washes)',
+    'single fixed .canvas-grid-overlay (24px gray Figma-style lattice)',
+    'DesignRulers (home, lg+)',
+    'opaque section bands — hero never shows through sticky shells',
   ],
 
   /** Layer 3: fine pointer — hover/focus; hero frames always-on */
   hoverInspection: [
     'SelectionOutline on hover/focus',
-    'dimensions + spacing labels on hover/focus',
-    'frame labels on hover/focus',
+    'Figma Frame Name chip (352:301) 24px above frame',
+    'dimension rulers clear of the frame name',
     'Hero frames: inspectMode always on fine pointer',
   ],
 
-  /** Layer 3: coarse pointer — scroll peek ~900ms, section + frames */
+  /** Layer 3: coarse pointer — scroll peek ~900ms */
   scrollPeekInspection: [
-    'Section bounds + grid emphasis via useScrollPeek on Section',
     'WorkspaceFrame outline + label per frame in viewport',
     'SpacingGuide fills during section peek (InspectionPeekContext)',
-    'Hero + Process raw sections use same peek provider',
   ],
-
-  /** Section gutters: fills + numeric labels on inspect */
-  sectionGutters: {
-    showGutters: true,
-    showLabels: true,
-    heroException: 'Hero copy/portrait gutter labels visible on fine pointer or scroll peek',
-  },
 
   components: {
     cardFrame: 'WorkspaceFrame',
-    sectionShell: 'SectionLayout',
-    gridGuides: 'GridGuideLayer',
-    measurementTypography: 'measurement-text',
+    sectionShell: 'SectionStickyShell / SectionLayout',
+    measurementTypography: 'measurement-ruler-label',
     scrollPeekHook: 'useScrollPeek',
     inspectionPeekContext: 'InspectionPeekProvider',
   },

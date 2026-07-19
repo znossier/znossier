@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFinePointer } from '@/hooks/useFinePointer';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { snapBoundsToGrid, snapToGrid } from '@/lib/grid-snap';
 
 const HOME_SECTION_IDS = [
   'home',
@@ -30,7 +31,7 @@ export type SectionBand = {
 };
 
 export type RulerCoords = {
-  /** Document X relative to `.site-shell` left edge */
+  /** Document X relative to the `.site-grid` left edge (content margin) */
   x: number;
   /** Document Y relative to vertical ruler origin */
   y: number;
@@ -55,7 +56,7 @@ function toTargetBounds(
   const width = Math.round(rect.width);
   const height = Math.round(rect.height);
 
-  return {
+  return snapBoundsToGrid({
     left,
     right: left + width,
     top,
@@ -63,7 +64,7 @@ function toTargetBounds(
     width,
     height,
     source,
-  };
+  });
 }
 
 function isRulerChrome(element: Element | null): boolean {
@@ -112,7 +113,7 @@ function measureSectionBands(): SectionBand[] {
     const el = document.getElementById(id);
     if (!el) return [];
     const rect = el.getBoundingClientRect();
-    return [{ id, top: rect.top + window.scrollY }];
+    return [{ id, top: snapToGrid(rect.top + window.scrollY) }];
   });
 }
 
@@ -147,8 +148,10 @@ export function useRulerInteraction({
   const rafRef = useRef<number | null>(null);
   const pendingPointerRef = useRef<{ x: number; y: number } | null>(null);
 
-  shellOriginRef.current = shellInlineStart;
-  verticalOriginRef.current = verticalOrigin;
+  useEffect(() => {
+    shellOriginRef.current = shellInlineStart;
+    verticalOriginRef.current = verticalOrigin;
+  }, [shellInlineStart, verticalOrigin]);
 
   const measureBands = useCallback(() => {
     setState((prev) => ({
@@ -182,8 +185,8 @@ export function useRulerInteraction({
       ...prev,
       cursor: { clientX: x, clientY: y },
       coords: {
-        x: Math.round(docX - shellOriginRef.current),
-        y: Math.round(docY - verticalOriginRef.current),
+        x: snapToGrid(docX - shellOriginRef.current),
+        y: snapToGrid(docY - verticalOriginRef.current),
       },
       target,
       interactive: finePointer,
@@ -203,6 +206,8 @@ export function useRulerInteraction({
   useEffect(() => {
     if (!enabled) return;
 
+    // Initial DOM measurement on setup — section positions can't be known until mount/layout.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     measureBands();
     if (!finePointer) {
       const peekTarget = measureScrollPeekTarget();
@@ -285,13 +290,7 @@ export function useRulerInteraction({
     };
   }, [enabled, finePointer, measureBands, reducedMotion, schedulePointer]);
 
-  useEffect(() => {
-    setState((prev) => ({
-      ...prev,
-      interactive: finePointer,
-      reducedMotion,
-    }));
-  }, [finePointer, reducedMotion]);
-
-  return state;
+  // `interactive`/`reducedMotion` mirror live input values directly — no need to store
+  // (and re-sync via effect) a derived copy of them in `state`.
+  return { ...state, interactive: finePointer, reducedMotion };
 }

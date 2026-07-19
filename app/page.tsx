@@ -7,30 +7,38 @@ import {
   getContactContent,
   getServicesContent,
 } from '@/lib/site-content';
+import {
+  WorksSkeleton,
+  ServicesSkeleton,
+  ProcessSkeleton,
+  TechStackSkeleton,
+  AboutSkeleton,
+  FooterSkeleton,
+} from '@/components/SectionSkeleton';
 
 const Works = dynamic(() => import('@/components/Works').then((m) => ({ default: m.Works })), {
   ssr: true,
-  loading: () => <section className="section section--subtle min-h-[40vh]" aria-hidden />,
+  loading: () => <WorksSkeleton />,
 });
 const Services = dynamic(() => import('@/components/Services').then((m) => ({ default: m.Services })), {
   ssr: true,
-  loading: () => <section className="section section--canvas min-h-[40vh]" aria-hidden />,
+  loading: () => <ServicesSkeleton />,
 });
 const Process = dynamic(() => import('@/components/Process').then((m) => ({ default: m.Process })), {
   ssr: true,
-  loading: () => <section className="section section--subtle min-h-[40vh]" aria-hidden />,
+  loading: () => <ProcessSkeleton />,
 });
 const TechStack = dynamic(() => import('@/components/TechStack').then((m) => ({ default: m.TechStack })), {
   ssr: true,
-  loading: () => <section className="section section--canvas min-h-[40vh]" aria-hidden />,
+  loading: () => <TechStackSkeleton />,
 });
 const About = dynamic(() => import('@/components/About').then((m) => ({ default: m.About })), {
   ssr: true,
-  loading: () => <section className="section section--subtle min-h-[40vh]" aria-hidden />,
+  loading: () => <AboutSkeleton />,
 });
 const Footer = dynamic(() => import('@/components/Footer').then((m) => ({ default: m.Footer })), {
   ssr: true,
-  loading: () => <footer className="section section--footer min-h-[20vh]" aria-hidden />,
+  loading: () => <FooterSkeleton />,
 });
 
 export default async function Home() {

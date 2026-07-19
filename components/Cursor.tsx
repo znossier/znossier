@@ -1,12 +1,10 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { motion, useMotionValue, useSpring, type MotionValue } from 'framer-motion';
-import { usePathname } from 'next/navigation';
+import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
 import { useFinePointer } from '@/hooks/useFinePointer';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { mediaQueries } from '@/lib/breakpoints';
+import { EASE_PRECISION, MOTION } from '@/lib/motion';
 
 const CURSOR_TARGETS = [
   '[data-project-card="interactive"]',
@@ -20,26 +18,34 @@ const CURSOR_TARGETS = [
 
 type HoverReadout = {
   label: string;
-  variant: 'dimension' | 'action';
+  variant: 'action';
 };
 
+function resolveFrameLabel(target: HTMLElement): string | null {
+  const frame = target.closest('.workspace-frame') as HTMLElement | null;
+  if (!frame) return null;
+  const named = frame.getAttribute('data-frame-label')?.trim();
+  if (!named) return null;
+  return named.toUpperCase();
+}
+
 function resolveActionLabel(target: HTMLElement): string | null {
-  if (target.closest('[data-project-card="interactive"]')) return 'ACCESS';
+  if (target.closest('[data-project-card="interactive"]')) return 'OPEN';
+  if (target.closest('[data-cursor="navigate"], nav[aria-label="Main navigation"] a, footer a, footer button')) {
+    return 'NAVIGATE';
+  }
+  if (target.closest('[data-cursor="link"]')) return 'LINK';
+  if (target.closest('.flat-control, .inspectable, button, a')) return 'INTERACT';
   if (target.closest('.workspace-frame')) return 'INSPECT';
-  if (target.closest('.flat-control, .inspectable')) return 'INTERACT';
-  if (target.closest('nav[aria-label="Main navigation"] a, footer a, footer button')) return 'NAVIGATE';
   return null;
 }
 
-function resolveInspectableElement(target: HTMLElement): HTMLElement | null {
-  return target.closest('.workspace-frame, .inspectable') as HTMLElement | null;
-}
-
-function formatDimensions(element: HTMLElement): string | null {
-  const { width, height } = element.getBoundingClientRect();
-  const w = Math.round(width);
-  const h = Math.round(height);
-  if (w <= 0 || h <= 0) return null;
+function resolveFrameDimensions(target: HTMLElement): string | null {
+  const frame = target.closest('.workspace-frame') as HTMLElement | null;
+  if (!frame) return null;
+  const w = frame.getAttribute('data-frame-width');
+  const h = frame.getAttribute('data-frame-height');
+  if (!w || !h) return null;
   return `${w}×${h}`;
 }
 
@@ -47,10 +53,28 @@ function resolveHoverReadout(target: HTMLElement): HoverReadout | null {
   const interactive = target.closest(CURSOR_TARGETS) as HTMLElement | null;
   if (!interactive) return null;
 
-  const inspectable = resolveInspectableElement(interactive);
-  if (inspectable) {
-    const dimensions = formatDimensions(inspectable);
-    if (dimensions) return { label: dimensions, variant: 'dimension' };
+  // Prefer action verbs for links/cards; otherwise show the frame name
+  if (interactive.closest('[data-project-card="interactive"]')) {
+    return { label: 'OPEN', variant: 'action' };
+  }
+
+  if (
+    interactive.closest(
+      '[data-cursor="navigate"], nav[aria-label="Main navigation"] a, footer a, footer button'
+    )
+  ) {
+    return { label: 'NAVIGATE', variant: 'action' };
+  }
+
+  // Brief inspector readout: live W×H on workspace frames
+  const dims = resolveFrameDimensions(interactive);
+  if (dims && interactive.closest('.workspace-frame')) {
+    return { label: dims, variant: 'action' };
+  }
+
+  const frameLabel = resolveFrameLabel(interactive);
+  if (frameLabel) {
+    return { label: frameLabel, variant: 'action' };
   }
 
   const action = resolveActionLabel(interactive);
@@ -58,17 +82,9 @@ function resolveHoverReadout(target: HTMLElement): HoverReadout | null {
   return { label: action, variant: 'action' };
 }
 
-function useCursorPosition(reducedMotion: boolean) {
+function useCursorPosition() {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
-  const trailX = useMotionValue(-100);
-  const trailY = useMotionValue(-100);
-
-  const cursorXSpring = useSpring(cursorX, { damping: 30, stiffness: 400 });
-  const cursorYSpring = useSpring(cursorY, { damping: 30, stiffness: 400 });
-  const trailXSpring = useSpring(trailX, { damping: 42, stiffness: 160 });
-  const trailYSpring = useSpring(trailY, { damping: 42, stiffness: 160 });
-
   const rafRef = useRef<number | null>(null);
   const pendingRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -76,12 +92,9 @@ function useCursorPosition(reducedMotion: boolean) {
     rafRef.current = null;
     const point = pendingRef.current;
     if (!point) return;
-
     cursorX.set(point.x);
     cursorY.set(point.y);
-    trailX.set(point.x);
-    trailY.set(point.y);
-  }, [cursorX, cursorY, trailX, trailY]);
+  }, [cursorX, cursorY]);
 
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
@@ -92,35 +105,39 @@ function useCursorPosition(reducedMotion: boolean) {
     [flushMove]
   );
 
-  const x: MotionValue<number> = reducedMotion ? cursorX : cursorXSpring;
-  const y: MotionValue<number> = reducedMotion ? cursorY : cursorYSpring;
-  const trailMotionX: MotionValue<number> = reducedMotion ? cursorX : trailXSpring;
-  const trailMotionY: MotionValue<number> = reducedMotion ? cursorY : trailYSpring;
+  return { x: cursorX, y: cursorY, handleMouseMove, rafRef };
+}
 
-  return {
-    x,
-    y,
-    trailMotionX,
-    trailMotionY,
-    handleMouseMove,
-    rafRef,
-  };
+/** Figma collaborator cursor — arrow + label badge (cyan idle / magenta actions) */
+function CursorPointer({ pressed }: { pressed: boolean }) {
+  return (
+    <svg
+      className="cursor-pointer"
+      width="18"
+      height="18"
+      viewBox="0 0 18.1212 18.212"
+      fill="none"
+      aria-hidden
+      style={{ transform: pressed ? 'scale(0.92)' : undefined }}
+    >
+      <path
+        d="M7.17683 17.1095L0.58682 1.90176C0.231819 1.08253 1.04678 0.244086 1.87577 0.575679L16.9925 6.62238C17.8682 6.97265 17.8166 8.22927 16.9152 8.50663L11.4732 10.1811C11.1498 10.2806 10.8987 10.5368 10.8058 10.8622L9.05591 16.9866C8.79794 17.8895 7.55021 17.9711 7.17683 17.1095Z"
+        stroke="white"
+        strokeWidth="1"
+      />
+    </svg>
+  );
 }
 
 export function Cursor() {
   const finePointer = useFinePointer();
   const reducedMotion = useReducedMotion();
-  const pathname = usePathname();
-  const isHome = pathname === '/';
-  const isLargeScreen = useMediaQuery(mediaQueries.lg);
-  const blendWithRulers = isHome && isLargeScreen;
 
   const [isVisible, setIsVisible] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [hoverReadout, setHoverReadout] = useState<HoverReadout | null>(null);
 
-  const { x, y, trailMotionX, trailMotionY, handleMouseMove, rafRef } =
-    useCursorPosition(reducedMotion);
+  const { x, y, handleMouseMove, rafRef } = useCursorPosition();
 
   useEffect(() => {
     if (!finePointer) return;
@@ -159,63 +176,43 @@ export function Cursor() {
       window.removeEventListener('mouseup', onUp);
       document.removeEventListener('mouseover', onOver);
       document.removeEventListener('mouseout', onOut);
-      if (rafRef.current !== null) {
-        window.cancelAnimationFrame(rafRef.current);
+      /* eslint-disable-next-line react-hooks/exhaustive-deps */
+      const pendingFrame = rafRef.current;
+      if (pendingFrame !== null) {
+        window.cancelAnimationFrame(pendingFrame);
       }
     };
   }, [finePointer, handleMouseMove, rafRef]);
 
   if (!finePointer || !isVisible) return null;
 
+  const badgeLabel = hoverReadout?.label ?? 'YOU';
+  const accent = hoverReadout ? 'action' : 'cyan';
+
   return (
-    <>
-      {!reducedMotion && (
-        <motion.div
-          aria-hidden
-          className="fixed top-0 left-0 pointer-events-none z-[9998]"
-          style={{ x: trailMotionX, y: trailMotionY }}
-        >
-          <div className="cursor-trail-host">
-            <span className="cursor-trail" aria-hidden />
-          </div>
-        </motion.div>
-      )}
+    <motion.div
+      aria-hidden
+      className="fixed top-0 left-0 pointer-events-none z-[9999]"
+      style={{ x, y }}
+    >
+      <div className="cursor-root" data-accent={accent}>
+        <CursorPointer pressed={isPressed} />
 
-      <motion.div
-        aria-hidden
-        className="fixed top-0 left-0 pointer-events-none z-[9999]"
-        style={{ x, y }}
-      >
-        <div className="cursor-root">
-        {hoverReadout && <div className="cursor-hover-ring" aria-hidden />}
-
-        <motion.div
-          className="cursor-reticle"
-          data-blend-rulers={blendWithRulers ? '' : undefined}
-          data-hover={hoverReadout ? '' : undefined}
-          data-pressed={isPressed ? '' : undefined}
-          animate={{ scale: isPressed ? 0.88 : 1 }}
-          transition={reducedMotion ? { duration: 0 } : { duration: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-        >
-          <span className="cursor-reticle-arm cursor-reticle-arm--horizontal" aria-hidden />
-          <span className="cursor-reticle-arm cursor-reticle-arm--vertical" aria-hidden />
-          <span className="cursor-reticle-corner cursor-reticle-corner--tl" aria-hidden />
-          <span className="cursor-reticle-corner cursor-reticle-corner--tr" aria-hidden />
-          <span className="cursor-reticle-corner cursor-reticle-corner--bl" aria-hidden />
-          <span className="cursor-reticle-corner cursor-reticle-corner--br" aria-hidden />
-        </motion.div>
-
-        {hoverReadout && (
-          <div
-            className="cursor-readout"
-            data-variant={hoverReadout.variant}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={badgeLabel}
+            className="cursor-badge"
+            data-variant={hoverReadout?.variant ?? 'identity'}
             aria-hidden
+            initial={reducedMotion ? false : { opacity: 0, y: 2 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reducedMotion ? undefined : { opacity: 0 }}
+            transition={{ duration: MOTION.duration.cursor, ease: EASE_PRECISION }}
           >
-            {hoverReadout.label}
-          </div>
-        )}
-        </div>
-      </motion.div>
-    </>
+            {badgeLabel}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+    </motion.div>
   );
 }

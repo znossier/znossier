@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Oswald } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
 
-const FAVICON = "/favicon-B.png";
+const OG_IMAGE = "/og-image.jpg";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -61,10 +62,10 @@ export const metadata: Metadata = {
     description: "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
     images: [
       {
-        url: "/zeina-photo.jpg",
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
-        alt: "Zeina Nossier",
+        alt: "Zeina Nossier — UI/UX & Product Designer",
       },
     ],
   },
@@ -72,7 +73,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Zeina Nossier",
     description: "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
-    images: ["/zeina-photo.jpg"],
+    images: [OG_IMAGE],
   },
   robots: {
     index: true,
@@ -86,8 +87,12 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: FAVICON, sizes: "64x64", type: "image/png" }],
-    apple: [{ url: FAVICON, sizes: "64x64", type: "image/png" }],
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-B.png", sizes: "64x64", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/site.webmanifest",
   alternates: {
@@ -107,7 +112,7 @@ export default function RootLayout({
     jobTitle: "UI/UX & Product Designer",
     description: "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
     url: "https://znossier.com",
-    image: "https://znossier.com/zeina-photo.jpg",
+    image: "https://znossier.com/og-image.jpg",
     address: {
       "@type": "PostalAddress",
       addressLocality: "Cairo",
@@ -134,6 +139,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}
       >
+        <Script
+          id="boot-loader-fouc"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var s=sessionStorage.getItem('zn-boot-seen')==='1';var n=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];var r=n?n.type==='reload':false;if(!s||r)document.documentElement.setAttribute('data-boot','pending');}catch(e){document.documentElement.setAttribute('data-boot','pending');}})();`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

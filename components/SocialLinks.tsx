@@ -13,12 +13,12 @@ export function SocialLinks({
   inverted?: boolean;
 }) {
   const btnClass = cn(
-    'flat-control inline-flex h-11 w-11 focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2',
+    'flat-control flat-control-icon inline-flex h-12 w-12 focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2',
     inverted ? 'flat-control-inverted focus-visible:ring-offset-transparent' : 'focus-visible:ring-offset-background'
   );
 
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
+    <div className={`flex items-center gap-[var(--grid-unit)] ${className}`}>
       {socialLinks.map((social) => (
         <a
           key={social.platform}
