@@ -423,7 +423,7 @@ export function About({ about }: { about: AboutContent }) {
       <SectionStickyShell
         sectionId="about"
         title="05 - About Me"
-        panelClassName="section-sticky-panel--scroll"
+        scrollable
         panelLabel="About me"
       >
         {panel}

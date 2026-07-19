@@ -727,10 +727,10 @@ body.mobile-menu-open {
 
 .type-title {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 1.25rem;
+  font-size: 20px;
   font-weight: 700;
   line-height: var(--grid-unit);
-  letter-spacing: 0.125em;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: #ffffff;
 }
@@ -746,20 +746,22 @@ body.mobile-menu-open {
 }
 
 .type-body {
-  font-size: 0.875rem;
-  line-height: calc(var(--grid-unit) * 1.5);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  line-height: var(--grid-unit);
   color: var(--text-secondary);
 }
 
 .type-body-lg {
-  font-size: 0.875rem;
-  line-height: calc(var(--grid-unit) * 1.5);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  line-height: var(--grid-unit);
   color: var(--text-secondary);
 }
 
 @media (min-width: 768px) {
   .type-body-lg {
-    font-size: 1rem;
+    font-size: 12px;
   }
 }
 
@@ -785,9 +787,9 @@ body.mobile-menu-open {
 
 .type-meta {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: 400;
-  letter-spacing: 0.125em;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--figma-meta);
   line-height: var(--grid-unit);
@@ -865,56 +867,50 @@ body.mobile-menu-open {
 
 .section--footer {
   position: relative;
-  /* Above sticky section shells so footer links stay clickable */
   z-index: 5;
-  background-color: var(--footer-background);
-  background-image: var(--workspace-square-grid);
-  background-size: var(--workspace-grid-lines-size) var(--workspace-grid-lines-size);
-  background-attachment: fixed;
-  background-position: 0 0;
+  background-color: #000000;
+  background-image: none;
   border-top: 0;
   padding-block: 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Footer on site-shell rail — 24-col GridCell layout (8+8+8) */
-.section--footer .site-shell {
-  max-width: var(--site-max-width);
-  padding-inline: var(--site-padding-inline);
-}
-
 /*
- * Figma footer 407:1586 look on the site grid:
- * row1 spacer | spacer | back to top (96px)
- * row2 Navigation | Contact | Connect
+ * Figma footer 407:1586 — full-bleed 3×2:
+ * empty | empty | back to top (96px)
+ * Navigation | Contact | Connect
+ * pl 24px; cell pad + stack gap 24px
  */
-.footer-grid {
-  --footer-line: color-mix(in srgb, var(--figma-panel-border) 50%, transparent);
-  row-gap: 0;
+.footer-figma {
+  --footer-line: rgba(171, 171, 171, 0.5);
+  width: 100%;
+  max-width: var(--site-max-width);
+  margin-inline: auto;
   border-top: 1px solid var(--footer-line);
+  padding-inline-start: var(--grid-unit);
 }
 
-.footer-cell {
-  position: relative;
-  z-index: 1;
+.footer-figma-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.footer-figma-cell {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--grid-unit);
   padding: var(--grid-unit);
-  border-right: 1px solid var(--footer-line);
   border-bottom: 1px solid var(--footer-line);
   pointer-events: auto;
 }
 
-.footer-cell--spacer {
-  min-height: 0;
-  padding-block: 0;
-  pointer-events: none;
+.footer-figma-cell--empty {
+  display: none;
 }
 
-.footer-cell--utility {
+.footer-figma-cell--utility {
   flex-direction: row;
   align-items: center;
   min-height: calc(var(--grid-unit) * 4);
@@ -925,7 +921,7 @@ body.mobile-menu-open {
   font-family: var(--font-geist-mono), monospace;
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.125em;
+  letter-spacing: 2px;
   line-height: var(--grid-unit);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.6);
@@ -945,43 +941,55 @@ body.mobile-menu-open {
   line-height: 1;
 }
 
+.footer-link--back {
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
 .footer-link-email {
   text-transform: none;
   letter-spacing: 0.04em;
   word-break: break-word;
 }
 
-.footer-grid > :last-child {
-  border-right: 0;
-}
-
 @media (min-width: 1024px) {
-  .footer-cell--spacer {
-    display: block;
-    min-height: calc(var(--grid-unit) * 4);
-    padding: 0;
+  .footer-figma-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .footer-cell--utility,
-  .footer-grid > section:last-child {
+  .footer-figma-cell {
+    border-bottom: 0;
+    border-right: 1px solid var(--footer-line);
+  }
+
+  .footer-figma-cell:nth-child(3n) {
     border-right: 0;
   }
 
-  .footer-grid > section {
+  .footer-figma-cell--empty {
+    display: block;
+    min-height: calc(var(--grid-unit) * 4);
+    padding: 0;
+    border-bottom: 1px solid var(--footer-line);
+    pointer-events: none;
+  }
+
+  .footer-figma-cell--utility {
+    min-height: calc(var(--grid-unit) * 4);
+    border-bottom: 1px solid var(--footer-line);
+  }
+
+  .footer-figma-cell:nth-child(n + 4) {
     border-bottom: 0;
   }
 }
 
 @media (max-width: 1023px) {
-  .footer-grid .footer-cell--spacer {
-    display: none;
+  .footer-figma {
+    padding-inline: var(--grid-unit);
   }
 
-  .footer-cell {
-    border-right: 0;
-  }
-
-  .footer-grid > :last-child {
+  .footer-figma-cell:last-child {
     border-bottom: 0;
   }
 }
@@ -1010,15 +1018,60 @@ body.mobile-menu-open {
   box-shadow: none;
 }
 
+/* Figma Process Card 407:1408 — title 20 / body 12 / number 48 */
+.process-card-title {
+  margin: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: var(--grid-unit);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.process-card-body {
+  margin: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: var(--grid-unit);
+  color: var(--figma-meta);
+  text-transform: uppercase;
+}
+
+/* Figma Expertise 402:7341 — title 24 / body 12 / pad 48 / visual 384×216 */
+.expertise-card-title {
+  margin: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: var(--grid-unit);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.expertise-card-body {
+  margin: 0;
+  max-width: 36rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: var(--grid-unit);
+  color: var(--figma-meta);
+  text-transform: uppercase;
+}
+
 .process-card-number {
   position: relative;
   z-index: 1;
   align-self: flex-end;
   margin-top: auto;
   font-family: var(--font-geist-mono), monospace;
-  font-size: calc(var(--grid-unit) * 2);
+  font-size: 48px;
   font-weight: 700;
-  line-height: 1.5;
+  line-height: calc(var(--grid-unit) * 3);
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--figma-meta);
@@ -1035,7 +1088,8 @@ body.mobile-menu-open {
 }
 
 @media (min-width: 1024px) {
-  .section--sticky-lock.section {
+  /* Viewport-locked shell; Process overrides height inline for horizontal scrub */
+  .section--sticky-lock.section:not(.section--process) {
     height: calc(100svh - var(--chrome-top));
   }
 }
@@ -1088,8 +1142,7 @@ body.mobile-menu-open {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* Keep frame-tab clearance inside scrollport */
-  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .process-card.workspace-frame {
@@ -1097,9 +1150,8 @@ body.mobile-menu-open {
 }
 
 .process-figma-panel {
-  /* Match standard panel pad (2U); top clearance for PROCESS-nn labels */
+  /* Same 2U pad as Tech / About; label clearance lives on the viewport */
   padding: calc(var(--grid-unit) * 2);
-  padding-top: calc(var(--grid-unit) * 2 + var(--frame-tab-offset));
   overflow: hidden;
 }
 
@@ -1914,20 +1966,17 @@ body.mobile-menu-open {
   background: none;
 }
 
-/* Figma section content wrapper — #3d3d3d panel, no inner grid */
+/* Figma section content wrapper — #3d3d3d panel (matches Tech / About) */
 .section-figma-panel {
   position: relative;
   isolation: isolate;
   width: 100%;
-  /* 2U base + top clearance for Frame Name / resting labels on hover */
   padding: calc(var(--grid-unit) * 2);
-  padding-top: calc(var(--grid-unit) * 2 + var(--frame-tab-offset));
   border: 1px solid var(--figma-panel-border);
-  border-radius: 0;
+  border-radius: 12px;
   background-color: var(--figma-panel);
   background-image: none;
-  /* Visible so outside W×H / frame tabs are not clipped; scroll panels override */
-  overflow: visible;
+  overflow: hidden;
 }
 
 .section-figma-panel > * {
@@ -2442,10 +2491,30 @@ html:not([data-boot]) .hero-section {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
+/* Figma Project Card — title 20 / tags 12 / tracking 2px */
 .project-card-title {
-  font-size: clamp(0.92rem, 1.05vw, 1.08rem);
-  line-height: 1.08;
-  letter-spacing: 0.05em;
+  min-width: 0;
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: var(--grid-unit);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.project-card-tags {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: var(--grid-unit);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--figma-meta);
 }
 
 .project-card-link-icon {
@@ -2922,15 +2991,16 @@ a {
 }
 
 .project-preview-frame {
-  height: min(var(--works-card-media-height), 50vw);
-  min-height: calc(var(--grid-unit) * 8);
+  /* Figma Project Card image: 312px (13U) */
+  height: calc(var(--grid-unit) * 13);
+  min-height: calc(var(--grid-unit) * 13);
   flex: none;
 }
 
 @media (min-width: 768px) {
   .project-preview-frame {
-    height: var(--works-card-media-height);
-    min-height: var(--works-card-media-height);
+    height: calc(var(--grid-unit) * 13);
+    min-height: calc(var(--grid-unit) * 13);
   }
 }
 

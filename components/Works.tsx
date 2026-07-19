@@ -103,10 +103,10 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
 
       <div className="flex shrink-0 flex-col gap-[var(--grid-unit)]">
         <div className="flex h-6 items-center justify-between gap-x-[var(--grid-unit)]">
-          <h3 className="project-card-title type-title min-w-0 flex-1">{project.title}</h3>
+          <h3 className="project-card-title">{project.title}</h3>
           {hasValidLink && <ProjectCardLinkLabel variant={linkVariant} />}
         </div>
-        <p className="type-meta min-w-0">{categoriesLabel}</p>
+        <p className="project-card-tags">{categoriesLabel}</p>
       </div>
 
       {!imageAvailable && project.description && (
@@ -169,7 +169,7 @@ export function Works({ projects }: { projects: Project[] }) {
   const hasMore = visibleCount < projects.length;
 
   const panel = (
-    <div className="grid grid-cols-1 gap-[calc(var(--grid-unit)*3)] lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-[calc(var(--grid-unit)*3)] pt-[var(--frame-tab-offset)] lg:grid-cols-2">
       {visibleProjects.length === 0 && (
         <div className="flex min-h-[calc(var(--grid-unit)*16)] flex-col items-start justify-center gap-[var(--grid-unit)] border border-dashed border-[var(--figma-panel-border)] p-[calc(var(--grid-unit)*2)] lg:col-span-2">
           <span className="type-label">No projects yet</span>
@@ -225,7 +225,7 @@ export function Works({ projects }: { projects: Project[] }) {
         <SectionStickyShell
           sectionId="works"
           title="01 - Selected works"
-          panelClassName="section-sticky-panel--scroll"
+          scrollable
           panelLabel="Selected works"
         >
           {panel}

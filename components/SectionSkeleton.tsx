@@ -103,13 +103,13 @@ export function AboutSkeleton() {
 export function FooterSkeleton() {
   return (
     <footer className="section section--footer" aria-hidden>
-      <div className="site-shell">
-        <div className="site-section-grid footer-grid">
+      <div className="footer-figma">
+        <div className="footer-figma-grid">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="footer-cell flex flex-col gap-3">
-              <SkeletonBlock className="h-4 w-24" />
-              <SkeletonBlock className="h-4 w-32" />
-              <SkeletonBlock className="h-4 w-28" />
+            <div key={index} className="footer-figma-cell">
+              <SkeletonBlock className="h-[var(--grid-unit)] w-24" />
+              <SkeletonBlock className="h-[var(--grid-unit)] w-32" />
+              <SkeletonBlock className="h-[var(--grid-unit)] w-28" />
             </div>
           ))}
         </div>

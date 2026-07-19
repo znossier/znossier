@@ -48,17 +48,17 @@ const ServiceCard = memo(function ServiceCard({
         showMeasurementLines={hovered}
         measurementPlacement="outside"
         variant="figma"
-        panelClassName="relative h-auto min-h-0 lg:h-[calc(var(--grid-unit)*13)]"
+        panelClassName="relative h-auto min-h-0 p-[calc(var(--grid-unit)*2)] lg:h-[calc(var(--grid-unit)*13)]"
         className="card-lift relative overflow-visible"
       >
-        <div className="site-cell-pad grid h-full grid-cols-1 gap-[var(--grid-unit)] text-left lg:grid-cols-[1fr_minmax(calc(var(--grid-unit)*8),calc(var(--grid-unit)*13))] lg:gap-[calc(var(--grid-unit)*2)]">
+        <div className="grid h-full grid-cols-1 gap-[var(--grid-unit)] text-left lg:grid-cols-[1fr_minmax(calc(var(--grid-unit)*8),calc(var(--grid-unit)*16))] lg:gap-[calc(var(--grid-unit)*2)]">
           <div className="flex min-w-0 flex-col justify-center gap-[var(--grid-unit)]">
             <div className="type-meta">{service.number}</div>
-            <h3 className="type-title">{service.title}</h3>
-            <p className="type-body-lg max-w-xl text-[var(--figma-meta)]">{service.description}</p>
+            <h3 className="expertise-card-title">{service.title}</h3>
+            <p className="expertise-card-body">{service.description}</p>
           </div>
           <div
-            className="service-visual-demo relative min-h-[calc(var(--grid-unit)*10)] overflow-hidden lg:h-full lg:min-h-0"
+            className="service-visual-demo relative min-h-[calc(var(--grid-unit)*9)] overflow-hidden lg:h-full lg:min-h-0"
             aria-hidden
           >
             <ServiceVisualArtifact visual={service.visual ?? getDefaultServiceVisual(index)} />
@@ -73,7 +73,7 @@ export function Services({ services }: { services: Service[] }) {
   const isDesktop = useMediaQuery(mediaQueries.lg);
 
   const cards = (
-    <div className="flex flex-col gap-[calc(var(--grid-unit)*2)] lg:gap-[calc(var(--grid-unit)*4)]">
+    <div className="flex flex-col gap-[calc(var(--grid-unit)*2)] pt-[var(--frame-tab-offset)] lg:gap-[calc(var(--grid-unit)*4)]">
       {services.map((service, index) =>
         isDesktop ? (
           <ServiceCard key={service.id} service={service} index={index} sticky />
@@ -106,7 +106,7 @@ export function Services({ services }: { services: Service[] }) {
       <SectionStickyShell
         sectionId="expertise"
         title="02 - Expertise"
-        panelClassName="section-sticky-panel--scroll"
+        scrollable
         panelLabel="Expertise"
       >
         {cards}

@@ -66,8 +66,8 @@ const ProcessCard = memo(function ProcessCard({
       aria-current={active ? 'step' : undefined}
     >
       <div className="relative z-[1] flex min-h-0 flex-col gap-[var(--grid-unit)] overflow-hidden">
-        <h3 className="type-title">{step.title}</h3>
-        <p className="type-body-lg max-w-none text-[var(--figma-meta)]">{step.description}</p>
+        <h3 className="process-card-title">{step.title}</h3>
+        <p className="process-card-body">{step.description}</p>
       </div>
       <span className="process-card-number" aria-hidden>
         {step.number}
@@ -185,16 +185,6 @@ export function Process() {
         panelClassName="process-figma-panel"
         panelLabel="Process steps"
       >
-        <div className="mb-[var(--grid-unit)] flex flex-shrink-0 items-center justify-end">
-          <p
-            aria-live="polite"
-            className="type-meta tabular-nums text-[var(--figma-meta)]"
-            aria-label={`Step ${activeStep + 1} of ${totalSteps}`}
-          >
-            {String(activeStep + 1).padStart(2, '0')} / {String(totalSteps).padStart(2, '0')}
-          </p>
-        </div>
-
         <div
           ref={viewportRef}
           className="process-scroll-viewport relative min-h-0 w-full flex-1"
