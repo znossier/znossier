@@ -25,7 +25,12 @@ function zoneFitsLabel(rect: SpacingRect): boolean {
 }
 
 export function getSpacingLabelMode(rect: SpacingRect): SpacingLabelMode {
-  return zoneFitsLabel(rect) ? 'inline' : 'hidden';
+  if (!zoneFitsLabel(rect)) return 'hidden';
+
+  // Vertical gaps/padding (stack spacing): show `Npx`. Horizontal row gaps: fill only.
+  if (rect.axis === 'horizontal') return 'hidden';
+
+  return 'inline';
 }
 
 export type GridGutter = {
@@ -375,7 +380,37 @@ export function measureSpacingRects(
   rects.push(...measureNestedLayoutGaps(container));
   rects.push(...measureGridGutterRects(width, height, gutters));
 
-  return rects;
+  // Figma Intro: row (horizontal-axis) gap fills extend up through the stack gap
+  // above so magenta bands overlap / compound at the T-junctions.
+  return extendRowGapsIntoStackGaps(rects);
+}
+
+/**
+ * Stretch each horizontal-axis gap upward into any stack gap that sits flush
+ * above it (same column range). Produces the darker 24×24 overlap squares in
+ * Figma spacing inspect (e.g. Hero Intro between role → actions → buttons).
+ */
+function extendRowGapsIntoStackGaps(rects: SpacingRect[]): SpacingRect[] {
+  const stackGaps = rects.filter((rect) => rect.kind === 'gap' && rect.axis === 'vertical');
+  if (stackGaps.length === 0) return rects;
+
+  return rects.map((rect) => {
+    if (rect.kind !== 'gap' || rect.axis !== 'horizontal') return rect;
+
+    const above = stackGaps.find(
+      (stack) =>
+        Math.abs(stack.y + stack.height - rect.y) <= 1 &&
+        stack.x <= rect.x + 1 &&
+        stack.x + stack.width >= rect.x + rect.width - 1
+    );
+    if (!above) return rect;
+
+    return {
+      ...rect,
+      y: above.y,
+      height: rect.height + above.height,
+    };
+  });
 }
 
 export function getSpacingFillReveal(rect: SpacingRect): {

@@ -6,7 +6,7 @@
 export const themeContract = {
   /** Layer 1: always visible, subtle — never block content */
   workspaceAlways: [
-    'single fixed .canvas-grid-overlay (24px gray Figma-style lattice)',
+    'single body lattice (--layout-shell-start origin, 24px)',
     'DesignRulers (home, lg+)',
     'opaque section bands — hero never shows through sticky shells',
   ],

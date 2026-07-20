@@ -1,21 +1,22 @@
 'use client';
 
 import { Section } from '@/components/Section';
+import { SectionLayout } from '@/components/SectionLayout';
 import { navigationItems } from '@/lib/mock-data';
+import { layoutClass } from '@/lib/grid-layout';
 import type { ContactContent } from '@/lib/site-content';
 import { smoothScrollTo, smoothScrollToTop, cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-/** Figma Nav Link 352:211 — 14px mono semibold, tracking 1px, uppercase */
+/** Same hover/press chrome as top nav — never selected in the footer. */
 const footerLinkClass =
-  'footer-link relative z-[1] inline-flex h-[var(--grid-unit)] items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+  'footer-link nav-desktop-link relative z-[1] inline-flex h-[var(--grid-unit)] items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 /**
- * Figma footer 407:1586 — full-bleed black 3×2 table:
- * empty | empty | back to top (96px)
- * Navigation | Contact | Connect
- * Left inset 24px; cell pad + stack gap 24px.
+ * Figma footer 407:1586 on the site 24-col grid:
+ * empty 1–8 | empty 9–16 | back to top 17–24
+ * Navigation 1–8 | Contact 9–16 | Connect 17–24
  */
 export function Footer({ contact }: { contact: ContactContent }) {
   const pathname = usePathname();
@@ -23,26 +24,49 @@ export function Footer({ contact }: { contact: ContactContent }) {
 
   return (
     <Section id="footer" variant="footer" className="footer-section py-0">
-      <div className="footer-figma">
-        <div className="footer-figma-grid">
-          <div className="footer-figma-cell footer-figma-cell--empty" aria-hidden />
-          <div className="footer-figma-cell footer-figma-cell--empty" aria-hidden />
+      <SectionLayout sectionId="footer">
+        <div className="footer-figma site-grid">
+          <div
+            className={cn(
+              'footer-figma-cell footer-figma-cell--empty footer-figma-cell--rule-x footer-figma-cell--rule-y',
+              layoutClass('footer', 'utilitySpacerLeft')
+            )}
+            aria-hidden
+          />
+          <div
+            className={cn(
+              'footer-figma-cell footer-figma-cell--empty footer-figma-cell--rule-x footer-figma-cell--rule-y',
+              layoutClass('footer', 'utilitySpacerRight')
+            )}
+            aria-hidden
+          />
 
-          <div className="footer-figma-cell footer-figma-cell--utility">
+          <div
+            className={cn(
+              'footer-figma-cell footer-figma-cell--utility',
+              layoutClass('footer', 'utility')
+            )}
+          >
             <button
               type="button"
               onClick={smoothScrollToTop}
               data-cursor="navigate"
               className={cn(footerLinkClass, 'footer-link--back w-full justify-between gap-[var(--grid-unit)]')}
             >
-              <span>Back to top</span>
+              <span className="nav-desktop-link-label">Back to top</span>
               <span aria-hidden className="footer-figma-arrow">
                 ↑
               </span>
             </button>
           </div>
 
-          <section className="footer-figma-cell" aria-labelledby="footer-nav-heading">
+          <section
+            className={cn(
+              'footer-figma-cell footer-figma-cell--rule-y footer-figma-cell--nav',
+              layoutClass('footer', 'nav')
+            )}
+            aria-labelledby="footer-nav-heading"
+          >
             <h3 id="footer-nav-heading" className="footer-figma-heading">
               Navigation
             </h3>
@@ -63,7 +87,7 @@ export function Footer({ contact }: { contact: ContactContent }) {
                           }}
                           className={footerLinkClass}
                         >
-                          {item.label}
+                          <span className="nav-desktop-link-label">{item.label}</span>
                         </a>
                       </li>
                     );
@@ -76,7 +100,7 @@ export function Footer({ contact }: { contact: ContactContent }) {
                         data-cursor="navigate"
                         className={footerLinkClass}
                       >
-                        {item.label}
+                        <span className="nav-desktop-link-label">{item.label}</span>
                       </Link>
                     </li>
                   );
@@ -85,7 +109,13 @@ export function Footer({ contact }: { contact: ContactContent }) {
             </nav>
           </section>
 
-          <section className="footer-figma-cell" aria-labelledby="footer-contact-heading">
+          <section
+            className={cn(
+              'footer-figma-cell footer-figma-cell--rule-y',
+              layoutClass('footer', 'contact')
+            )}
+            aria-labelledby="footer-contact-heading"
+          >
             <h3 id="footer-contact-heading" className="footer-figma-heading">
               Contact
             </h3>
@@ -97,7 +127,7 @@ export function Footer({ contact }: { contact: ContactContent }) {
                   className={cn(footerLinkClass, 'max-w-full')}
                   aria-label={`Email: ${contact.email}`}
                 >
-                  <span className="footer-link-email">{contact.email}</span>
+                  <span className="nav-desktop-link-label footer-link-email">{contact.email}</span>
                 </a>
               </li>
               {contact.phone ? (
@@ -108,14 +138,20 @@ export function Footer({ contact }: { contact: ContactContent }) {
                     className={cn(footerLinkClass, 'max-w-full')}
                     aria-label={`Phone: ${contact.phone}`}
                   >
-                    {contact.phone}
+                    <span className="nav-desktop-link-label">{contact.phone}</span>
                   </a>
                 </li>
               ) : null}
             </ul>
           </section>
 
-          <section className="footer-figma-cell" aria-labelledby="footer-connect-heading">
+          <section
+            className={cn(
+              'footer-figma-cell footer-figma-cell--rule-x-top',
+              layoutClass('footer', 'connect')
+            )}
+            aria-labelledby="footer-connect-heading"
+          >
             <h3 id="footer-connect-heading" className="footer-figma-heading">
               Connect
             </h3>
@@ -130,14 +166,14 @@ export function Footer({ contact }: { contact: ContactContent }) {
                     className={footerLinkClass}
                     aria-label={social.platform}
                   >
-                    {social.platform}
+                    <span className="nav-desktop-link-label">{social.platform}</span>
                   </a>
                 </li>
               ))}
             </ul>
           </section>
         </div>
-      </div>
+      </SectionLayout>
     </Section>
   );
 }

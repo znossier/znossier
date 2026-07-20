@@ -33,7 +33,9 @@ function ButtonInner({
   'aria-label': ariaLabel,
 }: ButtonProps) {
   const classes = cn(
-    'inline-flex min-h-12 items-center justify-center px-4 py-3 text-center transition-[border-color,background-color,color] duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+    // Figma Button 352:408: h-48, callers set on-grid width (Hero View Work = 120 / 5U).
+    // Always single-line — never wrap the label to 2 lines.
+    'type-button inline-flex h-12 min-h-12 max-h-12 items-center justify-center whitespace-nowrap px-4 py-3 text-center transition-[border-color,background-color,color] duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background',
     variantClasses[variant],
     className
   );

@@ -1,12 +1,10 @@
 'use client';
 
-import { Reveal } from '@/components/Reveal';
 import { Button } from '@/components/Button';
 import { Section } from '@/components/Section';
 import { SectionLayout } from '@/components/SectionLayout';
 import { SocialLinks } from '@/components/SocialLinks';
 import { WorkspaceFrame } from '@/components/WorkspaceFrame';
-import { getHeroPortraitObjectPosition } from '@/lib/hero-portrait';
 import { layoutClass } from '@/lib/grid-layout';
 import type { AboutContent, ContactContent } from '@/lib/site-content';
 import { smoothScrollTo, cn } from '@/lib/utils';
@@ -14,43 +12,39 @@ import { mediaQueries } from '@/lib/breakpoints';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useElementReachedTop } from '@/hooks/useScrollOffset';
 
-/** Always resolve a portrait src — never blank the hero if CMS omits the asset. */
-const FALLBACK_PORTRAIT = '/zeina-photo.jpg';
-
 function HeroPortraitFrame({
   image,
-  objectPosition,
   className,
   inspectable = true,
   inFocus = true,
 }: {
-  image: string;
-  objectPosition: string;
+  image?: string;
   className?: string;
   inspectable?: boolean;
   inFocus?: boolean;
 }) {
   const isLg = useMediaQuery(mediaQueries.lg);
-  const src = FALLBACK_PORTRAIT;
-  void image;
 
-  // Sized box owns the photo (background + img). Inspection chrome overlays only.
+  // Outer slot is grid-locked (720×480) with overflow visible so PORTRAIT chrome
+  // (label, rulers, corner handles) can sit outside the photo. The image is clipped
+  // by `.hero-portrait-media` only. No CMS photo? Slot fill is the placeholder —
+  // never point an <img> at a hard-coded local path that doesn't ship in /public.
   return (
-    <div
-      className={cn('hero-portrait-slot', className)}
-      style={{ backgroundImage: `url(${src})`, backgroundPosition: objectPosition }}
-    >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt=""
-        width={720}
-        height={480}
-        decoding="async"
-        fetchPriority="high"
-        className="hero-portrait-image"
-        style={{ objectPosition }}
-      />
+    <div className={cn('hero-portrait-slot', className)}>
+      <div className="hero-portrait-media">
+        {image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={image}
+            alt=""
+            width={720}
+            height={480}
+            decoding="async"
+            fetchPriority="high"
+            className="hero-portrait-image"
+          />
+        )}
+      </div>
       {inspectable && isLg && (
         <WorkspaceFrame
           inspectMode={inFocus ? 'always' : 'off'}
@@ -58,6 +52,9 @@ function HeroPortraitFrame({
           frameLabel="Portrait"
           showDimensions
           showMeasurementLines
+          showSelectionOutline
+          showSpacing={false}
+          showGaps={false}
           measurementPlacement="outside"
           variant="figma"
           className="hero-portrait-inspect"
@@ -79,12 +76,9 @@ export function Hero({
   contact: ContactContent;
 }) {
   const isLg = useMediaQuery(mediaQueries.lg);
-  const isSm = useMediaQuery(mediaQueries.sm);
-  const viewportWidth = isLg ? 1280 : isSm ? 768 : 640;
-  const portraitObjectPosition = getHeroPortraitObjectPosition(viewportWidth);
   const worksReachedTop = useElementReachedTop('works', 220);
   const heroInFocus = !worksReachedTop;
-  const portraitSrc = FALLBACK_PORTRAIT;
+  const portraitSrc = about.image;
 
   return (
     <Section
@@ -105,7 +99,6 @@ export function Hero({
       >
         <HeroPortraitFrame
           image={portraitSrc}
-          objectPosition={portraitObjectPosition}
           className="absolute inset-0"
           inspectable={false}
         />
@@ -113,64 +106,58 @@ export function Hero({
       </div>
 
       <SectionLayout>
-        <div className="site-grid relative z-[2] min-h-[calc(100svh-var(--chrome-top)-(var(--grid-unit)*7))] w-full items-end pb-[var(--grid-unit)] sm:items-center lg:min-h-[calc(100vh-(var(--grid-unit)*8))] lg:grid-rows-[1fr_auto] lg:items-center lg:pb-0">
-          <Reveal className={cn('hero-copy-shell relative overflow-visible pt-[calc(var(--grid-unit)*2)] lg:row-start-1 lg:pt-0', layoutClass('hero', 'copy'))}>
+        <div className="site-grid relative z-[2] min-h-[calc(100svh-var(--chrome-top)-(var(--grid-unit)*7))] w-full items-end pb-[var(--grid-unit)] sm:items-center lg:min-h-[calc(100vh-(var(--grid-unit)*8))] lg:grid-rows-[1fr_auto] lg:items-start lg:pb-0">
+          <div className={cn('hero-copy-shell relative overflow-visible pt-[calc(var(--grid-unit)*2)] lg:row-start-1 lg:pt-0', layoutClass('hero', 'copy'))}>
             <WorkspaceFrame
               inspectMode={isLg && heroInFocus ? 'always' : 'off'}
               inspectDepth="full"
               frameLabel="Intro"
               showDimensions
               showMeasurementLines
-              showSpacing={false}
-              showGaps={false}
+              showSpacing
+              showGaps
+              showPadding={false}
               showSelectionOutline={false}
               measurementPlacement="outside"
               variant="bare"
-              className="hero-copy relative h-full overflow-visible"
+              className="hero-copy relative overflow-visible"
               panelClassName="hero-copy-panel"
             >
-              <div className="grid-text-stack-wide">
-                <div className="grid-text-stack">
-                  <h2 className="type-display hero-name">
-                    {about.name.includes(' ') ? (
-                      <>
-                        <span className="block">{about.name.split(' ')[0]}</span>
-                        <span className="block">{about.name.split(' ').slice(1).join(' ')}</span>
-                      </>
-                    ) : (
-                      about.name
-                    )}
-                  </h2>
-                  <p className="hero-role">{about.title}</p>
-                </div>
-
-                <div className="hero-actions flex flex-wrap items-center sm:flex-nowrap">
+              <div className="grid-text-stack hero-intro-stack">
+                <h2 className="type-display hero-name">
+                  {about.name.includes(' ') ? (
+                    <>
+                      <span className="block">{about.name.split(' ')[0]}</span>
+                      <span className="block">{about.name.split(' ').slice(1).join(' ')}</span>
+                    </>
+                  ) : (
+                    about.name
+                  )}
+                </h2>
+                <p className="hero-role">{about.title}</p>
+                <div className="hero-actions flex flex-nowrap items-center gap-[var(--grid-unit)]">
                   <Button
                     onClick={() => smoothScrollTo('works')}
                     variant="inverted"
-                    className="min-h-12"
+                    className="hero-view-work h-12 min-h-12 shrink-0"
                     aria-label="Scroll to works section"
                   >
                     View Work
                   </Button>
-                  <SocialLinks socialLinks={contact.socialLinks} inverted className="shrink-0" />
+                  <SocialLinks socialLinks={contact.socialLinks} inverted bare />
                 </div>
               </div>
             </WorkspaceFrame>
-          </Reveal>
+          </div>
 
           {/* Desktop portrait */}
           <div
             className={cn(
-              'relative z-[3] hidden min-h-[var(--hero-portrait-height)] w-full min-w-0 overflow-visible pt-[calc(var(--grid-unit)*2)] lg:row-span-2 lg:block lg:self-center lg:pt-0 lg:justify-self-stretch',
+              'relative z-[3] hidden min-h-[var(--hero-portrait-height)] w-full min-w-0 overflow-visible pt-[calc(var(--grid-unit)*2)] lg:row-span-2 lg:block lg:self-start lg:pt-0 lg:justify-self-stretch',
               layoutClass('hero', 'portrait')
             )}
           >
-            <HeroPortraitFrame
-              image={portraitSrc}
-              objectPosition={portraitObjectPosition}
-              inFocus={heroInFocus}
-            />
+            <HeroPortraitFrame image={portraitSrc} inFocus={heroInFocus} />
           </div>
 
           <a

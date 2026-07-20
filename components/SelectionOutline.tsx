@@ -4,22 +4,19 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { transitionOverlay } from '@/lib/motion';
 
-const HANDLE =
-  'absolute h-1.5 w-1.5 border border-[var(--utility-cyan)] bg-[var(--background)]';
+// Figma 352:654–657: corner handles are 12x12, black fill, 1px cyan border.
+const HANDLE = 'absolute h-3 w-3 border border-[var(--utility-cyan)] bg-black';
 
 export function SelectionOutline({
   visible = true,
   showAnchor = false,
   showCorners = true,
-  hideTopLeftCorner = false,
   className,
 }: {
   visible?: boolean;
   showAnchor?: boolean;
   /** When false, render border only (section-level frames). */
   showCorners?: boolean;
-  /** Hide the top-left handle when a frame tab occupies that corner */
-  hideTopLeftCorner?: boolean;
   className?: string;
 }) {
   return (
@@ -31,7 +28,7 @@ export function SelectionOutline({
       transition={transitionOverlay}
     >
       <div className="absolute inset-0 border border-[var(--utility-cyan)] opacity-90" />
-      {showCorners && !hideTopLeftCorner && (
+      {showCorners && (
         <span className={cn(HANDLE, 'left-0 top-0 -translate-x-1/2 -translate-y-1/2')} />
       )}
       {showCorners && (

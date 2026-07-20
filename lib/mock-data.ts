@@ -341,7 +341,8 @@ export const mockAbout = {
   experience: [
     {
       company: 'noon',
-      logo: '/logos/noon.png',
+      // No local logo asset shipped — CompanyLogo gracefully falls back to an
+      // empty placeholder box when `logo` is unset (see components/About.tsx).
       roles: [
         {
           role: 'Product Designer II',
@@ -366,7 +367,6 @@ export const mockAbout = {
       role: 'Graphic & Web Designer',
       company: 'Bespoke Furniture',
       period: 'Jun 2021 - Jul 2024',
-      logo: '/logos/bespoke.png',
       description:
         "Led a brand identity refresh, modernizing the company's visuals across print and digital platforms. Designed catalogs, brochures, and social content; contributed to UX and layout of the website redesign. Developed and designed the full company website and e-commerce shop, focusing on user experience, visual clarity, and responsive design.",
       bullets: [
@@ -380,7 +380,6 @@ export const mockAbout = {
       role: 'Undergraduate Teaching Assistant',
       company: 'The American University in Cairo (AUC)',
       period: 'Sep - Dec 2022',
-      logo: '/logos/auc.png',
       description:
         "Assisted the Design Principles & Practices (DPP) course for the Fall 2022 semester; managing the organization and digital filing of student submissions, streamlining the grading process for the professor. Served as the primary liaison between the professor and students, effectively communicating course updates, concepts, and resolving inquiries.",
       bullets: [
@@ -394,7 +393,6 @@ export const mockAbout = {
       role: 'Summer Intern',
       company: 'Microsoft',
       period: 'Jun - Aug 2017',
-      logo: '/logos/microsoft.png',
       description:
         "Participated in a high school tech internship focused on exploring programming (C++/Java) and basic app logic. Built small-scale tools like calculators while learning development environments and code structure. Delivered weekly demos and attended Microsoft's DigiGirlz workshops, sparking a long-term interest in digital design and tech innovation.",
       bullets: [
@@ -405,7 +403,9 @@ export const mockAbout = {
       ],
     } as ExperienceItem,
   ] as ExperienceEntry[],
-  image: '/zeina-photo.jpg', // Add your photo file to /public/zeina-photo.jpg
+  // No local portrait asset shipped — Hero/About gracefully fall back to a
+  // neutral placeholder frame when `image` is unset (real photo comes from Sanity).
+  image: undefined,
 };
 
 export const mockContact = {

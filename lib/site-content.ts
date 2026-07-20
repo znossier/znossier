@@ -206,8 +206,7 @@ function normalizeAbout(raw: RawAbout): AboutContent | null {
     heroHeadline: raw.heroHeadline?.trim() || undefined,
     heroSubhead: raw.heroSubhead?.trim() || undefined,
     heroSupport: raw.heroSupport?.trim() || undefined,
-    // Keep local hero photo when Sanity about exists but has no image asset
-    image: raw.image || mockAbout.image || undefined,
+    image: raw.image || undefined,
     experience:
       raw.experience
         ?.map(normalizeExperienceEntry)

@@ -5,19 +5,16 @@ export function SectionHeading({
   id,
   children,
   title,
-  /** @deprecated Use title for single-line headings e.g. "01 - Projects" */
-  kicker,
   className,
   surfaceClassName,
 }: {
   id?: string;
   children?: ReactNode;
   title?: ReactNode;
-  kicker?: ReactNode;
   className?: string;
   surfaceClassName?: string;
 }) {
-  const label = title ?? children ?? kicker;
+  const label = title ?? children;
 
   return (
     <div className={cn('section-heading', className)}>

@@ -96,7 +96,9 @@ export function SpacingGuide({
   const [rects, setRects] = useState<SpacingRect[]>([]);
   const finePointer = useFinePointer();
   const sectionPeeking = useInspectionPeek();
-  const measureEnabled = (finePointer || sectionPeeking) && (showFills || showLabels);
+  // Measure whenever the overlay can show (`active`) so always-on frames
+  // (Hero Intro) don't wait for fine-pointer or a scroll peek.
+  const measureEnabled = (active || finePointer || sectionPeeking) && (showFills || showLabels);
 
   useEffect(() => {
     if (!measureEnabled) return;

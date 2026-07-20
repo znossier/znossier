@@ -23,7 +23,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = project.title;
   const description = truncateMetaDescription(project.description);
   const canonical = `${BASE_URL}/works/${slug}`;
-  const ogImage = project.coverImage ?? project.image ?? '/zeina-photo.jpg';
+  // Fall back to the site's real shared OG asset, not a per-project photo path that
+  // was never added to /public.
+  const ogImage = project.coverImage ?? project.image ?? '/og-image.jpg';
   return {
     title,
     description,

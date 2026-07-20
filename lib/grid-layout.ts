@@ -215,7 +215,6 @@ export const HOME_LAYOUTS = {
           start: 1,
           span: 8,
           rowStart: 1,
-          extraClasses: 'hidden lg:block',
         },
       },
       utilitySpacerRight: {
@@ -223,7 +222,6 @@ export const HOME_LAYOUTS = {
           start: 9,
           span: 8,
           rowStart: 1,
-          extraClasses: 'hidden lg:block',
         },
       },
       utility: {
@@ -283,7 +281,7 @@ export const HOME_LAYOUTS = {
 export type HomeLayoutSection = keyof typeof HOME_LAYOUTS;
 export type HomeLayoutKey<S extends HomeLayoutSection> = keyof (typeof HOME_LAYOUTS)[S]['cells'];
 
-/** Derive `HOME_SECTION_BOUNDARIES` from layout definitions. */
+/** Derive section guide boundaries from layout definitions (for tooling / docs). */
 export function deriveBoundaries(
   layouts: Record<string, SectionLayoutDef> = HOME_LAYOUTS
 ): Record<string, Partial<Record<GridBreakpoint, number[]>>> {

@@ -50,8 +50,6 @@
   --media-image-filter: contrast(1.01) brightness(0.99);
   --grid-line-color: rgba(88, 191, 232, 0.26);
   --grid-marker-color: rgba(255, 79, 163, 0.4);
-  --section-grid-square-opacity: 0.14;
-  --section-grid-dot-opacity: 0.12;
   /* Ambient light — reduced; secondary to 24px structure */
   --ambient-cyan-soft: 1.2%;
   --ambient-cyan-mid: 2%;
@@ -65,7 +63,6 @@
   --workspace-square-grid:
     linear-gradient(to right, var(--workspace-grid-line-color) 1px, transparent 1px),
     linear-gradient(to bottom, var(--workspace-grid-line-color) 1px, transparent 1px);
-  --canvas-grid-dot: var(--workspace-grid-dot-color);
   --cursor-badge-bg: color-mix(in srgb, var(--background) 88%, transparent);
   --cursor-badge-border: color-mix(in srgb, var(--foreground) 55%, transparent);
   --cursor-reticle-color: var(--utility-cyan);
@@ -74,16 +71,22 @@
   --cursor-ring-color: color-mix(in srgb, var(--utility-cyan) 32%, transparent);
   --media-placeholder-bg: color-mix(in srgb, var(--foreground) 5%, transparent);
   --site-max-width: 1440px;
+  /* Figma Frame 78 content = 1320; shell outer = 72 (start) + 1320 + 48 (end) = 1440 at desktop */
+  --site-content-width: 100%;
   --layout-shell-max: var(--site-max-width);
   --grid-unit: var(--workspace-grid-lines-size);
   /* Page pad = 1U mobile; cell pad always 1U (decoupled from page pad at desktop) */
   --site-padding-inline: var(--grid-unit);
+  /* Symmetric below desktop; desktop breakpoint overrides this to the real 48px Figma rail */
+  --site-padding-inline-end: var(--grid-unit);
   --cell-padding-inline: var(--grid-unit);
   --cell-padding-block: var(--grid-unit);
   --ruler-size: var(--grid-unit);
+  /* Outer shell left edge — lattice origin so content rails stay on the 24px grid */
+  --layout-shell-start: max(0px, calc((100vw - var(--layout-shell-max)) / 2));
   --layout-inline-start: max(
     var(--site-padding-inline),
-    calc((100vw - var(--layout-shell-max)) / 2 + var(--site-padding-inline))
+    calc(var(--layout-shell-start) + var(--site-padding-inline))
   );
   --section-padding-inline: var(--cell-padding-inline);
   --site-grid-gap: 0rem;
@@ -96,39 +99,83 @@
   --process-card-width: calc(var(--grid-unit) * 20);
   --process-card-height: calc(var(--grid-unit) * 16);
   --process-track-gap: calc(var(--grid-unit) * 2); /* 48px — Figma pitch 528−480 */
-  /* Figma Tech Stack tile — 192×192 (8U); pitch with gap = 240 */
-  --tech-tile-size: calc(var(--grid-unit) * 8);
+  /* Tech Stack tile — Figma instance 467:1488 etc. is literally 144×144 (6U), not
+     192 — confirmed via node metadata (instance width/height=144 inside the 1224px
+     "Frame 120" row). 144 is the real spec, not a scaled-down deviation. */
+  --tech-tile-size: calc(var(--grid-unit) * 6);
+  /* Figma 467:1379 tile pitch is 192 (144 tile + 48 gap), not 24 */
   --tech-tile-gap: calc(var(--grid-unit) * 2);
+  /* Figma 467:1492 row2 top(264) - row1 bottom(48+144=192) = 72, not 48 */
   --tech-row-gap: calc(var(--grid-unit) * 3);
+  --tech-marquee-duration: 32s;
+  --expertise-visual-width: calc(var(--grid-unit) * 16);
+  --expertise-visual-height: calc(var(--grid-unit) * 9);
   --site-grid-col-width: calc((100vw - (2 * var(--site-padding-inline))) / var(--site-grid-columns-mobile));
+  --ribbon-height: var(--grid-unit);
   --nav-shell-height: calc(var(--grid-unit) * 3);
   --detail-nav-height: calc(var(--grid-unit) * 3);
-  --chrome-top: var(--nav-shell-height);
+  --chrome-top: calc(var(--ribbon-height) + var(--nav-shell-height));
   --mobile-section-padding: calc(var(--grid-unit) * 4);
   --mobile-bottom-controls: env(safe-area-inset-bottom, 0px);
   --scroll-offset-nav: calc(var(--chrome-top) + var(--grid-unit));
-  /* Figma Frame Name 352:301 — 24px tall, sits 24px above the frame */
+  /* Figma Frame Name 352:301 / Experience hover 471:5274
+   * Resting label: 24px tall, 24px above frame top (−48)
+   * Active chip: lifts to −72 so it sits above the width ruler (−24) */
   --frame-tab-height: var(--grid-unit);
   --frame-tab-gap: var(--grid-unit);
   --frame-tab-offset: calc(var(--frame-tab-height) + var(--frame-tab-gap));
   --frame-tab-clearance: calc(var(--frame-tab-offset) + var(--grid-unit));
-  /* Horizontal ruler clears frame name + 24px gap */
+  /* Horizontal ruler: plain frames clear 48px; framed chips keep ruler under the name */
   --measurement-outside-top: calc(var(--grid-unit) * 2);
-  --measurement-outside-top-framed: calc(var(--frame-tab-offset) + var(--grid-unit));
+  --measurement-outside-top-framed: var(--grid-unit);
   --motion-ease-precision: cubic-bezier(0.25, 0.1, 0.25, 1);
   --motion-duration-flash: 0.4s;
   --motion-duration-draw: 0.6s;
   --motion-duration-fade: 0.35s;
+
+  /* ── Figma type roles (Desktop 351:658) ── */
+  --type-display-size: 72px;
+  --type-display-tracking: -3px;
+  --type-role-size: 16px;
+  --type-role-tracking: 4px;
+  --type-nav-size: 14px;
+  --type-nav-tracking: 1px;
+  --type-brand-size: 16px;
+  --type-brand-tracking: 2px;
+  --type-section-size: 16px;
+  --type-section-tracking: 2px;
+  --type-card-title-size: 20px;
+  --type-card-title-tracking: 2px;
+  --type-expertise-title-size: 24px;
+  --type-expertise-title-tracking: 2px;
+  --type-about-title-size: 24px;
+  --type-about-bio-size: 14px;
+  --type-about-bio-leading: 20px;
+  --type-exp-role-size: 18px;
+  /* Figma 479:2734 "Company" label is literally 18px, matching the role-title size */
+  --type-exp-company-size: 18px;
+  --type-exp-period-size: 14px;
+  --type-exp-period-tracking: 1px;
+  --type-meta-size: 12px;
+  --type-meta-tracking: 2px;
+  --type-button-size: 12px;
+  --type-button-tracking: 4px;
+  --type-footer-link-size: 14px;
+  --type-footer-link-tracking: 1px;
+  --type-footer-head-size: 12px;
+  --type-footer-back-size: 16px;
+  --type-frame-label-tracking: 1px;
 }
 
-/* Empty screens (404 / error) — no nav chrome */
+/* Empty screens (404 / error) — no nav chrome; keep WIP ribbon */
 html[data-chrome='bare'] {
-  --chrome-top: 0px;
+  --chrome-top: var(--ribbon-height);
 }
 
 @media (min-width: 640px) {
   :root {
     --site-padding-inline: var(--grid-unit);
+    --site-padding-inline-end: var(--grid-unit);
     --mobile-section-padding: calc(var(--grid-unit) * 5);
     --site-grid-col-width: calc((100vw - (2 * var(--site-padding-inline))) / var(--site-grid-columns-tablet));
   }
@@ -136,21 +183,32 @@ html[data-chrome='bare'] {
 
 @media (min-width: 1024px) {
   :root {
-    /* Figma desktop rail = 3U */
+    /* Figma desktop frame is 1440 wide with content=1320 via ASYMMETRIC rail:
+     * every section's "Frame 78" sits at x=72 width=1320 inside its 1440-wide
+     * header (confirmed across Works/Expertise/Process/TechStack/About/Nav) —
+     * i.e. pl-72 pr-48, not a symmetric 72/72. Outer shell is therefore 1440,
+     * not 1464 (72+1320+72). This used to be patched only for the nav shell;
+     * it's a site-wide rail, so it lives here now. */
     --site-padding-inline: calc(var(--grid-unit) * 3);
+    --site-padding-inline-end: calc(var(--grid-unit) * 2);
+    --site-content-width: 1320px;
+    --site-max-width: calc(var(--site-content-width) + var(--site-padding-inline) + var(--site-padding-inline-end));
+    --layout-shell-max: var(--site-max-width);
     --nav-shell-height: calc(var(--grid-unit) * 4);
     --detail-nav-height: calc(var(--grid-unit) * 4);
-    /* Nav + ruler */
-    --chrome-top: calc(var(--nav-shell-height) + var(--ruler-size));
+    /* Ribbon + nav + ruler */
+    --chrome-top: calc(var(--ribbon-height) + var(--nav-shell-height) + var(--ruler-size));
     --mobile-bottom-controls: 0px;
+    /* Fluid cols from the live content box (not locked 1320 when viewport < 1440) */
     --site-grid-col-width: calc(
-      (min(100vw, var(--site-max-width)) - (2 * var(--site-padding-inline))) / var(--site-grid-columns-desktop)
+      (min(100vw, var(--site-max-width)) - var(--site-padding-inline) - var(--site-padding-inline-end)) /
+        var(--site-grid-columns-desktop)
     );
   }
 
-  /* Empty screens (404 / error) — no nav, ruler flush to viewport top */
+  /* Empty screens (404 / error) — ribbon + ruler, no nav */
   html[data-chrome='bare'] {
-    --chrome-top: var(--ruler-size);
+    --chrome-top: calc(var(--ribbon-height) + var(--ruler-size));
   }
 }
 
@@ -186,7 +244,7 @@ html[data-chrome='bare'] {
 html {
   /* Remove native smooth scroll since Lenis handles it */
   scroll-behavior: auto;
-  scroll-padding-top: calc(var(--chrome-top) + 1rem);
+  scroll-padding-top: calc(var(--chrome-top) + var(--grid-unit));
 }
 
 html.lenis {
@@ -210,12 +268,8 @@ html.lenis {
 }
 
 body {
+  position: relative;
   background-color: var(--background);
-  /* Continuous 24px lattice — also painted on opaque canvas bands so it stays visible */
-  background-image: var(--workspace-square-grid);
-  background-size: var(--workspace-grid-lines-size) var(--workspace-grid-lines-size);
-  background-attachment: fixed;
-  background-position: 0 0;
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   overflow-x: hidden;
@@ -223,22 +277,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-body.mobile-menu-open {
-  overflow: hidden;
-}
-
 /*
- * Fixed overlay kept as a belt-and-suspenders pass for gaps between sections.
- * Opaque .section / sticky shells also paint the same fixed lattice (below).
+ * One lattice for the entire page, painted once from true document (0,0) —
+ * not per-`.section`. Sits above section/footer fills (z-30) so one continuous
+ * canvas grid reads over the whole page.
  */
-.canvas-grid-overlay {
-  position: fixed;
+.workspace-grid-overlay {
+  position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 30;
   pointer-events: none;
   background-image: var(--workspace-square-grid);
   background-size: var(--workspace-grid-lines-size) var(--workspace-grid-lines-size);
-  background-position: 0 0;
+  background-position: var(--layout-shell-start) 0;
+}
+
+body.mobile-menu-open {
+  overflow: hidden;
 }
 
 .site-shell {
@@ -247,7 +302,8 @@ body.mobile-menu-open {
   width: 100%;
   max-width: var(--site-max-width);
   margin-inline: auto;
-  padding-inline: var(--site-padding-inline);
+  padding-inline-start: var(--site-padding-inline);
+  padding-inline-end: var(--site-padding-inline-end);
 }
 
 .site-grid {
@@ -265,8 +321,7 @@ body.mobile-menu-open {
 
 @media (min-width: 640px) {
   .site-grid,
-  .site-section-grid,
-  .site-grid-lines {
+  .site-section-grid {
     grid-template-columns: repeat(var(--site-grid-columns-tablet), minmax(0, 1fr));
   }
 }
@@ -282,17 +337,14 @@ body.mobile-menu-open {
   }
 }
 
-.site-grid-lines {
-  display: grid;
-  height: 100%;
-  grid-template-columns: repeat(var(--site-grid-columns-mobile), minmax(0, 1fr));
-  gap: 0;
-}
-
 .site-track-pad {
-  padding-inline: max(
+  padding-inline-start: max(
     var(--site-padding-inline),
     calc((100vw - var(--site-max-width)) / 2 + var(--site-padding-inline))
+  );
+  padding-inline-end: max(
+    var(--site-padding-inline-end),
+    calc((100vw - var(--site-max-width)) / 2 + var(--site-padding-inline-end))
   );
 }
 
@@ -310,33 +362,34 @@ body.mobile-menu-open {
 .hero-section.section {
   z-index: 1;
   border-top: 0;
-  padding-top: calc(var(--chrome-top) + 1.25rem);
-  padding-bottom: calc(var(--mobile-bottom-controls) + 1.5rem);
+  /* Addends rounded UP to the next grid line, never down — extra breathing room beats clipping */
+  padding-top: calc(var(--chrome-top) + var(--grid-unit));
+  padding-bottom: calc(var(--mobile-bottom-controls) + var(--grid-unit));
 }
 
 @media (min-width: 640px) {
   .hero-section.section {
-    padding-top: calc(var(--chrome-top) + 1.75rem);
+    padding-top: calc(var(--chrome-top) + var(--grid-unit) * 2);
   }
 }
 
 @media (min-width: 768px) {
   .hero-section.section {
-    padding-bottom: 4rem;
+    padding-bottom: calc(var(--grid-unit) * 3);
   }
 }
 
 @media (min-width: 1024px) {
   .hero-section.section {
     position: fixed;
-    padding-top: calc(var(--chrome-top) + 1rem);
-    padding-bottom: 2.5rem;
+    padding-top: calc(var(--chrome-top) + var(--grid-unit));
+    padding-bottom: calc(var(--grid-unit) * 2);
   }
 }
 
 @media (min-width: 1280px) {
   .hero-section.section {
-    padding-bottom: 4rem;
+    padding-bottom: calc(var(--grid-unit) * 3);
   }
 }
 
@@ -373,27 +426,28 @@ body.mobile-menu-open {
   }
 }
 
-/* Portrait media box — size lives here, image fills it, inspect chrome overlays */
+/* Portrait media box — 30×20 grid units (720×480). Keep aspect-ratio when the
+   grid cell is narrower than 720 so height scales with width (fixed 480h was
+   clipping the crop). Outer overflow stays visible for inspect chrome. */
 .hero-portrait-slot {
   position: relative;
   display: block;
-  width: var(--hero-portrait-width);
-  max-width: 100%;
+  width: min(100%, var(--hero-portrait-width));
   aspect-ratio: 30 / 20;
-  overflow: hidden;
-  background-color: #2a2a2a;
-  background-size: cover;
-  background-repeat: no-repeat;
-  isolation: isolate;
+  height: auto;
+  overflow: visible;
+  background-color: transparent;
   z-index: 3;
   margin-inline-start: auto;
 }
 
-@media (min-width: 1024px) {
-  .hero-portrait-slot {
-    height: var(--hero-portrait-height);
-    aspect-ratio: auto;
-  }
+.hero-portrait-media {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #2a2a2a;
 }
 
 .hero-portrait-backdrop .hero-portrait-slot {
@@ -403,30 +457,57 @@ body.mobile-menu-open {
   max-width: none;
 }
 
-.hero-portrait-image {
+.hero-portrait-backdrop .hero-portrait-media {
   position: absolute;
   inset: 0;
+  width: auto;
+  height: auto;
+  aspect-ratio: auto;
+}
+
+/*
+ * Figma 352:304 portrait (Frame 74) is a desaturated B&W photo. The dev-mode markup
+ * doesn't crop it with object-fit — it deliberately oversizes + pans the <img> itself
+ * (w-[156.98%] h-[157%] left-[-28.49%] top-[-39.04%] inside the 720x480 frame), a ~1.57x
+ * zoom-in past plain "cover" to frame tighter on the face. Replicate those exact figures
+ * rather than object-fit:cover, which — since the source photo's aspect ratio already
+ * matches the 3:2 frame almost exactly — would show the whole photo zoomed *out*, not
+ * Figma's tighter crop.
+ */
+.hero-portrait-image {
+  position: absolute;
+  left: -28.49%;
+  top: -39.04%;
+  width: 156.98%;
+  height: 157%;
+  max-width: none;
   z-index: 1;
   display: block;
+  opacity: 1 !important;
+  filter: grayscale(1) contrast(1.03) brightness(0.98);
+}
+
+/* Mobile/tablet backdrop crop isn't in Figma (desktop-only design) — its container
+   isn't the 3:2 portrait frame, so fall back to a sensible cover + face-biased position. */
+.hero-portrait-backdrop .hero-portrait-image {
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 1 !important;
-  filter: contrast(1.03) brightness(0.98);
-}
-
-.hero-portrait-backdrop .hero-portrait-image {
+  object-position: 62% 38%;
   opacity: 0.88 !important;
-  filter: contrast(1.04) brightness(0.9);
+  filter: grayscale(1) contrast(1.04) brightness(0.9);
 }
 
 .hero-portrait-inspect {
   position: absolute !important;
   inset: 0;
-  z-index: 2;
+  z-index: 4;
   width: auto !important;
   height: auto !important;
   max-width: none !important;
+  overflow: visible !important;
   pointer-events: none;
 }
 
@@ -440,6 +521,15 @@ body.mobile-menu-open {
   box-shadow: none !important;
   overflow: visible !important;
   pointer-events: none;
+}
+
+/* Always-on Portrait inspect: keep corner handles + outline visible (Figma 352:304) */
+.hero-portrait-inspect .selection-outline {
+  z-index: 5;
+}
+
+.hero-portrait-inspect .selection-outline span {
+  display: block;
 }
 
 .hero-portrait-scrim {
@@ -498,17 +588,10 @@ body.mobile-menu-open {
   max-width: var(--tech-tile-size);
   max-height: var(--tech-tile-size);
   flex-shrink: 0;
+  overflow: visible;
 }
 
-.tech-stack-item--marquee {
-  width: var(--tech-tile-size);
-  height: var(--tech-tile-size);
-  max-width: var(--tech-tile-size);
-  max-height: var(--tech-tile-size);
-  flex-shrink: 0;
-}
-
-/* Figma 467:1359 — fixed 192×192 (#0f0f0f); hover = same tile + cyan edge + handles + label */
+/* Figma 467:1359 tile (#0f0f0f); hover = cyan edge + outside corner nodes + label */
 .tech-stack-card {
   position: relative;
   isolation: isolate;
@@ -526,7 +609,7 @@ body.mobile-menu-open {
   background-color: var(--figma-card);
   background-image: none;
   box-shadow: none;
-  overflow: hidden; /* keep hover chrome inside the tile — no row scrollbars */
+  overflow: hidden;
   transition:
     border-color 0.15s ease,
     gap 0.15s ease;
@@ -536,9 +619,10 @@ body.mobile-menu-open {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: calc(var(--grid-unit) * 4);
-  height: calc(var(--grid-unit) * 4);
-  max-width: calc(var(--grid-unit) * 4);
+  /* Figma 467:1365/467:1459 icon container is literally 72px (3U), not 48px */
+  width: calc(var(--grid-unit) * 3);
+  height: calc(var(--grid-unit) * 3);
+  max-width: calc(var(--grid-unit) * 3);
   aspect-ratio: 1;
 }
 
@@ -563,7 +647,8 @@ body.mobile-menu-open {
   font-family: var(--font-geist-mono), monospace;
   font-size: 0.75rem;
   font-weight: 400;
-  letter-spacing: 0.08em;
+  /* Figma 467:1455 "App name" label carries no tracking class — literal 0, not an invented 0.08em */
+  letter-spacing: normal;
   text-transform: uppercase;
   color: var(--figma-meta);
   line-height: var(--grid-unit);
@@ -576,7 +661,8 @@ body.mobile-menu-open {
 
 .tech-stack-item:hover .tech-stack-card,
 .tech-stack-item:focus-within .tech-stack-card {
-  gap: var(--grid-unit);
+  /* Figma 467:1360 hover gap is a literal 12px, not the 24px grid unit */
+  gap: 12px;
   border-color: var(--utility-cyan);
   box-shadow: none;
 }
@@ -587,25 +673,60 @@ body.mobile-menu-open {
   opacity: 1;
 }
 
-/* Corner handles clipped inside tile (overflow:hidden on card) — no row scrollbars */
+/*
+ * Figma 467:1366–1369 — 12×12 nodes at −7px so they sit on the corner
+ * (outside the tile; SelectionOutline lives on .tech-stack-item).
+ */
 .tech-stack-selection.selection-outline > div {
   display: none;
 }
 
 .tech-stack-selection.selection-outline span {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border: 1px solid var(--utility-cyan);
   background: #000000;
+  transform: none;
 }
 
-/* Figma: 192 tiles, 48 gap; 6-up static grid for reduced motion */
+.tech-stack-selection.selection-outline span:nth-child(2) {
+  top: -7px;
+  left: -7px;
+  right: auto;
+  bottom: auto;
+}
+
+.tech-stack-selection.selection-outline span:nth-child(3) {
+  top: -7px;
+  right: -7px;
+  left: auto;
+  bottom: auto;
+}
+
+.tech-stack-selection.selection-outline span:nth-child(4) {
+  bottom: -7px;
+  left: -7px;
+  top: auto;
+  right: auto;
+}
+
+.tech-stack-selection.selection-outline span:nth-child(5) {
+  bottom: -7px;
+  right: -7px;
+  top: auto;
+  left: auto;
+}
+
+/* Static fallback grid — only used under prefers-reduced-motion (marquee rows below
+   are the default for everyone else, across every breakpoint) */
 .tech-stack-static-grid {
   display: grid;
   grid-template-columns: repeat(2, var(--tech-tile-size));
   justify-content: center;
   justify-items: center;
   gap: var(--tech-tile-gap);
+  overflow: visible;
+  padding: 8px;
 }
 
 @media (min-width: 640px) {
@@ -616,8 +737,57 @@ body.mobile-menu-open {
 
 @media (min-width: 1024px) {
   .tech-stack-static-grid {
-    grid-template-columns: repeat(6, var(--tech-tile-size));
+    grid-template-columns: repeat(9, var(--tech-tile-size));
     row-gap: var(--tech-row-gap);
+  }
+}
+
+/* Running carousel — two rows, opposite directions, each looping a duplicated item
+   set so the strip never visibly resets. Track width is intentionally `max-content`
+   (hugs 2× the row's natural content) since its size is dictated by an infinite-loop
+   animation contract, not the page grid — the row's own height is on-grid via
+   `--tech-tile-size`, which is what actually reads as a "frame" on screen. */
+.tech-stack-marquee-row {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  /* Room for Figma corner nodes (−7px) without clipping top/bottom */
+  padding-block: 8px;
+  margin-block: -8px;
+}
+
+.tech-stack-marquee-track {
+  display: flex;
+  width: max-content;
+  flex-wrap: nowrap;
+  gap: var(--tech-tile-gap);
+  animation: tech-marquee-scroll var(--tech-marquee-duration) linear infinite;
+  will-change: transform;
+}
+
+.tech-stack-marquee-track--reverse {
+  animation-direction: reverse;
+}
+
+.tech-stack-marquee-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--tech-row-gap);
+}
+
+@keyframes tech-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* Track holds the item set twice, so -50% is exactly one full set — seamless loop */
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-stack-marquee-track {
+    animation: none;
   }
 }
 
@@ -644,7 +814,7 @@ body.mobile-menu-open {
   display: inline-flex;
   width: fit-content;
   border: 1px solid var(--border-subtle);
-  padding: 0.5rem 0.75rem;
+  padding: var(--grid-unit);
 }
 
 .editorial-kicker {
@@ -705,71 +875,55 @@ body.mobile-menu-open {
 
 .type-display {
   max-width: 8ch;
-  font-size: clamp(2.65rem, 14vw, 4.15rem);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(2.5rem, 12vw, var(--type-display-size));
   font-weight: 700;
   line-height: 0.9;
-  letter-spacing: -0.055em;
+  letter-spacing: var(--type-display-tracking);
   text-transform: uppercase;
   color: var(--text-primary);
-}
-
-@media (min-width: 640px) {
-  .type-display {
-    font-size: clamp(3rem, 9vw, 4.15rem);
-  }
 }
 
 @media (min-width: 1024px) {
   .type-display {
-    font-size: clamp(2.3rem, 5.8vw, 4.15rem);
+    font-size: var(--type-display-size);
+    line-height: var(--type-display-size);
+    letter-spacing: var(--type-display-tracking);
   }
 }
 
+/* Project / Process card titles — Mono Bold 20 / tracking 2px */
+.type-card-title,
 .type-title {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 20px;
+  font-size: var(--type-card-title-size);
   font-weight: 700;
   line-height: var(--grid-unit);
-  letter-spacing: 2px;
+  letter-spacing: var(--type-card-title-tracking);
   text-transform: uppercase;
   color: #ffffff;
 }
 
-.type-title-sm {
-  font-family: var(--font-geist-mono), monospace;
-  font-size: clamp(0.97rem, 1.6vw, 1.18rem);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
 
 .type-body {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 12px;
+  font-size: var(--type-meta-size);
   line-height: var(--grid-unit);
   color: var(--text-secondary);
 }
 
 .type-body-lg {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 12px;
+  font-size: var(--type-meta-size);
   line-height: var(--grid-unit);
   color: var(--text-secondary);
 }
 
-@media (min-width: 768px) {
-  .type-body-lg {
-    font-size: 12px;
-  }
-}
-
 .type-label {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 0.75rem;
+  font-size: var(--type-meta-size);
   font-weight: 500;
-  letter-spacing: 0.125em;
+  letter-spacing: var(--type-meta-tracking);
   text-transform: uppercase;
   color: var(--figma-meta);
   line-height: var(--grid-unit);
@@ -777,22 +931,142 @@ body.mobile-menu-open {
 
 .type-section {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 1rem;
+  font-size: var(--type-section-size);
   font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: 0.125em;
+  line-height: var(--grid-unit);
+  letter-spacing: var(--type-section-tracking);
   text-transform: uppercase;
   color: #ffffff;
 }
 
 .type-meta {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 2px;
+  font-size: var(--type-meta-size);
+  font-weight: 500;
+  letter-spacing: var(--type-meta-tracking);
   text-transform: uppercase;
   color: var(--figma-meta);
   line-height: var(--grid-unit);
+}
+
+.type-nav {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: var(--type-nav-size);
+  font-weight: 600;
+  letter-spacing: var(--type-nav-tracking);
+  text-transform: uppercase;
+  line-height: normal;
+  color: #ffffff;
+}
+
+.type-brand {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: var(--type-brand-size);
+  font-weight: 800;
+  letter-spacing: var(--type-brand-tracking);
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.type-expertise-title {
+  margin: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: var(--type-expertise-title-size);
+  font-weight: 700;
+  line-height: var(--grid-unit);
+  letter-spacing: var(--type-expertise-title-tracking);
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.type-about-title {
+  margin: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: var(--type-about-title-size);
+  font-weight: 700;
+  line-height: var(--grid-unit);
+  letter-spacing: var(--type-card-title-tracking);
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.type-about-bio {
+  margin: 0;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: var(--type-about-bio-size);
+  font-weight: 400;
+  line-height: var(--type-about-bio-leading);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--figma-meta);
+}
+
+.type-exp-role {
+  margin: 0;
+  /* Figma 479:2727 "Job title" is font-['Geist:Bold'] — Geist Sans, not Geist Mono */
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: var(--type-exp-role-size);
+  font-weight: 700;
+  line-height: var(--grid-unit);
+  letter-spacing: 0;
+  text-transform: capitalize;
+  color: #ffffff;
+}
+
+/* Figma 479:2723 "Current Company" label is font-['Geist_Mono:Regular'] — 400
+ * weight, unlike the shared `.type-meta` role (Medium/500) used for Expertise's
+ * "01" index and other meta labels. */
+.type-exp-group-label {
+  margin: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: var(--type-meta-size);
+  font-weight: 400;
+  letter-spacing: var(--type-meta-tracking);
+  text-transform: uppercase;
+  color: var(--figma-meta);
+  line-height: var(--grid-unit);
+}
+
+.type-exp-group-company {
+  margin: 0;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: var(--type-exp-role-size);
+  font-weight: 600;
+  line-height: var(--grid-unit);
+  letter-spacing: 0;
+  text-transform: none;
+  color: #ffffff;
+}
+
+.type-exp-company {
+  margin: 0;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: var(--type-exp-company-size);
+  font-weight: 400;
+  line-height: var(--grid-unit);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--figma-meta);
+}
+
+.type-exp-period {
+  margin: 0;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: var(--type-exp-period-size);
+  font-weight: 400;
+  letter-spacing: var(--type-exp-period-tracking);
+  text-transform: uppercase;
+  line-height: var(--grid-unit);
+  color: var(--figma-meta);
+}
+
+.type-button {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: var(--type-button-size);
+  font-weight: 500;
+  letter-spacing: var(--type-button-tracking);
+  text-transform: uppercase;
+  line-height: normal;
 }
 
 .section {
@@ -801,12 +1075,10 @@ body.mobile-menu-open {
   border-top: 0;
   padding-block: calc(var(--grid-unit) * 2);
   scroll-margin-top: var(--scroll-offset-nav);
-  /* Opaque band + aligned 24px grid (hero never shows through) */
+  /* Opaque canvas fill only — the 24px lattice is `.workspace-grid-overlay`, one
+   * layer painted once for the whole page (see WorkspaceGrid.tsx), not repainted
+   * per section. */
   background-color: var(--background);
-  background-image: var(--workspace-square-grid);
-  background-size: var(--workspace-grid-lines-size) var(--workspace-grid-lines-size);
-  background-attachment: fixed;
-  background-position: 0 0;
 }
 
 @media (min-width: 768px) {
@@ -827,10 +1099,6 @@ body.mobile-menu-open {
 
 .section--canvas {
   background-color: var(--surface-canvas);
-  background-image: var(--workspace-square-grid);
-  background-size: var(--workspace-grid-lines-size) var(--workspace-grid-lines-size);
-  background-attachment: fixed;
-  background-position: 0 0;
 }
 
 .section--canvas::after {
@@ -847,10 +1115,6 @@ body.mobile-menu-open {
 
 .section--subtle {
   background-color: var(--surface-subtle);
-  background-image: var(--workspace-square-grid);
-  background-size: var(--workspace-grid-lines-size) var(--workspace-grid-lines-size);
-  background-attachment: fixed;
-  background-position: 0 0;
 }
 
 .section--subtle::after {
@@ -867,32 +1131,26 @@ body.mobile-menu-open {
 
 .section--footer {
   position: relative;
-  z-index: 5;
+  /* Above sticky shells (z-2); below the page-wide lattice overlay (z-30) */
+  z-index: 20;
+  isolation: isolate;
+  /* Figma 407:1586 — flat #000 fill. Lattice is the single `.workspace-grid-overlay`. */
   background-color: #000000;
-  background-image: none;
   border-top: 0;
   padding-block: 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /*
- * Figma footer 407:1586 — full-bleed 3×2:
- * empty | empty | back to top (96px)
- * Navigation | Contact | Connect
- * pl 24px; cell pad + stack gap 24px
+ * Footer table sits on the same site-shell rails as every other section
+ * (72 / 48 at desktop) so the 8|8|8 column borders land on the page lattice.
+ * Outer frame borders close on the content-box edges — not full-viewport.
  */
 .footer-figma {
   --footer-line: rgba(171, 171, 171, 0.5);
   width: 100%;
-  max-width: var(--site-max-width);
-  margin-inline: auto;
-  border-top: 1px solid var(--footer-line);
-  padding-inline-start: var(--grid-unit);
-}
-
-.footer-figma-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  box-sizing: border-box;
+  border: 1px solid var(--footer-line);
 }
 
 .footer-figma-cell {
@@ -901,9 +1159,11 @@ body.mobile-menu-open {
   flex-direction: column;
   align-items: flex-start;
   gap: var(--grid-unit);
+  /* 1U inset from column borders — keeps Navigation off the left frame edge */
   padding: var(--grid-unit);
   border-bottom: 1px solid var(--footer-line);
   pointer-events: auto;
+  min-width: 0;
 }
 
 .footer-figma-cell--empty {
@@ -919,7 +1179,7 @@ body.mobile-menu-open {
 .footer-figma-heading {
   margin: 0;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 12px;
+  font-size: var(--type-footer-head-size);
   font-weight: 500;
   letter-spacing: 2px;
   line-height: var(--grid-unit);
@@ -942,8 +1202,13 @@ body.mobile-menu-open {
 }
 
 .footer-link--back {
-  font-size: 16px;
+  font-size: var(--type-footer-back-size);
   letter-spacing: 2px;
+}
+
+.footer-link--back .nav-desktop-link-label {
+  font-size: inherit;
+  letter-spacing: inherit;
 }
 
 .footer-link-email {
@@ -953,42 +1218,40 @@ body.mobile-menu-open {
 }
 
 @media (min-width: 1024px) {
-  .footer-figma-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
   .footer-figma-cell {
     border-bottom: 0;
-    border-right: 1px solid var(--footer-line);
   }
 
-  .footer-figma-cell:nth-child(3n) {
-    border-right: 0;
-  }
-
+  /* Beat Tailwind `hidden` so spacer cells always paint the top-row rules */
   .footer-figma-cell--empty {
-    display: block;
+    display: block !important;
     min-height: calc(var(--grid-unit) * 4);
     padding: 0;
-    border-bottom: 1px solid var(--footer-line);
     pointer-events: none;
   }
 
   .footer-figma-cell--utility {
     min-height: calc(var(--grid-unit) * 4);
+  }
+
+  .footer-figma-cell--rule-x {
     border-bottom: 1px solid var(--footer-line);
   }
 
-  .footer-figma-cell:nth-child(n + 4) {
-    border-bottom: 0;
+  .footer-figma-cell--rule-y {
+    border-right: 1px solid var(--footer-line);
+  }
+
+  /* Figma 410:1732 "connect": the row-1/row-2 divider above the last column is
+   * drawn as a top border here (since the utility cell above it has no
+   * bottom border of its own) rather than a bottom border on the cell above. */
+  .footer-figma-cell--rule-x-top {
+    border-top: 1px solid var(--footer-line);
   }
 }
 
 @media (max-width: 1023px) {
-  .footer-figma {
-    padding-inline: var(--grid-unit);
-  }
-
+  /* Outer frame already closes bottom — don't double the last cell edge */
   .footer-figma-cell:last-child {
     border-bottom: 0;
   }
@@ -1022,10 +1285,10 @@ body.mobile-menu-open {
 .process-card-title {
   margin: 0;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 20px;
+  font-size: var(--type-card-title-size);
   font-weight: 700;
   line-height: var(--grid-unit);
-  letter-spacing: 2px;
+  letter-spacing: var(--type-card-title-tracking);
   text-transform: uppercase;
   color: #ffffff;
 }
@@ -1044,10 +1307,10 @@ body.mobile-menu-open {
 .expertise-card-title {
   margin: 0;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 24px;
+  font-size: var(--type-expertise-title-size);
   font-weight: 700;
   line-height: var(--grid-unit);
-  letter-spacing: 2px;
+  letter-spacing: var(--type-expertise-title-tracking);
   text-transform: uppercase;
   color: #ffffff;
 }
@@ -1088,9 +1351,10 @@ body.mobile-menu-open {
 }
 
 @media (min-width: 1024px) {
-  /* Viewport-locked shell; Process overrides height inline for horizontal scrub */
+  /* Grow with content — page scroll owns overflow (no nested Lenis traps) */
   .section--sticky-lock.section:not(.section--process) {
-    height: calc(100svh - var(--chrome-top));
+    min-height: calc(100svh - var(--chrome-top));
+    height: auto;
   }
 }
 
@@ -1100,25 +1364,23 @@ body.mobile-menu-open {
   position: sticky;
   top: var(--chrome-top);
   isolation: isolate;
+  /* Keep below footer (z-20) so sticky panels don't cover the footer table */
   z-index: 2;
-  /* Full sticky viewport is opaque so the hero never shows through */
+  /* Opaque so the fixed hero never shows through */
   background-color: inherit;
+}
+
+/* SectionLayout adds Tailwind z-10 — don't let it lift sticky shells over the footer */
+.site-shell.section-sticky-shell.z-10 {
+  z-index: 2;
 }
 
 .section--canvas .section-sticky-shell {
   background-color: var(--surface-canvas);
-  background-image: var(--workspace-square-grid);
-  background-size: var(--workspace-grid-lines-size) var(--workspace-grid-lines-size);
-  background-attachment: fixed;
-  background-position: 0 0;
 }
 
 .section--subtle .section-sticky-shell {
   background-color: var(--surface-subtle);
-  background-image: var(--workspace-square-grid);
-  background-size: var(--workspace-grid-lines-size) var(--workspace-grid-lines-size);
-  background-attachment: fixed;
-  background-position: 0 0;
 }
 
 .section-sticky-shell > * {
@@ -1135,14 +1397,13 @@ body.mobile-menu-open {
 .section-sticky-panel {
   margin-top: 0;
   min-height: 0;
-  overflow: hidden;
+  /* Visible so sticky Expertise cards / page Lenis scroll work */
+  overflow: visible;
 }
 
-.section-sticky-panel--scroll {
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+/* Sticky panels must win over `.section-figma-panel { overflow: hidden }` */
+.section-figma-panel.section-sticky-panel {
+  overflow: visible;
 }
 
 .process-card.workspace-frame {
@@ -1161,7 +1422,9 @@ body.mobile-menu-open {
   align-items: center;
   min-height: 0;
   overflow: hidden;
-  /* Room for resting/active frame names (24px label + 24px gap) */
+  /* Room for the active frame-name chip — Process has no outside width ruler,
+   * so the chip sits flush at −48px (see .frame-tab--flush), not the −72px
+   * clearance Works/Expertise/About reserve to clear their rulers. */
   padding-top: var(--frame-tab-offset);
   padding-bottom: var(--grid-unit);
 }
@@ -1184,666 +1447,402 @@ body.mobile-menu-open {
   max-height: inherit;
 }
 
-/* Expertise card — Figma-style mini canvas artifacts (no local grid texture) */
+/* Expertise card visual — Figma 402:7335 (384×216 media well) */
 .service-visual-demo {
-  border: 1px solid color-mix(in srgb, var(--utility-cyan) 22%, var(--border-subtle) 78%);
-  background:
-    radial-gradient(ellipse 90% 70% at 12% 0%, color-mix(in srgb, var(--utility-cyan) 14%, transparent) 0%, transparent 58%),
-    radial-gradient(ellipse 60% 50% at 88% 100%, color-mix(in srgb, #e8c4a0 8%, transparent) 0%, transparent 62%),
-    color-mix(in srgb, var(--surface-panel) 92%, var(--background) 8%);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
-}
-
-.service-artifact {
-  --artifact-dot: var(--workspace-grid-dots-size);
-  --artifact-unit: var(--grid-unit);
-}
-
-.service-artifact-tab {
-  flex-shrink: 0;
-  min-height: calc(var(--artifact-unit) * 1.5);
-  padding: var(--artifact-dot) var(--artifact-unit);
-  border-bottom: 1px solid color-mix(in srgb, var(--utility-cyan) 28%, var(--border-subtle) 72%);
-  background: color-mix(in srgb, var(--surface-panel) 88%, var(--utility-cyan) 12%);
-  color: color-mix(in srgb, var(--utility-cyan) 72%, var(--foreground) 28%);
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  line-height: var(--artifact-unit);
-  text-transform: uppercase;
-}
-
-.service-artifact-stage {
-  background-image: none;
-  background-color: transparent;
-}
-
-.service-artifact-body {
   position: relative;
+  box-sizing: border-box;
+  overflow: visible;
+  border: 0;
+  background-color: #0a0a0a;
+}
+
+.service-visual-fill {
+  position: relative;
+  box-sizing: border-box;
   display: flex;
-  flex-direction: column;
+  width: 100%;
   height: 100%;
   min-height: 0;
-  padding: var(--artifact-unit);
-  gap: var(--artifact-unit);
+  padding: var(--grid-unit);
+  gap: var(--grid-unit);
 }
 
-.service-artifact-body--stack {
-  justify-content: flex-start;
-}
-
-.service-artifact-body--stack .service-artifact-spec-preview {
-  margin-top: auto;
-}
-
-.service-artifact-body--center {
-  justify-content: center;
-}
-
-.service-artifact-body--fill {
-  flex: 1;
-}
-
-.service-artifact-body--grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: stretch;
-}
-
-.service-artifact-body--flush {
+.service-visual-fill--placeholder {
   padding: 0;
 }
 
-.service-artifact-layers {
+.service-visual-placeholder-grid {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(45deg, #2a2a2a 25%, transparent 25%),
+    linear-gradient(-45deg, #2a2a2a 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2a2a2a 75%),
+    linear-gradient(-45deg, transparent 75%, #2a2a2a 75%);
+  background-size: calc(var(--grid-unit)) calc(var(--grid-unit));
+  background-position:
+    0 0,
+    0 calc(var(--grid-unit) / 2),
+    calc(var(--grid-unit) / 2) calc(var(--grid-unit) / -2),
+    calc(var(--grid-unit) / -2) 0;
+  background-color: #141414;
+}
+
+.service-visual-fill--image {
+  padding: 0;
+}
+
+.service-visual-nodes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.service-visual-node {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--utility-cyan);
+  background: #000000;
+}
+
+.service-visual-node--tl { top: -7px; left: -7px; }
+.service-visual-node--tr { top: -7px; right: -7px; }
+.service-visual-node--bl { bottom: -7px; left: -7px; }
+.service-visual-node--br { bottom: -7px; right: -7px; }
+
+/* Component spec */
+.service-visual-fill--spec {
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.service-visual-spec-layers {
   display: flex;
   flex-direction: column;
-  gap: var(--artifact-dot);
+  gap: 6px;
 }
 
-.service-artifact-layer {
+.service-visual-spec-layer {
   display: flex;
   align-items: center;
-  gap: var(--artifact-dot);
-  min-height: var(--artifact-unit);
-  padding: var(--artifact-dot) var(--artifact-unit);
-  border-radius: 0;
-  color: var(--text-faint);
-  font-size: 0.58rem;
+  min-height: var(--grid-unit);
+  padding-inline: var(--grid-unit);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
   letter-spacing: 0.08em;
-  line-height: var(--artifact-unit);
   text-transform: uppercase;
+  color: var(--figma-meta);
 }
 
-.service-artifact-layer--active {
-  border-left: var(--artifact-dot) solid var(--utility-cyan);
+.service-visual-spec-layer--active {
+  border-left: 3px solid var(--utility-cyan);
   background: color-mix(in srgb, var(--utility-cyan) 10%, transparent);
-  color: color-mix(in srgb, var(--utility-cyan) 70%, var(--foreground) 30%);
+  color: color-mix(in srgb, var(--utility-cyan) 70%, #fff 30%);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .service-artifact:not(:hover) .service-artifact-selection {
-    animation: service-selection-breathe var(--motion-duration-flash) var(--motion-ease-precision) infinite alternate;
-  }
-
-  .service-artifact:not(:hover) .service-artifact-handle {
-    animation: service-handle-pulse calc(var(--motion-duration-flash) * 1.5) var(--motion-ease-precision) infinite alternate;
-  }
-}
-
-@keyframes service-selection-breathe {
-  from {
-    opacity: 0.55;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes service-handle-pulse {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.15);
-  }
-}
-
-.service-artifact-layer-dot {
-  width: var(--artifact-dot);
-  height: var(--artifact-dot);
-  border-radius: 999px;
-  background: currentColor;
-  opacity: 0.55;
-}
-
-.service-artifact-selection {
-  position: relative;
-  border: 1px solid var(--utility-cyan);
-  pointer-events: none;
-}
-
-.service-artifact-handle {
-  position: absolute;
-  width: var(--artifact-dot);
-  height: var(--artifact-dot);
-  border: 1px solid var(--utility-cyan);
-  background: var(--background);
-}
-
-.service-artifact-handle--tl {
-  top: calc(var(--artifact-dot) * -1);
-  left: calc(var(--artifact-dot) * -1);
-}
-
-.service-artifact-handle--tr {
-  top: calc(var(--artifact-dot) * -1);
-  right: calc(var(--artifact-dot) * -1);
-}
-
-.service-artifact-handle--bl {
-  bottom: calc(var(--artifact-dot) * -1);
-  left: calc(var(--artifact-dot) * -1);
-}
-
-.service-artifact-handle--br {
-  bottom: calc(var(--artifact-dot) * -1);
-  right: calc(var(--artifact-dot) * -1);
-}
-
-.service-artifact-spec-preview {
+.service-visual-spec-preview {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--artifact-dot);
+  gap: 6px;
 }
 
-.service-artifact-spec-selection {
-  width: calc(var(--artifact-unit) * 8);
-}
-
-.service-artifact-btn-primary {
-  display: flex;
+.service-visual-spec-btn {
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: calc(var(--artifact-unit) * 2.5);
-  border-radius: 0;
+  min-width: calc(var(--grid-unit) * 8);
+  height: calc(var(--grid-unit) * 2);
+  padding-inline: var(--grid-unit);
   border: 1px solid color-mix(in srgb, var(--utility-cyan) 52%, #0a0a0a 48%);
   background: color-mix(in srgb, var(--utility-cyan) 92%, #0a0a0a 8%);
   color: #071018;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.14em;
-  padding-inline: var(--artifact-unit);
-  text-align: center;
   text-transform: uppercase;
 }
 
-.service-artifact-dim {
-  width: calc(var(--artifact-unit) * 8);
-  color: color-mix(in srgb, var(--utility-cyan) 75%, var(--foreground) 25%);
-  font-size: 0.55rem;
+.service-visual-spec-dim {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
   letter-spacing: 0.1em;
-  text-align: center;
+  color: color-mix(in srgb, var(--utility-cyan) 75%, #fff 25%);
 }
 
-.service-artifact-type-row {
+/* Type scale */
+.service-visual-fill--type {
+  flex-direction: column;
+  justify-content: center;
+  gap: calc(var(--grid-unit) / 2);
+}
+
+.service-visual-type-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--artifact-unit);
-  min-height: var(--artifact-unit);
+  gap: var(--grid-unit);
+  width: 100%;
 }
 
-.service-artifact-type-row--display .service-artifact-type-sample {
+.service-visual-type-sample {
+  color: #fff;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.service-visual-type-row--display .service-visual-type-sample {
   font-family: var(--font-oswald), var(--font-geist-sans), sans-serif;
-  font-size: 1.35rem;
+  font-size: 40px;
   font-weight: 500;
   letter-spacing: -0.02em;
-  line-height: calc(var(--artifact-unit) * 2);
+  line-height: 1;
 }
 
-.service-artifact-type-sample--title {
-  font-size: 0.82rem;
+.service-visual-type-sample--title {
+  font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.service-artifact-type-sample--body {
-  font-size: 0.68rem;
-  color: var(--text-secondary);
+.service-visual-type-sample--body {
+  font-size: 14px;
+  color: var(--figma-meta);
 }
 
-.service-artifact-type-meta {
-  color: color-mix(in srgb, var(--utility-cyan) 68%, var(--text-faint) 32%);
-  font-size: 0.55rem;
+.service-visual-type-meta {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--utility-cyan) 68%, var(--figma-meta) 32%);
 }
 
-.service-artifact-type-guide {
+.service-visual-type-guide {
   position: absolute;
-  top: var(--artifact-unit);
-  bottom: var(--artifact-unit);
-  left: var(--artifact-unit);
+  top: var(--grid-unit);
+  bottom: var(--grid-unit);
+  left: var(--grid-unit);
   width: 1px;
   background: color-mix(in srgb, var(--utility-magenta) 55%, transparent);
   opacity: 0.65;
 }
 
-.service-artifact-chip {
-  min-height: calc(var(--artifact-unit) * 3);
-  border: 1px solid color-mix(in srgb, var(--foreground) 12%, var(--border-subtle) 88%);
-  background: color-mix(in srgb, var(--surface-panel) 90%, var(--foreground) 10%);
-  color: var(--text-secondary);
-}
-
-.service-artifact-chip--accent {
-  border-color: color-mix(in srgb, var(--utility-cyan) 45%, var(--border-subtle) 55%);
-  background: color-mix(in srgb, var(--utility-cyan) 16%, var(--surface-panel) 84%);
-  color: color-mix(in srgb, var(--utility-cyan) 78%, var(--foreground) 22%);
-}
-
-.service-artifact-block {
-  min-height: 0;
-  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
-  background: color-mix(in srgb, var(--foreground) 4%, transparent);
-}
-
-.service-artifact-block--hero {
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--foreground) 14%, transparent), color-mix(in srgb, var(--foreground) 4%, transparent)),
-    color-mix(in srgb, var(--surface-panel) 80%, transparent);
-}
-
-.service-artifact-block--accent {
-  background: color-mix(in srgb, #e8c4a0 28%, var(--surface-panel) 72%);
-}
-
-.service-artifact-layout-grid {
+/* Tool grid */
+.service-visual-fill--grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr) var(--artifact-unit);
-  gap: var(--artifact-dot);
-  height: 100%;
-  min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--grid-unit) / 2);
 }
 
-.service-artifact-layout-copy {
+.service-visual-chip {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--artifact-dot);
-  grid-column: 1;
-  grid-row: 1;
-  min-height: 0;
-  padding: var(--artifact-unit);
-  background:
-    linear-gradient(160deg, color-mix(in srgb, var(--foreground) 10%, transparent), transparent 62%),
-    color-mix(in srgb, var(--surface-panel) 84%, transparent);
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, #fff 12%, var(--border) 88%);
+  background: color-mix(in srgb, var(--figma-card) 90%, #fff 10%);
+  padding: calc(var(--grid-unit) / 2);
 }
 
-.service-artifact-layout-copy-body {
+.service-visual-chip span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--figma-meta);
+  line-height: 1.2;
+}
+
+.service-visual-chip--accent {
+  border-color: color-mix(in srgb, var(--utility-cyan) 45%, var(--border) 55%);
+  background: color-mix(in srgb, var(--utility-cyan) 12%, var(--figma-card) 88%);
+}
+
+.service-visual-chip--accent span {
+  color: color-mix(in srgb, var(--utility-cyan) 70%, #fff 30%);
+}
+
+/* Layout */
+.service-visual-fill--layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: calc(var(--grid-unit) / 2);
+  padding: calc(var(--grid-unit) / 2);
+}
+
+.service-visual-layout-copy {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--artifact-dot);
-  min-height: 0;
-  flex: 1;
+  gap: 6px;
+  min-width: 0;
+  padding: var(--grid-unit);
+  border: 1px solid var(--utility-cyan);
+  background: color-mix(in srgb, #fff 6%, transparent);
 }
 
-.service-artifact-layout-headline {
-  display: block;
-  width: calc(var(--artifact-unit) * 7);
-  height: var(--artifact-unit);
-  background: color-mix(in srgb, var(--foreground) 22%, transparent);
-}
-
-.service-artifact-layout-subline {
-  display: block;
-  width: calc(var(--artifact-unit) * 4);
-  height: var(--artifact-dot);
-  background: color-mix(in srgb, var(--utility-cyan) 28%, transparent);
-}
-
-.service-artifact-layout-line {
-  display: block;
-  width: calc(var(--artifact-unit) * 6);
-  height: var(--artifact-dot);
-  background: color-mix(in srgb, var(--foreground) 10%, transparent);
-}
-
-.service-artifact-layout-line--short {
-  width: calc(var(--artifact-unit) * 4);
-}
-
-.service-artifact-layout-portrait {
-  grid-column: 2;
-  grid-row: 1 / -1;
-  min-height: 0;
+.service-visual-layout-media {
+  min-width: 0;
   background:
-    linear-gradient(180deg, color-mix(in srgb, #e8c4a0 34%, transparent), color-mix(in srgb, #e8c4a0 12%, var(--surface-panel) 88%) 72%),
-    color-mix(in srgb, var(--surface-panel) 82%, transparent);
+    linear-gradient(180deg, color-mix(in srgb, #e8c4a0 34%, transparent), color-mix(in srgb, #e8c4a0 12%, #0f0f0f 88%) 72%),
+    #0f0f0f;
 }
 
-.service-artifact-layout-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--artifact-dot);
-  flex-shrink: 0;
-}
-
-.service-artifact-layout-btn {
+.service-visual-layout-bar {
   display: block;
-  height: var(--artifact-unit);
-  width: calc(var(--artifact-unit) * 2);
-  border: 1px solid color-mix(in srgb, var(--foreground) 16%, var(--border-subtle) 84%);
-  background: color-mix(in srgb, var(--foreground) 18%, var(--surface-panel) 82%);
+  height: 6px;
+  background: color-mix(in srgb, #fff 14%, transparent);
 }
 
-.service-artifact-layout-btn--ghost {
-  width: calc(var(--artifact-unit) * 1.5);
+.service-visual-layout-bar--lg { width: 78%; height: var(--grid-unit); background: color-mix(in srgb, #fff 22%, transparent); }
+.service-visual-layout-bar--md { width: 56%; }
+.service-visual-layout-bar--sm { width: 42%; }
+
+.service-visual-layout-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.service-visual-layout-pill {
+  display: block;
+  width: calc(var(--grid-unit) * 2);
+  height: var(--grid-unit);
+  background: color-mix(in srgb, #fff 18%, transparent);
+  border: 1px solid color-mix(in srgb, #fff 16%, transparent);
+}
+
+.service-visual-layout-pill--ghost {
+  width: calc(var(--grid-unit) * 1.5);
   background: transparent;
 }
 
-.service-artifact-layout-btn--icon {
-  width: var(--artifact-unit);
-  margin-left: auto;
-  border-radius: 0;
-  background: color-mix(in srgb, var(--foreground) 8%, transparent);
-}
-
-.service-artifact-layout-hint {
-  align-self: end;
-  grid-column: 1;
-  grid-row: 2;
-  color: color-mix(in srgb, var(--utility-cyan) 58%, var(--text-faint) 42%);
-  font-size: 0.48rem;
-  letter-spacing: 0.12em;
-  line-height: var(--artifact-unit);
-  text-transform: uppercase;
-}
-
-.service-artifact-layout-copy.service-artifact-selection {
-  pointer-events: none;
-}
-
-.service-artifact-product {
-  position: relative;
-  display: flex;
-  flex: 1;
+/* Commerce */
+.service-visual-fill--commerce {
   flex-direction: column;
-  gap: var(--artifact-dot);
-  min-height: 0;
+  gap: calc(var(--grid-unit) / 2);
 }
 
-.service-artifact-product-media {
+.service-visual-product-media {
   flex: 1;
-  min-height: calc(var(--artifact-unit) * 4);
+  min-height: 0;
   background:
     linear-gradient(160deg, color-mix(in srgb, var(--utility-cyan) 18%, transparent), transparent 55%),
-    color-mix(in srgb, var(--foreground) 8%, var(--surface-subtle) 92%);
+    color-mix(in srgb, #fff 8%, #141414 92%);
 }
 
-.service-artifact-product-body {
+.service-visual-product-meta {
   display: flex;
   flex-direction: column;
-  gap: var(--artifact-dot);
-  padding-top: var(--artifact-dot);
+  align-items: flex-start;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
-.service-artifact-product-badge {
-  align-self: flex-start;
+.service-visual-product-badge {
   border: 1px solid color-mix(in srgb, var(--utility-cyan) 40%, transparent);
   background: color-mix(in srgb, var(--utility-cyan) 12%, transparent);
-  color: color-mix(in srgb, var(--utility-cyan) 82%, var(--foreground) 18%);
-  font-size: 0.52rem;
+  color: color-mix(in srgb, var(--utility-cyan) 82%, #fff 18%);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
   letter-spacing: 0.14em;
-  line-height: var(--artifact-unit);
-  padding: 0 var(--artifact-dot);
+  line-height: var(--grid-unit);
+  text-transform: uppercase;
+  padding: 0 6px;
 }
 
-.service-artifact-product-line {
-  display: block;
-  height: var(--artifact-dot);
-  width: calc(var(--artifact-unit) * 5);
-  background: color-mix(in srgb, var(--foreground) 14%, transparent);
-}
-
-.service-artifact-product-line--title {
-  width: calc(var(--artifact-unit) * 6);
-  height: var(--artifact-unit);
-}
-
-.service-artifact-product-price {
-  color: var(--foreground);
-  font-size: 0.62rem;
+.service-visual-product-price {
+  color: #fff;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
   letter-spacing: 0.08em;
-  line-height: var(--artifact-unit);
 }
 
-.service-artifact-product-selection {
-  position: absolute;
-  inset: 0;
-}
-
-.service-artifact-flow-meter {
-  position: relative;
-  height: var(--artifact-dot);
-  flex-shrink: 0;
-}
-
-.service-artifact-flow-meter-track,
-.service-artifact-flow-meter-fill {
-  position: absolute;
-  inset: 0;
-  border-radius: 0;
-}
-
-.service-artifact-flow-meter-track {
-  background: color-mix(in srgb, var(--foreground) 10%, transparent);
-}
-
-.service-artifact-flow-meter-fill {
-  width: 50%;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--utility-cyan) 85%, transparent),
-    color-mix(in srgb, var(--utility-cyan) 55%, transparent)
-  );
-  box-shadow: 0 0 var(--artifact-unit) color-mix(in srgb, var(--utility-cyan) 35%, transparent);
-}
-
-.service-artifact-flow-steps {
-  display: flex;
-  flex: 1;
+/* Flow */
+.service-visual-fill--flow {
   flex-direction: column;
-  gap: 0;
-  min-height: 0;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  gap: calc(var(--grid-unit) / 2);
 }
 
-.service-artifact-flow-item {
-  display: flex;
-  flex: 1;
-  gap: var(--artifact-dot);
-  min-height: 0;
-}
-
-.service-artifact-flow-item--active {
-  flex: 1.35;
-}
-
-.service-artifact-flow-rail {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-  width: var(--artifact-unit);
-  padding-top: var(--artifact-dot);
-}
-
-.service-artifact-flow-node {
+.service-visual-flow-meter {
   position: relative;
-  z-index: 1;
+  height: 4px;
   flex-shrink: 0;
-  width: var(--artifact-dot);
-  height: var(--artifact-dot);
-  border-radius: 999px;
+  background: color-mix(in srgb, #fff 10%, transparent);
 }
 
-.service-artifact-flow-node--done {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--utility-cyan);
+.service-visual-flow-meter-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 55%;
   background: var(--utility-cyan);
 }
 
-.service-artifact-flow-check {
-  width: calc(var(--artifact-dot) * 0.5);
-  height: calc(var(--artifact-dot) * 0.35);
-  border-left: 1px solid var(--background);
-  border-bottom: 1px solid var(--background);
-  transform: rotate(-45deg) translateY(-0.5px);
-}
-
-.service-artifact-flow-node--active {
-  border: 1px solid var(--utility-cyan);
-  background: color-mix(in srgb, var(--utility-cyan) 22%, var(--background) 78%);
-  box-shadow:
-    0 0 0 var(--artifact-dot) color-mix(in srgb, var(--utility-cyan) 18%, transparent),
-    0 0 var(--artifact-unit) color-mix(in srgb, var(--utility-cyan) 28%, transparent);
-}
-
-.service-artifact-flow-node--pending {
-  border: 1px dashed color-mix(in srgb, var(--foreground) 22%, var(--border-subtle) 78%);
-  background: transparent;
-}
-
-.service-artifact-flow-connector {
-  flex: 1;
-  width: 1px;
-  min-height: var(--artifact-dot);
-  margin: var(--artifact-dot) 0;
-  background: color-mix(in srgb, var(--foreground) 14%, transparent);
-}
-
-.service-artifact-flow-connector--done {
-  background: color-mix(in srgb, var(--utility-cyan) 55%, transparent);
-}
-
-.service-artifact-flow-card {
+.service-visual-flow-steps {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--artifact-dot);
-  min-width: 0;
-  padding: var(--artifact-dot) var(--artifact-unit);
-  border: 1px solid color-mix(in srgb, var(--foreground) 12%, var(--border-subtle) 88%);
-  background: color-mix(in srgb, var(--surface-panel) 90%, transparent);
+  gap: 6px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.service-artifact-flow-card--done {
-  border-color: color-mix(in srgb, var(--utility-cyan) 28%, var(--border-subtle) 72%);
-  background: color-mix(in srgb, var(--utility-cyan) 6%, var(--surface-panel) 94%);
+.service-visual-flow-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--grid-unit);
+  min-height: calc(var(--grid-unit) * 2);
+  padding: 6px var(--grid-unit);
+  border: 1px solid color-mix(in srgb, #fff 10%, transparent);
+  background: color-mix(in srgb, #fff 4%, transparent);
 }
 
-.service-artifact-flow-card--active {
-  border-color: var(--utility-cyan);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--utility-cyan) 14%, transparent), transparent 55%),
-    color-mix(in srgb, var(--surface-panel) 88%, var(--utility-cyan) 12%);
-}
-
-.service-artifact-flow-card--pending {
-  border-style: dashed;
+.service-visual-flow-step--done {
   opacity: 0.72;
 }
 
-.service-artifact-flow-card-head {
-  display: flex;
-  align-items: baseline;
-  gap: var(--artifact-dot);
-  min-height: var(--artifact-unit);
+.service-visual-flow-step--active {
+  border-color: var(--utility-cyan);
+  background: color-mix(in srgb, var(--utility-cyan) 8%, transparent);
 }
 
-.service-artifact-flow-index {
-  color: color-mix(in srgb, var(--utility-cyan) 70%, var(--text-faint) 30%);
-  font-size: 0.5rem;
-  letter-spacing: 0.1em;
+.service-visual-flow-step--pending {
+  opacity: 0.45;
 }
 
-.service-artifact-flow-item--pending .service-artifact-flow-index {
-  color: var(--text-faint);
-}
-
-.service-artifact-flow-label {
-  color: var(--text-secondary);
-  font-size: 0.58rem;
+.service-visual-flow-index,
+.service-visual-flow-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.service-artifact-flow-item--done .service-artifact-flow-label {
-  color: color-mix(in srgb, var(--utility-cyan) 70%, var(--text-secondary) 30%);
+.service-visual-flow-index {
+  color: var(--figma-meta);
 }
 
-.service-artifact-flow-item--active .service-artifact-flow-label {
-  color: color-mix(in srgb, var(--utility-cyan) 88%, var(--foreground) 12%);
+.service-visual-flow-step--active .service-visual-flow-label {
+  color: #fff;
 }
 
-.service-artifact-flow-hint {
-  color: var(--text-faint);
-  font-size: 0.5rem;
-  letter-spacing: 0.08em;
-  line-height: var(--artifact-unit);
-}
-
-.service-artifact-flow-fields {
-  display: flex;
-  flex-direction: column;
-  gap: var(--artifact-dot);
-}
-
-.service-artifact-flow-field {
-  display: block;
-  height: var(--artifact-unit);
-  border: 1px solid color-mix(in srgb, var(--utility-cyan) 22%, var(--border-subtle) 78%);
-  background: color-mix(in srgb, var(--foreground) 6%, var(--surface-panel) 94%);
-}
-
-.service-artifact-flow-field--short {
-  width: calc(var(--artifact-unit) * 4);
-}
-
-.service-artifact-flow-item--active .service-artifact-flow-hint {
-  color: color-mix(in srgb, var(--utility-cyan) 55%, var(--text-faint) 45%);
-}
-
-.service-artifact-flow-card.service-artifact-selection {
-  pointer-events: none;
-}
-
-.service-artifact-image-frame {
-  position: relative;
-  width: 100%;
-}
-
-.service-artifact-image-selection {
-  position: absolute;
-  top: var(--artifact-unit);
-  right: var(--artifact-unit);
-  bottom: var(--artifact-unit);
-  left: var(--artifact-unit);
-}
-
-.service-artifact-image {
-  opacity: 0.92;
-  filter: saturate(0.92) contrast(1.04);
-}
-
-.service-artifact-image-scrim {
-  background: linear-gradient(180deg, transparent 45%, color-mix(in srgb, var(--background) 55%, transparent) 100%);
+.service-visual-flow-label {
+  color: var(--figma-meta);
 }
 
 .footer-link {
@@ -1852,9 +1851,9 @@ body.mobile-menu-open {
   max-width: 100%;
   color: #ffffff;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 14px;
+  font-size: var(--type-footer-link-size);
   font-weight: 600;
-  letter-spacing: 0.0625em;
+  letter-spacing: var(--type-footer-link-tracking);
   text-transform: uppercase;
   text-decoration-line: none;
   text-decoration-thickness: var(--link-underline-thickness);
@@ -1865,13 +1864,31 @@ body.mobile-menu-open {
     text-decoration-color 0.15s ease;
 }
 
+.footer-link .nav-desktop-link-label {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+
 .footer-link--stretch {
   width: 100%;
 }
 
 .footer-link:hover:not(:focus-visible),
-.footer-link:focus-visible {
+.footer-link:focus-visible,
+.footer-link:hover:not(:focus-visible) .nav-desktop-link-label,
+.footer-link:focus-visible .nav-desktop-link-label {
   color: #ffffff;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--utility-cyan);
+}
+
+.footer-link:active .nav-desktop-link-label {
+  color: var(--utility-cyan);
   text-decoration-line: underline;
   text-decoration-style: dotted;
   text-decoration-color: var(--utility-cyan);
@@ -1893,6 +1910,46 @@ body.mobile-menu-open {
   background: transparent;
 }
 
+/* Figma Intro — 14×11 grid units (336×264): View Work 5U + gaps + 3×2U icons.
+   Edges snap to the page lattice (no flex-centering off-grid). */
+@media (min-width: 1024px) {
+  .hero-copy-shell,
+  .hero-section .hero-portrait-slot {
+    /* Same snapped Y so Intro + Portrait share a lattice row */
+    margin-top: round(
+      nearest,
+      calc(
+        (100vh - var(--chrome-top) - (var(--grid-unit) * 3) - (var(--grid-unit) * 11)) / 2
+      ),
+      var(--grid-unit)
+    );
+  }
+
+  .hero-copy {
+    width: calc(var(--grid-unit) * 14);
+    max-width: 100%;
+  }
+
+  .hero-intro-stack {
+    width: 100%;
+  }
+
+  .hero-view-work {
+    /* 5U × 2U (120×48) — single-line "VIEW WORK", never wrap */
+    width: calc(var(--grid-unit) * 5);
+    max-width: calc(var(--grid-unit) * 5);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .hero-copy .flat-control,
+  .hero-copy .flat-control-icon {
+    border-width: 1px;
+    box-sizing: border-box;
+  }
+}
+
+/* Intro: no cyan selection border (Figma spacing/rulers only) */
 .hero-copy .selection-outline {
   display: none;
 }
@@ -1902,6 +1959,21 @@ body.mobile-menu-open {
   padding: 0;
   background: transparent;
   border: none;
+}
+
+/* Always-on resting controls — no hover/press chrome (matches Figma static inspect) */
+.hero-copy .flat-control:hover,
+.hero-copy .flat-control:focus-visible,
+.hero-copy .flat-control:active,
+.hero-copy .flat-control-inverted:hover,
+.hero-copy .flat-control-inverted:focus-visible,
+.hero-copy .flat-control-inverted:active,
+.hero-copy .flat-control-icon:hover,
+.hero-copy .flat-control-icon:focus-visible,
+.hero-copy .flat-control-icon:active {
+  border-color: var(--figma-button-border);
+  background-color: transparent;
+  color: var(--figma-button-text);
 }
 
 .hero-portrait-frame .measurement-tooltip,
@@ -1914,6 +1986,7 @@ body.mobile-menu-open {
 .hero-actions {
   align-items: center;
   gap: var(--grid-unit);
+  width: 100%;
 }
 
 .section-heading {
@@ -1921,7 +1994,6 @@ body.mobile-menu-open {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: var(--grid-unit);
   overflow: hidden;
 }
 
@@ -1942,28 +2014,6 @@ body.mobile-menu-open {
 .section-heading-title {
   color: #ffffff;
   white-space: nowrap;
-}
-
-.section-heading-track {
-  position: relative;
-  z-index: 10;
-  min-width: calc(var(--grid-unit) * 2);
-  flex: 1;
-  height: 0;
-  margin-block-end: 0;
-  border-top: 1.5px solid color-mix(in srgb, var(--figma-panel-border) 70%, transparent);
-  background: none;
-}
-
-.section-heading-track::before,
-.section-heading-track::after {
-  content: none;
-}
-
-.section--canvas .section-heading-track,
-.section--subtle .section-heading-track {
-  border-top-color: color-mix(in srgb, var(--figma-panel-border) 70%, transparent);
-  background: none;
 }
 
 /* Figma section content wrapper — #3d3d3d panel (matches Tech / About) */
@@ -2008,9 +2058,9 @@ body.mobile-menu-open {
 .hero-name {
   max-width: none;
   font-family: var(--font-geist-sans), system-ui, sans-serif;
-  font-size: clamp(2.5rem, 10vw, calc(var(--grid-unit) * 3));
+  font-size: clamp(2.5rem, 10vw, var(--type-display-size));
   font-weight: 700;
-  letter-spacing: -0.042em;
+  letter-spacing: var(--type-display-tracking);
   line-height: 1;
   text-transform: uppercase;
 }
@@ -2018,24 +2068,20 @@ body.mobile-menu-open {
 @media (min-width: 1024px) {
   .hero-section .hero-name {
     color: #ffffff;
-    font-size: calc(var(--grid-unit) * 3);
-    line-height: calc(var(--grid-unit) * 3);
-    letter-spacing: -3px;
+    font-size: var(--type-display-size);
+    line-height: var(--type-display-size);
+    letter-spacing: var(--type-display-tracking);
   }
 }
 
 .hero-role {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 1rem;
+  font-size: var(--type-role-size);
   font-weight: 500;
-  letter-spacing: 0.25em;
+  letter-spacing: var(--type-role-tracking);
   line-height: var(--grid-unit);
   text-transform: uppercase;
   color: #ffffff;
-}
-
-.hero-copy .selection-outline span {
-  display: none;
 }
 
 .hero-copy .type-label,
@@ -2043,8 +2089,15 @@ body.mobile-menu-open {
   color: var(--text-on-media-muted);
 }
 
+/* Figma 352:760 "Scroll to see more" — its own literal spec (14/Regular/tracking-1,
+   rgba(255,255,255,.8)), distinct from the generic `.type-meta` role (12/500/tracking-2)
+   it's layered on top of via layoutClass(). Same value at every breakpoint — no separate
+   mobile/desktop dimming like the rest of `.type-meta` gets. */
 .scroll-hint {
-  color: var(--text-on-media-subtle);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .scroll-hint:hover .scroll-hint-icon {
@@ -2105,13 +2158,11 @@ html:not([data-boot]) .hero-section {
   }
 }
 
-.hero-copy a.type-meta,
-.hero-copy .scroll-hint {
+.hero-copy a.type-meta {
   color: var(--text-on-media-subtle);
 }
 
-.hero-copy a.type-meta:hover,
-.hero-copy .scroll-hint:hover {
+.hero-copy a.type-meta:hover {
   color: var(--text-on-media);
 }
 
@@ -2125,23 +2176,12 @@ html:not([data-boot]) .hero-section {
     color: var(--text-secondary);
   }
 
-  .hero-section .scroll-hint {
-    color: var(--text-muted);
-  }
-
   .hero-section .scroll-hint:hover {
     color: var(--link);
   }
 
 }
 
-.type-heading {
-  font-size: clamp(0.97rem, 1.6vw, 1.04rem);
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-}
 
 .surface-panel {
   background: var(--section-accent);
@@ -2176,10 +2216,11 @@ html:not([data-boot]) .hero-section {
 
 .experience-timeline-node {
   flex-shrink: 0;
-  width: var(--grid-unit);
-  height: var(--grid-unit);
-  border: 1px solid color-mix(in srgb, var(--foreground) 24%, var(--border-subtle) 76%);
-  background: var(--surface-panel);
+  /* Figma 479:2718/2720 rail dots are literally 12x12, black fill, #616161 border */
+  width: 12px;
+  height: 12px;
+  border: 1px solid #616161;
+  background: #000000;
 }
 
 .experience-timeline-item--first .experience-timeline-node {
@@ -2220,9 +2261,9 @@ html:not([data-boot]) .hero-section {
   background-color: transparent;
   color: var(--figma-button-text);
   font-family: var(--font-geist-mono), monospace;
-  font-size: 0.75rem;
+  font-size: var(--type-button-size);
   font-weight: 500;
-  letter-spacing: 4px;
+  letter-spacing: var(--type-button-tracking);
   text-transform: uppercase;
   transition:
     border-color 0.15s ease,
@@ -2287,7 +2328,8 @@ html:not([data-boot]) .hero-section {
   color: #ffffff;
 }
 
-/* Icon Button — 1px border, 48×48, 12px pad (Figma 352:458) */
+/* Icon Button — 1px border, 48×48, 12px pad (Figma 352:458/352:459 — literal spec value;
+   the 48×48 outer frame is what's grid-locked, padding is just internal icon centering) */
 .flat-control-icon {
   border-width: 1px;
   padding: calc(var(--grid-unit) * 0.5);
@@ -2366,25 +2408,198 @@ html:not([data-boot]) .hero-section {
   text-transform: uppercase;
 }
 
+.construction-ribbon {
+  position: relative;
+  border-bottom: 1px solid color-mix(in srgb, var(--utility-cyan) 22%, var(--border) 78%);
+  background-color: color-mix(in srgb, var(--background) 72%, transparent);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+}
+
+.construction-ribbon-badge {
+  border-right: 1px solid color-mix(in srgb, var(--utility-cyan) 28%, var(--border) 72%);
+  color: color-mix(in srgb, var(--utility-cyan) 78%, var(--foreground) 22%);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+}
+
+.construction-ribbon-track {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 1.5rem,
+    black calc(100% - 1.5rem),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 1.5rem,
+    black calc(100% - 1.5rem),
+    transparent 100%
+  );
+}
+
+.construction-ribbon-message {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--utility-cyan) 55%, var(--foreground) 45%);
+  opacity: 0.72;
+}
+
+@media (min-width: 640px) {
+  .construction-ribbon-message {
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+  }
+}
+
+.construction-ribbon-separator {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: color-mix(in srgb, var(--utility-cyan) 40%, var(--foreground) 60%);
+  opacity: 0.4;
+}
+
+@media (min-width: 640px) {
+  .construction-ribbon-separator {
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+  }
+}
+
+@keyframes ribbon-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-left {
+  animation: ribbon-marquee 40s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: ribbon-marquee 40s linear infinite;
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left,
+  .animate-marquee-right {
+    animation: none;
+  }
+}
+
+/* ━━━ Under construction empty screen (production gate) ━━━ */
+.construction-screen {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.construction-screen-frame {
+  padding-top: var(--frame-tab-clearance);
+}
+
+.construction-screen-tab {
+  position: absolute;
+  top: var(--frame-tab-clearance);
+  left: 50%;
+  transform: translate(-50%, calc(-100% - 2px));
+  padding: 0.15rem 0.45rem;
+  border: 1px solid color-mix(in srgb, var(--utility-cyan) 45%, transparent);
+  background: color-mix(in srgb, var(--background) 88%, var(--utility-cyan) 12%);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--utility-cyan) 80%, var(--foreground) 20%);
+  white-space: nowrap;
+}
+
+.construction-screen-body {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--utility-cyan) 55%, transparent);
+  background: color-mix(in srgb, var(--background) 92%, var(--surface-elevated) 8%);
+  padding: calc(var(--grid-unit) * 3) calc(var(--grid-unit) * 2);
+}
+
+.construction-screen-handle {
+  position: absolute;
+  z-index: 2;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--utility-cyan);
+  background: var(--background);
+}
+
+.construction-screen-handle--tl {
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+
+.construction-screen-handle--tr {
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+.construction-screen-handle--bl {
+  bottom: 0;
+  left: 0;
+  transform: translate(-50%, 50%);
+}
+
+.construction-screen-handle--br {
+  bottom: 0;
+  right: 0;
+  transform: translate(50%, 50%);
+}
+
+.construction-screen-title {
+  margin: calc(var(--grid-unit) * 0.75) 0 0;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.042em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.construction-screen-dim {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 50%;
+  transform: translateX(-50%);
+  color: color-mix(in srgb, var(--utility-cyan) 88%, white 12%);
+  white-space: nowrap;
+}
+
+/* Figma 372:281 header: flat rgba(0,0,0,0.6) + 8px blur + solid #363636 border — no gradient/glow */
 .editorial-nav-shell,
 .detail-nav-shell {
   position: relative;
   overflow: visible;
-  border-bottom: 1px solid color-mix(in srgb, var(--figma-nav-border) 85%, var(--utility-cyan) 15%);
-  background: linear-gradient(
-    180deg,
-    rgba(8, 8, 8, 0.78) 0%,
-    rgba(8, 8, 8, 0.52) 100%
-  );
-  backdrop-filter: blur(18px) saturate(1.45);
-  -webkit-backdrop-filter: blur(18px) saturate(1.45);
-  box-shadow:
-    0 1px 0 color-mix(in srgb, var(--utility-cyan) 14%, transparent),
-    0 12px 40px rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid var(--figma-nav-border);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition:
     background 0.3s ease,
     border-color 0.3s ease,
-    box-shadow 0.3s ease,
     backdrop-filter 0.3s ease;
 }
 
@@ -2393,7 +2608,8 @@ html:not([data-boot]) .hero-section {
   position: fixed;
   inset-inline: 0;
   top: 0;
-  height: calc(var(--chrome-top) + 3.25rem);
+  /* 52px addend rounded up to 3U (72px) — never let the veil fall short */
+  height: calc(var(--chrome-top) + var(--grid-unit) * 3);
   z-index: 39;
   pointer-events: none;
   opacity: 1;
@@ -2464,32 +2680,6 @@ html:not([data-boot]) .hero-section {
   opacity: 0.7;
 }
 
-.editorial-grid-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: color-mix(in srgb, var(--foreground) 11%, transparent);
-}
-
-.editorial-grid-line.soft {
-  background: color-mix(in srgb, var(--foreground) 7%, transparent);
-}
-
-.project-preview-overlay {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.03) 0%,
-      rgba(0, 0, 0, 0.14) 46%,
-      rgba(0, 0, 0, 0.62) 100%
-    );
-}
-
-.project-preview-copy {
-  color: rgba(255, 255, 255, 0.88);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-}
 
 /* Figma Project Card — title 20 / tags 12 / tracking 2px */
 .project-card-title {
@@ -2497,10 +2687,10 @@ html:not([data-boot]) .hero-section {
   flex: 1;
   margin: 0;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 20px;
+  font-size: var(--type-card-title-size);
   font-weight: 700;
   line-height: var(--grid-unit);
-  letter-spacing: 2px;
+  letter-spacing: var(--type-card-title-tracking);
   text-transform: uppercase;
   color: #ffffff;
 }
@@ -2509,10 +2699,10 @@ html:not([data-boot]) .hero-section {
   margin: 0;
   min-width: 0;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 12px;
+  font-size: var(--type-meta-size);
   font-weight: 400;
   line-height: var(--grid-unit);
-  letter-spacing: 2px;
+  letter-spacing: var(--type-meta-tracking);
   text-transform: uppercase;
   color: var(--figma-meta);
 }
@@ -2573,12 +2763,10 @@ html:not([data-boot]) .hero-section {
   color: var(--figma-meta);
 }
 
-/* Title stays white on hover — Figma Project Card 402:7472 */
-[data-project-card="interactive"]:hover .project-card-title,
-[data-project-card="interactive"]:focus-visible .project-card-title {
-  color: #ffffff;
-}
+/* Project card title has no color rule here on purpose — Figma 402:7472 keeps
+ * the title white on hover, so it simply inherits rather than being overridden. */
 
+/* Default (non-hover) frame border — .workspace-frame:hover below wins on hover */
 .workspace-frame .panel,
 .workspace-frame .flat-surface {
   border-color: var(--border-subtle);
@@ -2726,11 +2914,6 @@ html.custom-cursor-active [contenteditable='true'] {
     animation: none;
     opacity: 0;
   }
-
-  .service-artifact:not(:hover) .service-artifact-selection,
-  .service-artifact:not(:hover) .service-artifact-handle {
-    animation: none;
-  }
 }
 
 @keyframes skeleton-shimmer {
@@ -2828,72 +3011,6 @@ a {
   text-underline-position: under;
 }
 
-/* Link swap: text slides up and disappears, reappears from bottom + underline left-to-right */
-.link-swap {
-  position: relative;
-  display: inline-block;
-  text-decoration: none !important;
-}
-
-.link-swap::after {
-  content: '';
-  position: absolute;
-  bottom: calc(-1 * var(--link-underline-offset));
-  left: 0;
-  width: 0;
-  height: 1px;
-  background-color: currentColor;
-  transition: width 0.25s ease;
-  pointer-events: none;
-}
-
-.link-swap:hover::after {
-  width: 100%;
-}
-
-.link-swap-track {
-  display: block;
-  position: relative;
-  overflow: hidden;
-  line-height: 1.4;
-}
-
-.link-swap-visible,
-.link-swap-hidden {
-  display: block;
-  transition: transform 0.25s ease;
-}
-
-.link-swap-hidden {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  transform: translateY(100%);
-}
-
-.link-swap:hover .link-swap-visible {
-  transform: translateY(-100%);
-}
-
-.link-swap:hover .link-swap-hidden {
-  transform: translateY(0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .link-swap-visible,
-  .link-swap-hidden {
-    transition: none;
-  }
-
-  .link-swap:hover .link-swap-visible {
-    transform: translateY(0);
-  }
-
-  .link-swap:hover .link-swap-hidden {
-    transform: translateY(100%);
-  }
-}
 
 /* Nav Link — Figma 352:235
    Default: white · Hover: white + cyan dotted underline · Selected: cyan + cyan dotted underline */
@@ -2907,9 +3024,9 @@ a {
 .nav-desktop-link-label {
   display: inline-block;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 14px;
+  font-size: var(--type-nav-size);
   font-weight: 600;
-  letter-spacing: 0.0625em;
+  letter-spacing: var(--type-nav-tracking);
   text-transform: uppercase;
   color: inherit;
   text-decoration-line: none;
@@ -2954,9 +3071,9 @@ a {
 
 .nav-file-name {
   font-family: var(--font-geist-mono), monospace;
-  font-size: 16px;
+  font-size: var(--type-brand-size);
   font-weight: 800;
-  letter-spacing: 0.125em;
+  letter-spacing: var(--type-brand-tracking);
   text-transform: uppercase;
   color: #ffffff;
   max-width: none;
@@ -2974,7 +3091,8 @@ a {
 .nav-bar-links {
   display: none;
   align-items: center;
-  gap: calc(var(--grid-unit) * 2);
+  /* Figma 372:308 nav-links gap is literally 60px, not a 24px multiple — match it exactly */
+  gap: 60px;
 }
 
 @media (min-width: 1024px) {
@@ -3004,10 +3122,6 @@ a {
   }
 }
 
-/* Nav: mobile menu items - no underline, pill only */
-.nav-mobile-item.link-swap::after {
-  display: none !important;
-}
 
 /* Ensure buttons never get underlined */
 button {
@@ -3046,99 +3160,17 @@ button:hover {
   border-radius: 4px;
 }
 
-/* Tech Stack: infinite marquee (two copies, translate -50%) */
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee-left {
-  animation: marquee 55s linear infinite;
-}
-
-.animate-marquee-right {
-  animation: marquee 55s linear infinite;
-  animation-direction: reverse;
-}
-
-.tech-stack-marquee-row:hover .animate-marquee-left,
-.tech-stack-marquee-row:hover .animate-marquee-right {
-  animation-play-state: paused;
-}
 
 .tech-stack-panel {
   background-color: var(--figma-panel);
   display: flex;
   flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.tech-stack-marquee {
-  display: flex;
-  flex-direction: column;
+  /* Panel fills the full sticky-lock viewport height, but the marquee/grid content
+     is much shorter than that now — center it instead of stranding it at the top
+     with a wall of empty space below. */
   justify-content: center;
-  gap: var(--tech-row-gap);
-  width: 100%;
   min-height: 0;
-  flex: 1;
   overflow: hidden;
-}
-
-/*
- * CRITICAL: never pair overflow-x:hidden with overflow-y:visible —
- * CSS forces overflow-y to auto and shows a vertical scrollbar per row.
- */
-.tech-stack-marquee-row {
-  position: relative;
-  width: 100%;
-  height: var(--tech-tile-size);
-  flex-shrink: 0;
-  overflow: hidden;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black 2rem,
-    black calc(100% - 2rem),
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black 2rem,
-    black calc(100% - 2rem),
-    transparent 100%
-  );
-  mask-size: 100% 100%;
-  -webkit-mask-size: 100% 100%;
-}
-
-.tech-stack-marquee-row::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.tech-stack-marquee-track {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: stretch;
-  width: max-content;
-  height: var(--tech-tile-size);
-  gap: var(--tech-tile-gap);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee-left,
-  .animate-marquee-right {
-    animation: none;
-  }
 }
 
 /* Theme 2 — Figma workspace inspection utilities */
@@ -3148,10 +3180,6 @@ button:hover {
 
 .design-rulers {
   z-index: 40;
-}
-
-.grid-overlay-home {
-  inset: 0;
 }
 
 .ruler-track {
@@ -3278,13 +3306,12 @@ button:hover {
 }
 
 /*
- * Figma Frame Name (352:301) — hover/active frame label.
- * 24px tall cyan-tint chip, 24px above the frame top (grid-aligned).
- * Always paints above measurement rulers (z-index).
+ * Figma Frame Name (352:301 / 471:5291) — hover/active frame label.
+ * 24px tall cyan-tint chip at −72px (above the width ruler at −24px).
  */
 .frame-tab,
 .frame-label.frame-tab {
-  top: 0;
+  top: calc(-1 * var(--frame-tab-clearance));
   left: 0;
   z-index: 40;
   display: inline-flex;
@@ -3300,18 +3327,28 @@ button:hover {
   font-family: var(--font-geist-mono), monospace;
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.0625em;
+  /* Figma 405:7604 chip text is a literal 1px tracking, not an em-relative value */
+  letter-spacing: 1px;
   line-height: 1;
   color: #ffffff;
   text-transform: uppercase;
   white-space: nowrap;
-  transform: translateY(calc(-100% - var(--frame-tab-gap)));
+  transform: none;
   box-sizing: border-box;
+}
+
+/*
+ * Figma 463:1264 (Process card hover): cards with no outside width ruler don't
+ * need the extra clearance that Works/Expertise/About reserve to clear theirs —
+ * the chip sits flush at -48px, directly above where the resting label sat.
+ */
+.frame-tab--flush {
+  top: calc(-1 * var(--frame-tab-offset));
 }
 
 /* Figma resting layer name — 12px mono, 50% white, no chip (Works/Process default) */
 .frame-label--resting {
-  top: 0;
+  top: calc(-1 * var(--frame-tab-offset));
   left: 0;
   z-index: 4;
   display: inline-flex;
@@ -3322,15 +3359,14 @@ button:hover {
   border: none;
   background: transparent;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 12px;
+  font-size: var(--type-meta-size);
   font-weight: 500;
-  letter-spacing: 0.0625em;
+  letter-spacing: var(--type-frame-label-tracking);
   line-height: 1;
   color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   white-space: nowrap;
-  /* Same 24px clearance as Frame Name chip — Process 463:1319 / Works row height */
-  transform: translateY(calc(-100% - var(--frame-tab-gap)));
+  transform: none;
   box-sizing: border-box;
 }
 
@@ -3338,7 +3374,7 @@ button:hover {
   z-index: 40;
 }
 
-/* Keep width ruler below the frame-name chip (no overlap) */
+/* Width ruler sits under the frame-name chip (Figma 471:5288 below 471:5291) */
 .workspace-frame--active:has(.frame-tab) .measurement-overlay--outside-framed,
 .workspace-frame--active:has(.frame-tab) .measurement-overlay--outside {
   z-index: 6;
@@ -3363,10 +3399,11 @@ button:hover {
 }
 
 .spacing-overlay {
+  /* Keep normal blend so `24px` labels stay crisp; sibling fills still stack via alpha */
   mix-blend-mode: normal;
   opacity: 0;
   transition: opacity 0.2s var(--motion-ease-precision);
-  z-index: 2;
+  z-index: 4;
 }
 
 .spacing-guide > [data-spacing-overlay] {
@@ -3376,19 +3413,17 @@ button:hover {
 
 .spacing-guide > :not([data-spacing-overlay]):not(.sr-only) {
   position: relative;
-  z-index: 3;
+  z-index: 1;
 }
 
-.spacing-fill-padding {
-  background-color: color-mix(in srgb, var(--utility-magenta) 34%, transparent);
-}
-
+.spacing-fill-padding,
 .spacing-fill-gap {
-  background-color: color-mix(in srgb, var(--utility-magenta) 26%, transparent);
+  /* Figma-like translucent magenta — overlaps read darker where bands cross */
+  background-color: rgb(255 79 163 / 0.32);
 }
 
 .spacing-fill-gutter {
-  background-color: color-mix(in srgb, var(--utility-cyan) 22%, transparent);
+  background-color: rgb(88 191 232 / 0.22);
 }
 
 .spacing-fill-animate .spacing-zone-label,
@@ -3483,7 +3518,7 @@ button:hover {
   font-variant-numeric: tabular-nums;
 }
 
-/* Dimension / frame labels stay uppercase; spacing fills stay plain numbers */
+/* Dimension / frame labels stay uppercase; spacing fills use `24px`-style values */
 .measurement-text,
 .measurement-tooltip,
 .measurement-label,
@@ -3678,17 +3713,6 @@ button:hover {
   user-select: none;
 }
 
-.site-grid-lines-layer {
-  opacity: 0.42;
-}
-
-.section--inspecting .site-grid-lines-layer [class*='border-l'] {
-  border-color: rgba(88, 191, 232, 0.2) !important;
-}
-
-.section-inspection-bounds {
-  display: none;
-}
 
 .workspace-frame--scroll-peek .selection-outline > div {
   opacity: 0.45;
@@ -4166,5 +4190,6 @@ body.boot-locked {
     transition: none !important;
   }
 }
+
 
 

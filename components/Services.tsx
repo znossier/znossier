@@ -48,17 +48,17 @@ const ServiceCard = memo(function ServiceCard({
         showMeasurementLines={hovered}
         measurementPlacement="outside"
         variant="figma"
-        panelClassName="relative h-auto min-h-0 p-[calc(var(--grid-unit)*2)] lg:h-[calc(var(--grid-unit)*13)]"
+        panelClassName="relative h-auto min-h-0 overflow-visible p-[calc(var(--grid-unit)*2)] lg:min-h-[calc(var(--grid-unit)*13)]"
         className="card-lift relative overflow-visible"
       >
-        <div className="grid h-full grid-cols-1 gap-[var(--grid-unit)] text-left lg:grid-cols-[1fr_minmax(calc(var(--grid-unit)*8),calc(var(--grid-unit)*16))] lg:gap-[calc(var(--grid-unit)*2)]">
+        <div className="grid h-full grid-cols-1 gap-[var(--grid-unit)] text-left lg:grid-cols-[1fr_var(--expertise-visual-width)] lg:items-start lg:gap-[calc(var(--grid-unit)*2)]">
           <div className="flex min-w-0 flex-col justify-center gap-[var(--grid-unit)]">
-            <div className="type-meta">{service.number}</div>
-            <h3 className="expertise-card-title">{service.title}</h3>
+            <div className="type-meta text-[var(--figma-meta)]">{service.number}</div>
+            <h3 className="type-expertise-title">{service.title}</h3>
             <p className="expertise-card-body">{service.description}</p>
           </div>
           <div
-            className="service-visual-demo relative min-h-[calc(var(--grid-unit)*9)] overflow-hidden lg:h-full lg:min-h-0"
+            className="service-visual-demo relative h-[var(--expertise-visual-height)] w-full lg:h-[var(--expertise-visual-height)] lg:w-[var(--expertise-visual-width)] lg:max-w-[var(--expertise-visual-width)] lg:shrink-0"
             aria-hidden
           >
             <ServiceVisualArtifact visual={service.visual ?? getDefaultServiceVisual(index)} />
@@ -73,7 +73,9 @@ export function Services({ services }: { services: Service[] }) {
   const isDesktop = useMediaQuery(mediaQueries.lg);
 
   const cards = (
-    <div className="flex flex-col gap-[calc(var(--grid-unit)*2)] pt-[var(--frame-tab-offset)] lg:gap-[calc(var(--grid-unit)*4)]">
+    // Figma 400:7157: cards are 1200px wide (50U), inset 48px (2U) from the
+    // section's left edge — not stretched to the full 1320px content box.
+    <div className="flex flex-col gap-[calc(var(--grid-unit)*2)] pt-[var(--frame-tab-clearance)] lg:ml-[calc(var(--grid-unit)*2)] lg:w-[calc(var(--grid-unit)*50)] lg:max-w-[calc(var(--grid-unit)*50)] lg:gap-[calc(var(--grid-unit)*4)]">
       {services.map((service, index) =>
         isDesktop ? (
           <ServiceCard key={service.id} service={service} index={index} sticky />
@@ -106,7 +108,6 @@ export function Services({ services }: { services: Service[] }) {
       <SectionStickyShell
         sectionId="expertise"
         title="02 - Expertise"
-        scrollable
         panelLabel="Expertise"
       >
         {cards}

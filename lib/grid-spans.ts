@@ -25,8 +25,8 @@ export const gridSpans = {
     experience: 'col-span-full lg:[grid-column:14/span_11]',
   },
   footer: {
-    utilitySpacerLeft: 'col-span-full lg:[grid-column:1/span_8] lg:row-start-1 hidden lg:block',
-    utilitySpacerRight: 'col-span-full lg:[grid-column:9/span_8] lg:row-start-1 hidden lg:block',
+    utilitySpacerLeft: 'col-span-full lg:[grid-column:1/span_8] lg:row-start-1',
+    utilitySpacerRight: 'col-span-full lg:[grid-column:9/span_8] lg:row-start-1',
     utility: 'col-span-full lg:[grid-column:17/span_8] lg:row-start-1',
     nav: 'col-span-full lg:[grid-column:1/span_8] lg:row-start-2',
     contact: 'col-span-full lg:[grid-column:9/span_8] lg:row-start-2',

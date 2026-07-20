@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { getSpacingLabelMode, type SpacingRect } from '@/lib/spacing-metrics';
+import { formatMeasurementPx } from '@/components/MeasurementOverlay';
 import type { MeasurementColor } from '@/components/MeasurementLabel';
 
 function labelColor(kind: SpacingRect['kind']): MeasurementColor {
@@ -13,8 +14,7 @@ export function SpacingZoneLabel({ rect }: { rect: SpacingRect }) {
   if (mode === 'hidden') return null;
 
   const color = labelColor(rect.kind);
-  /* Figma spacing fills: numeric only — never append px */
-  const label = String(rect.size);
+  const label = formatMeasurementPx(rect.size);
 
   return (
     <div className="spacing-zone-label" aria-hidden>

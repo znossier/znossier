@@ -15,25 +15,26 @@ import { SectionHeading } from './SectionHeading';
 import { WorkspaceFrame } from './WorkspaceFrame';
 import { cn } from '@/lib/utils';
 
-const STICKY_TOP = 'calc(var(--chrome-top) + 1rem)';
-const PAGE_TOP_PADDING = 'calc(var(--chrome-top) + 2rem)';
-const SECTION_SCROLL_MARGIN = 'calc(var(--chrome-top) + 2.5rem)';
+// Addends rounded UP to the next 24px grid line, never down — extra breathing room over clipping
+const STICKY_TOP = 'calc(var(--chrome-top) + var(--grid-unit))';
+const PAGE_TOP_PADDING = 'calc(var(--chrome-top) + var(--grid-unit) * 2)';
+const SECTION_SCROLL_MARGIN = 'calc(var(--chrome-top) + var(--grid-unit) * 2)';
 
 const detailNavLinkClass =
-  'type-label inline-flex min-h-11 items-center py-2 text-muted transition-colors duration-200 hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+  'type-label inline-flex min-h-12 items-center text-muted transition-colors duration-200 hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
 function DetailNav() {
   return (
     <nav
       aria-label="Project navigation"
-      className="detail-nav-shell fixed inset-x-0 top-0 z-50"
+      className="detail-nav-shell fixed inset-x-0 top-[var(--ribbon-height)] z-50"
       style={{ height: 'var(--detail-nav-height)' }}
     >
       <div className="site-shell h-full">
         <div className="site-grid h-full items-center">
           <Link
             href="/"
-            className="type-label col-span-full inline-flex min-h-11 items-center gap-2 text-secondary transition-colors hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:col-span-2 lg:[grid-column:1/span_2]"
+            className="type-label col-span-full inline-flex min-h-12 items-center gap-2 text-secondary transition-colors hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:col-span-2 lg:[grid-column:1/span_2]"
             aria-label="Back to home"
           >
             <span>Home</span>
@@ -66,7 +67,7 @@ function MobileSectionNav({ sections }: { sections: ProjectSection[] }) {
             <li key={section.id} className="shrink-0">
               <a
                 href={`#${section.id}`}
-                className="type-label flat-control inline-flex min-h-11 items-center px-3 py-2 text-secondary transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="type-label flat-control inline-flex min-h-12 items-center px-[var(--grid-unit)] text-secondary transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 {section.title}
               </a>

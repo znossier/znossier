@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<Props, State> {
           role="alert"
           className="min-h-[40vh] flex flex-col items-center justify-center gap-4 px-4 py-16 text-center bg-canvas text-primary"
         >
-          <h2 className="type-heading text-lg">Something went wrong</h2>
+          <h2 className="type-title text-lg">Something went wrong</h2>
           <p className="type-body max-w-md">We couldn’t load this part of the page. Try refreshing.</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Button

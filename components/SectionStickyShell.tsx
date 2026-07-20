@@ -16,13 +16,11 @@ type SectionStickyShellProps = {
   className?: string;
   /** Panel aria label */
   panelLabel?: string;
-  /** Enable nested overflow scroll + Lenis prevent (Works / Expertise / About) */
-  scrollable?: boolean;
 };
 
 /**
- * Viewport-locked section chrome: heading badge stays pinned while the gray
- * panel fills the remaining viewport (24px gap).
+ * Section chrome: heading + gray panel. Pins under nav while the section is in
+ * view; content grows with the page (no nested scroll / Lenis prevent).
  */
 export function SectionStickyShell({
   sectionId,
@@ -32,13 +30,12 @@ export function SectionStickyShell({
   panelClassName,
   className,
   panelLabel,
-  scrollable = false,
 }: SectionStickyShellProps) {
   return (
     <SectionLayout
       sectionId={sectionId}
       className={cn(
-        'section-sticky-shell sticky top-[var(--chrome-top)] flex h-[calc(100svh-var(--chrome-top))] w-full flex-col',
+        'section-sticky-shell sticky top-[var(--chrome-top)] flex min-h-[calc(100svh-var(--chrome-top))] w-full flex-col',
         className
       )}
     >
@@ -50,10 +47,8 @@ export function SectionStickyShell({
         <div
           className={cn(
             'section-figma-panel section-sticky-panel flex min-h-0 flex-1 flex-col',
-            scrollable && 'section-sticky-panel--scroll',
             panelClassName
           )}
-          data-lenis-prevent={scrollable ? true : undefined}
           aria-label={panelLabel}
         >
           {children}

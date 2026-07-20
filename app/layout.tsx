@@ -3,8 +3,10 @@ import { Geist, Geist_Mono, Oswald } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
+import { isSiteUnderConstruction } from "@/lib/site-gate";
 
 const OG_IMAGE = "/og-image.jpg";
+const underConstruction = isSiteUnderConstruction();
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -32,10 +34,12 @@ const oswald = Oswald({
 
 export const metadata: Metadata = {
   title: {
-    default: "Zeina Nossier",
+    default: underConstruction ? "Zeina Nossier — Under Construction" : "Zeina Nossier",
     template: "%s | Zeina Nossier",
   },
-  description: "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
+  description: underConstruction
+    ? "Portfolio under construction. UI/UX & Product Designer based in Cairo, EG."
+    : "Crafting Simple, Effective Designs for Meaningful Experiences. UI/UX & Product Designer based in Cairo, EG.",
   metadataBase: new URL("https://znossier.com"),
   keywords: [
     "UI/UX Designer",
@@ -88,9 +92,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-B.png", sizes: "64x64", type: "image/png" },
+      // Black ZN for light browser chrome
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-W.png", sizes: "64x64", type: "image/png", media: "(prefers-color-scheme: light)" },
+      // White ZN for dark browser chrome
+      { url: "/favicon-16x16-dark.png", sizes: "16x16", type: "image/png", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon-32x32-dark.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon-B.png", sizes: "64x64", type: "image/png", media: "(prefers-color-scheme: dark)" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
@@ -135,7 +144,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}
       >

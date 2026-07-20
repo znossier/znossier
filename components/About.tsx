@@ -18,8 +18,6 @@ import { SectionStickyShell } from '@/components/SectionStickyShell';
 import { SectionLayout } from '@/components/SectionLayout';
 import { SectionHeading } from '@/components/SectionHeading';
 import { Reveal } from '@/components/Reveal';
-import { GridCell } from '@/components/GridCell';
-import { layoutClass } from '@/lib/grid-layout';
 import { EASE_PRECISION, MOTION, REVEAL_VIEWPORT, transitionHover } from '@/lib/motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -27,12 +25,27 @@ import { mediaQueries } from '@/lib/breakpoints';
 import Image from 'next/image';
 
 function CompanyLogo({ src, alt, className = '' }: { src: string; alt: string; className?: string }) {
+  const [errored, setErrored] = useState(false);
+
   return (
     <div
-      className={`relative flex h-9 w-9 flex-shrink-0 overflow-hidden border border-subtle bg-panel/80 ${className}`}
+      className={cn(
+        'relative flex h-12 w-12 flex-shrink-0 overflow-hidden border border-subtle bg-panel/80',
+        className
+      )}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} className="h-full w-full object-cover" width={36} height={36} loading="lazy" />
+      {!errored && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          className="h-full w-full object-cover"
+          width={48}
+          height={48}
+          loading="lazy"
+          onError={() => setErrored(true)}
+        />
+      )}
     </div>
   );
 }
@@ -45,7 +58,8 @@ function ExpandIcon({ isExpanded }: { isExpanded: boolean }) {
       className="inline-flex"
       aria-hidden
     >
-      <Plus size={16} strokeWidth={2} />
+      {/* Figma 479:2730 "add" icon is literally 20x20, not 16 */}
+      <Plus size={20} strokeWidth={2} />
     </motion.span>
   );
 }
@@ -62,16 +76,16 @@ const ExperienceGroupCard = memo(function ExperienceGroupCard({
   onToggle: (key: string) => void;
 }) {
   return (
-    <div className="site-cell-pad mb-0 border-b border-border/85 bg-transparent last:border-b-0">
-      <div className="mb-4 flex items-center gap-4">
+    <div className="site-cell-pad mb-0 border-b border-border bg-transparent last:border-b-0">
+      <div className="mb-[var(--grid-unit)] flex items-start gap-[var(--grid-unit)]">
         {group.logo ? (
           <CompanyLogo src={group.logo} alt={group.company} />
         ) : (
-          <div className="h-9 w-9 flex-shrink-0" aria-hidden />
+          <div className="h-12 w-12 flex-shrink-0" aria-hidden />
         )}
         <div className="min-w-0">
-          <p className="type-meta">Current Company</p>
-          <h4 className="type-heading mt-1">{group.company}</h4>
+          <p className="type-exp-group-label">Current Company</p>
+          <h4 className="type-exp-group-company mt-0">{group.company}</h4>
         </div>
       </div>
 
@@ -127,13 +141,13 @@ function ExperienceGroupRoleRow({
 
   const rowContent = (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-x-[var(--grid-unit)] gap-y-[var(--grid-unit)]">
         <div className="min-w-0 flex-1 basis-[9rem]">
-          <h5 className="type-heading">{role.role}</h5>
+          <h5 className="type-exp-role">{role.role}</h5>
           <p className="sr-only">{company}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-2 text-muted">
-          <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap text-muted">{role.period}</span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="type-exp-period max-sm:whitespace-normal sm:whitespace-nowrap">{role.period}</span>
           {hasContent && <ExpandIcon isExpanded={isExpanded} />}
         </div>
       </div>
@@ -152,16 +166,16 @@ function ExperienceGroupRoleRow({
               aria-live="polite"
             >
               {role.bullets && role.bullets.length > 0 ? (
-                <ul className="type-body space-y-1.5 pt-3">
+                <ul className="type-about-bio space-y-[var(--grid-unit)] pt-[var(--grid-unit)]">
                   {role.bullets.map((bullet) => (
-                    <li key={bullet} className="flex gap-2">
-                      <span className="mt-2 h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
+                    <li key={bullet} className="flex gap-[var(--grid-unit)]">
+                      <span className="mt-[calc(var(--grid-unit)/2)] h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
                       <span>{bullet}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                role.description && <p className="type-body pt-3">{role.description}</p>
+                role.description && <p className="type-about-bio pt-[var(--grid-unit)]">{role.description}</p>
               )}
             </motion.div>
           )}
@@ -203,19 +217,25 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
   const rowRef = useRef<HTMLDivElement>(null);
   const inView = useInView(rowRef, REVEAL_VIEWPORT);
   const hasContent = (item.bullets && item.bullets.length > 0) || !!item.description;
-  const rowClassName = 'site-cell-pad mb-0 border-b border-border/85 bg-transparent last:border-b-0';
+  const rowClassName = 'site-cell-pad mb-0 border-b border-border bg-transparent last:border-b-0';
 
   const rowContent = (
     <>
-      <div className="grid grid-cols-[calc(var(--grid-unit)*2)_1fr] items-start gap-x-[var(--grid-unit)] gap-y-[var(--grid-unit)] sm:grid-cols-[calc(var(--grid-unit)*2)_1fr_auto]">
-        {item.logo ? <CompanyLogo src={item.logo} alt={item.company} /> : <div className="w-[calc(var(--grid-unit)*2)] flex-shrink-0" aria-hidden />}
-        <div className="min-w-0">
-          <h4 className="type-heading">{item.role}</h4>
-          <p className="type-body mt-0">{item.company}</p>
-        </div>
-        <div className="col-start-2 flex shrink-0 items-center gap-[var(--grid-unit)] text-muted sm:col-start-3 sm:row-start-1">
-          <span className="type-meta max-sm:whitespace-normal sm:whitespace-nowrap text-muted">{item.period}</span>
-          {hasContent && <ExpandIcon isExpanded={isExpanded} />}
+      <div className="flex items-start gap-[var(--grid-unit)]">
+        {item.logo ? (
+          <CompanyLogo src={item.logo} alt={item.company} />
+        ) : (
+          <div className="h-12 w-12 flex-shrink-0" aria-hidden />
+        )}
+        <div className="flex min-w-0 flex-1 flex-col gap-[var(--grid-unit)]">
+          <div className="flex flex-wrap items-center gap-x-[var(--grid-unit)] gap-y-[var(--grid-unit)]">
+            <h4 className="type-exp-role min-w-0 flex-1">{item.role}</h4>
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="type-exp-period max-sm:whitespace-normal sm:whitespace-nowrap">{item.period}</span>
+              {hasContent && <ExpandIcon isExpanded={isExpanded} />}
+            </div>
+          </div>
+          <p className="type-exp-company">{item.company}</p>
         </div>
       </div>
 
@@ -233,7 +253,7 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
               aria-live="polite"
             >
               {item.bullets && item.bullets.length > 0 ? (
-                <ul className="type-body space-y-[var(--grid-unit)] pt-[var(--grid-unit)] pl-[calc(var(--grid-unit)*3)]">
+                <ul className="type-about-bio space-y-[var(--grid-unit)] pt-[var(--grid-unit)] pl-[calc(var(--grid-unit)*3)]">
                   {item.bullets.map((bullet) => (
                     <li key={bullet} className="flex gap-[var(--grid-unit)]">
                       <span className="mt-[calc(var(--grid-unit)/2)] h-[3px] w-[3px] flex-shrink-0 rounded-full bg-foreground/40" aria-hidden />
@@ -242,7 +262,9 @@ const ExperienceSingleItem = memo(function ExperienceSingleItem({
                   ))}
                 </ul>
               ) : (
-                item.description && <p className="type-body pt-[var(--grid-unit)] pl-[calc(var(--grid-unit)*3)]">{item.description}</p>
+                item.description && (
+                  <p className="type-about-bio pt-[var(--grid-unit)] pl-[calc(var(--grid-unit)*3)]">{item.description}</p>
+                )
               )}
             </motion.div>
           )}
@@ -319,56 +341,54 @@ export function About({ about }: { about: AboutContent }) {
   const isDesktop = useMediaQuery(mediaQueries.lg);
 
   const panel = (
-    <div className="site-section-grid min-h-0 gap-y-[calc(var(--grid-unit)*2)]">
-      <GridCell
-        section="about"
-        cell="intro"
-        className="flex flex-col gap-[calc(var(--grid-unit)*2)] lg:self-start"
-      >
-        <Reveal delay={0.06}>
-          <WorkspaceFrame
-            inspectMode="hover"
-            inspectDepth="full"
-            frameLabel="ABOUT-ME"
-            showMeasurementLines
-            measurementPlacement="outside"
-            variant="figma"
-            panelClassName="grid grid-cols-6 gap-[var(--grid-unit)] p-[var(--grid-unit)]"
-            className="overflow-visible"
-          >
-            <div className="[grid-column:1/span_6] w-full sm:[grid-column:1/span_2] sm:self-stretch">
-              <div className="relative h-[calc(var(--grid-unit)*8)] w-full overflow-hidden sm:h-full sm:min-h-[calc(var(--grid-unit)*8)]">
-                {about.image && (
-                  <Image
-                    src={about.image}
-                    alt="Portrait of Zeina Nossier"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 639px) calc(100vw - 48px), 192px"
-                  />
-                )}
-              </div>
-            </div>
-            <div className="[grid-column:1/span_6] min-w-0 space-y-[var(--grid-unit)] sm:[grid-column:3/span_4]">
-              <h3 className="type-title">{about.name}</h3>
-              <p className="type-body text-secondary">{about.bioShort ?? about.bio}</p>
-              <Button
-                onClick={() => smoothScrollTo('footer')}
-                variant="primary"
-                aria-label="Scroll to contact section"
-              >
-                Contact Me <span className="ms-1" aria-hidden>→</span>
-              </Button>
-            </div>
-          </WorkspaceFrame>
-        </Reveal>
-      </GridCell>
-
-      <Reveal delay={0.1} className={layoutClass('about', 'experience')}>
+    // Figma 407:1584: About Me + Experience are both fixed 576px (24U) cards
+    // with a 48px (2U) gap, inset 48px (2U) from the section's left edge —
+    // not a proportional 11/24-span grid.
+    <div className="flex flex-col gap-[calc(var(--grid-unit)*2)] pt-[var(--frame-tab-clearance)] lg:ml-[calc(var(--grid-unit)*2)] lg:flex-row lg:items-start">
+      <Reveal delay={0.06} className="min-w-0 w-full lg:w-[calc(var(--grid-unit)*24)] lg:flex-none">
         <WorkspaceFrame
           inspectMode="hover"
           inspectDepth="full"
-          frameLabel="Experience"
+          frameLabel="ABOUT-ME"
+          showMeasurementLines
+          measurementPlacement="outside"
+          variant="figma"
+          panelClassName="flex flex-col gap-[var(--grid-unit)] p-[calc(var(--grid-unit)*2)] sm:flex-row"
+          className="overflow-visible"
+        >
+          <div className="relative h-[calc(var(--grid-unit)*10)] w-full shrink-0 overflow-hidden sm:h-[calc(var(--grid-unit)*10)] sm:w-[calc(var(--grid-unit)*8)]">
+            {about.image && (
+              <Image
+                src={about.image}
+                alt="Portrait of Zeina Nossier"
+                fill
+                className="object-cover"
+                sizes="192px"
+              />
+            )}
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-[var(--grid-unit)]">
+            <h3 className="type-about-title">{about.name}</h3>
+            <p className="type-about-bio">{about.bioShort ?? about.bio}</p>
+            <Button
+              onClick={() => smoothScrollTo('footer')}
+              variant="primary"
+              className="h-12 w-auto"
+              aria-label="Scroll to contact section"
+            >
+              Contact Me <span className="ms-1" aria-hidden>
+                →
+              </span>
+            </Button>
+          </div>
+        </WorkspaceFrame>
+      </Reveal>
+
+      <Reveal delay={0.1} className="min-w-0 w-full lg:w-[calc(var(--grid-unit)*24)] lg:flex-none">
+        <WorkspaceFrame
+          inspectMode="hover"
+          inspectDepth="full"
+          frameLabel="EXPERIENCE-01"
           showMeasurementLines
           measurementPlacement="outside"
           variant="figma"
@@ -423,7 +443,6 @@ export function About({ about }: { about: AboutContent }) {
       <SectionStickyShell
         sectionId="about"
         title="05 - About Me"
-        scrollable
         panelLabel="About me"
       >
         {panel}

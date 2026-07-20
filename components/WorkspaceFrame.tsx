@@ -79,9 +79,11 @@ export function WorkspaceFrame({
     dwellMs: 900,
     resetOnExit: true,
   });
+  // `inspectMode="always"` must light up on mount — do not gate on finePointer
+  // (that forced Hero chrome to wait for scroll-peek on some pointer configs).
   const active =
-    !isOff && ((isAlways && finePointer) || (finePointer && (hovered || focused)) || scrollPeeking);
-  const spacingLabelsOn = showLabels === false ? false : (isAlways && finePointer) || active;
+    !isOff && (isAlways || (finePointer && (hovered || focused)) || scrollPeeking);
+  const spacingLabelsOn = showLabels === false ? false : isAlways || active;
   const showDimensionUi =
     !isOutlineOnly && showDimensions && active && metrics && isDesktop;
   const showDimensionLineUi = showDimensionUi && showMeasurementLines && !reducedMotion;
@@ -97,11 +99,19 @@ export function WorkspaceFrame({
     if (isOff || !active) return;
 
     measureNow();
+    // Always-on frames can mount before final layout (boot / fonts). Remeasure
+    // once more on the next frame so W×H and spacing fills aren't empty until scroll.
+    const rafId = window.requestAnimationFrame(() => measureNow());
     const el = frameRef.current;
-    if (!el) return;
+    if (!el) {
+      return () => window.cancelAnimationFrame(rafId);
+    }
     const ro = new ResizeObserver(measureNow);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      ro.disconnect();
+    };
   }, [measureNow, isOff, active]);
 
   const isFigma = variant === 'figma';
@@ -143,9 +153,12 @@ export function WorkspaceFrame({
   );
 
   // Figma Frame Name (352:301) — cyan chip when active; optional dim resting label
-  const usesFrameTab = Boolean(frameLabel);
   const showFrameLabel = Boolean(frameLabel) && (active || showRestingLabel);
   const horizontalMeasureClass = 'measurement-overlay--outside-framed';
+  // Figma 463:1264 (Process hover): when a card doesn't render an outside width
+  // ruler, the active chip sits directly above the card at -48px, not the
+  // -72px clearance Works/Expertise/About need to clear their rulers.
+  const chipNeedsRulerClearance = showMeasurementLines && outsideMeasurements;
 
   return (
     <div
@@ -175,7 +188,6 @@ export function WorkspaceFrame({
     >
       <SelectionOutline
         visible={active && showSelectionOutline}
-        hideTopLeftCorner={usesFrameTab && active}
         className="z-[5]"
       />
 
@@ -183,7 +195,9 @@ export function WorkspaceFrame({
         <span
           className={cn(
             'frame-label pointer-events-none absolute',
-            active ? 'frame-tab' : 'frame-label--resting'
+            active
+              ? cn('frame-tab', !chipNeedsRulerClearance && 'frame-tab--flush')
+              : 'frame-label--resting'
           )}
           aria-hidden
         >

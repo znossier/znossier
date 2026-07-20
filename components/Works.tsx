@@ -13,18 +13,15 @@ import Link from 'next/link';
 import { Reveal } from '@/components/Reveal';
 import { memo, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { EASE_PRECISION, MOTION, REVEAL_VIEWPORT, transitionHover } from '@/lib/motion';
+import { EASE_PRECISION, MOTION, REVEAL_VIEWPORT } from '@/lib/motion';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { mediaQueries } from '@/lib/breakpoints';
-import { cn } from '@/lib/utils';
 
 const ProjectCard = memo(function ProjectCard({ project, index }: { project: Project; index: number }) {
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, REVEAL_VIEWPORT);
-  const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const supportsHover = useMediaQuery('(hover: hover) and (pointer: fine)');
   const reducedMotion = useReducedMotion();
 
   const href = getProjectHref(project);
@@ -35,7 +32,6 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
   const previewImage = project.coverImage ?? project.image;
   const imageAvailable = !!previewImage && !imageError;
   const categoriesLabel = project.categories.join(' / ');
-  const showPreviewCopy = isHovered || !supportsHover;
   const frameLabel = `PROJECT-${String(index + 1).padStart(2, '0')}`;
 
   const cardContent = (
@@ -53,51 +49,19 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
       panelClassName="site-cell-pad relative flex h-full w-full min-h-0 flex-col gap-[var(--grid-unit)]"
       className="card-lift relative h-full w-full overflow-visible"
     >
+      {/* Figma 388:7006 / 402:7472 Project Card: image + title + tags only —
+          no description text and no hover-reveal overlay in any Figma state. */}
       {imageAvailable && (
         <div className="project-preview-frame relative overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <motion.div
-              className="absolute inset-0"
-              animate={
-                reducedMotion
-                  ? { scale: 1, filter: 'blur(0px)' }
-                  : {
-                      scale: showPreviewCopy ? 1.01 : 1,
-                      filter: showPreviewCopy && supportsHover ? 'blur(3px)' : 'blur(0px)',
-                    }
-              }
-              transition={transitionHover}
-            >
-              <Image
-                src={previewImage}
-                alt={`${project.title} project preview`}
-                fill
-                className="object-cover project-cover-image"
-                loading="lazy"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                onError={() => setImageError(true)}
-              />
-            </motion.div>
-          </div>
-
-          <motion.div
-            initial={false}
-            animate={
-              reducedMotion
-                ? { opacity: showPreviewCopy ? 1 : 0, y: 0 }
-                : {
-                    opacity: showPreviewCopy ? 1 : 0,
-                    y: showPreviewCopy ? 0 : 8,
-                  }
-            }
-            transition={transitionHover}
-            className="project-preview-overlay pointer-events-none absolute inset-0 z-10 flex items-end p-[var(--grid-unit)]"
-            aria-hidden="true"
-          >
-            <p className="project-preview-copy type-body-lg line-clamp-4 max-w-[28rem] sm:line-clamp-none">
-              {project.description}
-            </p>
-          </motion.div>
+          <Image
+            src={previewImage}
+            alt={`${project.title} project preview`}
+            fill
+            className="object-cover project-cover-image"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            onError={() => setImageError(true)}
+          />
         </div>
       )}
 
@@ -126,8 +90,6 @@ const ProjectCard = memo(function ProjectCard({ project, index }: { project: Pro
         ease: EASE_PRECISION,
       }}
       className="h-full overflow-visible"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       {hasValidLink && isExternalLink ? (
         <a
@@ -169,9 +131,12 @@ export function Works({ projects }: { projects: Project[] }) {
   const hasMore = visibleCount < projects.length;
 
   const panel = (
-    <div className="grid grid-cols-1 gap-[calc(var(--grid-unit)*3)] pt-[var(--frame-tab-offset)] lg:grid-cols-2">
+    // Figma 370:203: two fixed 576px (24U) card columns with a 72px (3U) gap,
+    // inset 48px (2U) from the section's left edge — not a proportional
+    // 11/24-span grid. Below lg it stays a plain single-column stack.
+    <div className="grid grid-cols-1 gap-y-[calc(var(--grid-unit)*3)] pt-[var(--frame-tab-clearance)] lg:ml-[calc(var(--grid-unit)*2)] lg:[grid-template-columns:repeat(2,calc(var(--grid-unit)*24))] lg:gap-x-[calc(var(--grid-unit)*3)]">
       {visibleProjects.length === 0 && (
-        <div className="flex min-h-[calc(var(--grid-unit)*16)] flex-col items-start justify-center gap-[var(--grid-unit)] border border-dashed border-[var(--figma-panel-border)] p-[calc(var(--grid-unit)*2)] lg:col-span-2">
+        <div className="flex min-h-[calc(var(--grid-unit)*16)] flex-col items-start justify-center gap-[var(--grid-unit)] border border-dashed border-[var(--figma-panel-border)] p-[calc(var(--grid-unit)*2)] lg:[grid-column:1/-1]">
           <span className="type-label">No projects yet</span>
           <p className="type-body-lg max-w-md text-secondary">
             New case studies are being prepared — check back soon.
@@ -186,7 +151,7 @@ export function Works({ projects }: { projects: Project[] }) {
       ))}
 
       {hasMore && (
-        <div className={cn('flex justify-center lg:col-span-2')}>
+        <div className="flex justify-center lg:[grid-column:1/-1]">
           <Button
             onClick={() =>
               setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, projects.length))
@@ -225,7 +190,6 @@ export function Works({ projects }: { projects: Project[] }) {
         <SectionStickyShell
           sectionId="works"
           title="01 - Selected works"
-          scrollable
           panelLabel="Selected works"
         >
           {panel}

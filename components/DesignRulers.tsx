@@ -408,9 +408,11 @@ export function DesignRulers() {
         parseFloat(getComputedStyle(root).getPropertyValue('--ruler-size')) ||
         WORKSPACE_GRID_LINE_SIZE;
       const bare = root.getAttribute('data-chrome') === 'bare';
-      /* With nav: --chrome-top includes horizontal ruler at lg+. Without nav: flush to top. */
+      const ribbonHeight =
+        parseFloat(getComputedStyle(root).getPropertyValue('--ribbon-height')) || 0;
+      /* With nav: --chrome-top includes ribbon + nav (+ ruler at lg+). Bare: ribbon + ruler. */
       const chromeTop = bare
-        ? measuredRulerSize
+        ? ribbonHeight + measuredRulerSize
         : parseFloat(getComputedStyle(root).getPropertyValue('--chrome-top')) || 0;
       setRulerSize(measuredRulerSize);
       setVerticalOrigin(snapToGrid(chromeTop));
@@ -446,8 +448,10 @@ export function DesignRulers() {
   const verticalCursorPosition = coords?.y ?? 0;
   const horizontalTop = hasNavChrome
     ? 'calc(var(--chrome-top) - var(--ruler-size))'
-    : 0;
-  const verticalTop = hasNavChrome ? 'var(--chrome-top)' : 'var(--ruler-size)';
+    : 'var(--ribbon-height)';
+  const verticalTop = hasNavChrome
+    ? 'var(--chrome-top)'
+    : 'calc(var(--ribbon-height) + var(--ruler-size))';
 
   return (
     <motion.div

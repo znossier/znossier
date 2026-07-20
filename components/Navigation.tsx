@@ -179,7 +179,7 @@ export function Navigation() {
   };
 
   const navShellClass = cn(
-    'editorial-nav-shell',
+    'editorial-nav-shell nav-chrome-shell',
     !scrolled && !mobileMenuOpen && 'editorial-nav-shell--clear-until-scroll'
   );
 
@@ -216,7 +216,7 @@ export function Navigation() {
         aria-hidden
       />
 
-      <nav ref={navRef} aria-label="Main navigation" className="fixed inset-x-0 top-0 z-50">
+      <nav ref={navRef} aria-label="Main navigation" className="fixed inset-x-0 top-[var(--ribbon-height)] z-50">
         <div className={navShellClass}>
           <div className="site-shell">
             <div className="nav-bar-row">
@@ -232,13 +232,13 @@ export function Navigation() {
                 <Image
                   src={FAVICON_SRC}
                   alt=""
-                  width={64}
-                  height={64}
+                  width={48}
+                  height={48}
                   className="h-12 w-12 shrink-0"
                   aria-hidden="true"
                   priority
                 />
-                <span className="nav-file-name hidden sm:inline">Zeina Nossier</span>
+                <span className="nav-file-name type-brand hidden sm:inline">Zeina Nossier</span>
               </a>
 
               <div className="nav-bar-links">
@@ -341,7 +341,7 @@ export function Navigation() {
                           }}
                           aria-current={isActive ? 'page' : undefined}
                           className={cn(
-                            'footer-link flex min-h-12 w-full items-center justify-between px-[var(--grid-unit)] py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                            'footer-link flex min-h-12 w-full items-center justify-between px-[var(--grid-unit)] focus:outline-none focus-visible:ring-2 focus-visible:ring-link focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                             isActive && 'nav-link-active'
                           )}
                         >
