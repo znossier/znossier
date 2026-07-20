@@ -15,6 +15,8 @@ interface ButtonProps {
   inspectable?: boolean;
   showSpacing?: boolean;
   'aria-label'?: string;
+  target?: string;
+  rel?: string;
 }
 
 const variantClasses = {
@@ -31,6 +33,8 @@ function ButtonInner({
   className,
   variant = 'primary',
   'aria-label': ariaLabel,
+  target,
+  rel,
 }: ButtonProps) {
   const classes = cn(
     // Figma Button 352:408: h-48, callers set on-grid width (Hero View Work = 120 / 5U).
@@ -48,7 +52,7 @@ function ButtonInner({
 
   if (href) {
     return (
-      <motion.a href={href} {...motionProps}>
+      <motion.a href={href} target={target} rel={rel} {...motionProps}>
         {children}
       </motion.a>
     );

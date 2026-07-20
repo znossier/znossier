@@ -24,9 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return (
       <ErrorBoundary>
         <BootLoader />
-        <WorkspaceGrid />
         <SmoothScroll>
-          <DesignRulers />
           <Cursor />
           <UnderConstructionScreen />
         </SmoothScroll>

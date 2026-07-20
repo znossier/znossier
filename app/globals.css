@@ -2501,91 +2501,29 @@ html:not([data-boot]) .hero-section {
 }
 
 /* ━━━ Under construction empty screen (production gate) ━━━ */
+/* Reuses .boot-loader workspace chrome for continuity after the boot sequence */
 .construction-screen {
-  background: transparent;
-  color: var(--text-primary);
-}
-
-.construction-screen-frame {
-  padding-top: var(--frame-tab-clearance);
-}
-
-.construction-screen-tab {
-  position: absolute;
-  top: var(--frame-tab-clearance);
-  left: 50%;
-  transform: translate(-50%, calc(-100% - 2px));
-  padding: 0.15rem 0.45rem;
-  border: 1px solid color-mix(in srgb, var(--utility-cyan) 45%, transparent);
-  background: color-mix(in srgb, var(--background) 88%, var(--utility-cyan) 12%);
-  font-family: var(--font-geist-mono), monospace;
-  font-size: 0.58rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--utility-cyan) 80%, var(--foreground) 20%);
-  white-space: nowrap;
-}
-
-.construction-screen-body {
   position: relative;
-  border: 1px solid color-mix(in srgb, var(--utility-cyan) 55%, transparent);
-  background: color-mix(in srgb, var(--background) 92%, var(--surface-elevated) 8%);
-  padding: calc(var(--grid-unit) * 3) calc(var(--grid-unit) * 2);
+  z-index: 1;
+  pointer-events: auto;
 }
 
-.construction-screen-handle {
-  position: absolute;
-  z-index: 2;
-  width: 7px;
-  height: 7px;
-  border: 1px solid var(--utility-cyan);
-  background: var(--background);
+.construction-screen-inner {
+  gap: calc(var(--grid-unit) * 1);
+  padding: calc(var(--grid-unit) * 2);
 }
 
-.construction-screen-handle--tl {
-  top: 0;
-  left: 0;
-  transform: translate(-50%, -50%);
+.construction-screen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: calc(var(--grid-unit) * 0.75);
 }
 
-.construction-screen-handle--tr {
-  top: 0;
-  right: 0;
-  transform: translate(50%, -50%);
-}
-
-.construction-screen-handle--bl {
-  bottom: 0;
-  left: 0;
-  transform: translate(-50%, 50%);
-}
-
-.construction-screen-handle--br {
-  bottom: 0;
-  right: 0;
-  transform: translate(50%, 50%);
-}
-
-.construction-screen-title {
-  margin: calc(var(--grid-unit) * 0.75) 0 0;
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
-  font-size: clamp(1.75rem, 5vw, 2.75rem);
-  font-weight: 700;
-  letter-spacing: -0.042em;
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
-
-.construction-screen-dim {
-  position: absolute;
-  top: calc(100% + 0.55rem);
-  left: 50%;
-  transform: translateX(-50%);
-  color: color-mix(in srgb, var(--utility-cyan) 88%, white 12%);
-  white-space: nowrap;
+.construction-screen-actions .type-button {
+  gap: 0.5rem;
 }
 
 /* Figma 372:281 header: flat rgba(0,0,0,0.6) + 8px blur + solid #363636 border — no gradient/glow */
@@ -4189,6 +4127,12 @@ body.boot-locked {
   .boot-loader-top-progress-fill {
     transition: none !important;
   }
+}
+
+/* Persistent construction workspace — same chrome as boot, but interactive */
+.boot-loader.construction-screen {
+  z-index: 1;
+  pointer-events: auto;
 }
 
 
